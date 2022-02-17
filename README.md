@@ -1,1 +1,1 @@
-# Deep-learning_Bayesian_MCMC
+# Bayesian-inference-using-earthquake-data
