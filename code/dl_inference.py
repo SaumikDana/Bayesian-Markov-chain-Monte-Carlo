@@ -29,12 +29,9 @@ def load_object(filename):
         print("Error during unpickling object (Possibly unsupported):", ex)
 
 
-def main(training_testing=False):
+def main():
 
     num_dc = 20
-    if training_testing:
-      num_dc = 1
-
     start_dc = 1.0; end_dc = 1000.0
     dc_ = np.logspace(math.log10(start_dc),math.log10(end_dc),num_dc)
     t_start = 0.0; t_end = 50.0; num_tsteps = 500
@@ -64,21 +61,11 @@ def main(training_testing=False):
 #       acc_appended_noise[start_:end_,0] = acc_noise[:,0]; acc_appended_noise[start_:end_,1] = acc_noise[:,1]
 #
 #       count_dc += 1
-#
-#       # defunct code!!!
-#       if training_testing: 
-#          t_train, y_train, t_test, y_test = generate_dataset.train_test_split(t_, acc_, num_dc, num_ = 2)
-#          num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_train, y_train, window, stride, num_features) 
-#          num_samples_test, Ttest, Ytest = generate_dataset.windowed_dataset(t_test, y_test, window, stride, num_features) 
-#          T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
-#          T_test, Y_test = generate_dataset.numpy_to_torch(Ttest, Ytest)
-#       # defunct code!!!
 #    
-#    if not training_testing:
-#       t_ = t_appended.reshape(-1,num_features)
-#       acc_ = acc_appended.reshape(-1,num_features)
-#       num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, acc_, window, stride, num_features) 
-#       T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
+#    t_ = t_appended.reshape(-1,num_features)
+#    acc_ = acc_appended.reshape(-1,num_features)
+#    num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, acc_, window, stride, num_features) 
+#    T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
 #    
 #    #----------------------------------------------------------------------------------------------------------------
 #    # LSTM encoder-decoder
@@ -120,11 +107,11 @@ def main(training_testing=False):
            nsamples = int(sys.argv[2])
            nburn = nsamples/2
            
-#           problem_type = 'full'
-#           MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-#           qparams1=MCMCobj1.sample() # run the Bayesian/MCMC algorithm
-#           std_MCMC1 = MCMCobj1.std2
-#           MCMCobj1.plot_dist(qparams1,'full',dc)
+           problem_type = 'full'
+           MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+           qparams1=MCMCobj1.sample() # run the Bayesian/MCMC algorithm
+           std_MCMC1 = MCMCobj1.std2
+           MCMCobj1.plot_dist(qparams1,'full',dc)
 
            problem_type = 'rom'
            MCMCobj2=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
@@ -139,4 +126,8 @@ def main(training_testing=False):
 
 if __name__ == '__main__':
 
-    main(False) # training_testing flag
+    main()
+
+
+
+
