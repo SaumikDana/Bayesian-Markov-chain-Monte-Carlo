@@ -1,1 +1,1 @@
-# Bayesian-inference-using-earthquake-data
+*Deep learning and Bayesian inference*
