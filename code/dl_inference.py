@@ -31,6 +31,8 @@ def load_object(filename):
 
 def main():
 
+    #----------------------------------------------------------------------------------------------------------------
+    # Prep data for training!!!
     num_dc = 20
     start_dc = 1.0; end_dc = 1000.0
     dc_ = np.logspace(math.log10(start_dc),math.log10(end_dc),num_dc)
@@ -52,8 +54,7 @@ def main():
 #       model.set_dc(dc)
 #       t, acc, acc_noise = model.evaluate(model.consts) # noisy data
 #
-#       t_ = t.reshape(-1,num_features)
-#       acc_ = acc.reshape(-1,num_features)
+#       t_ = t.reshape(-1,num_features); acc_ = acc.reshape(-1,num_features)
 #
 #       start_ = count_dc*num_tsteps; end_ = start_ + num_tsteps
 #       t_appended[start_:end_,0] = t[:,0]; t_appended[start_:end_,1] = dc
@@ -62,16 +63,16 @@ def main():
 #
 #       count_dc += 1
 #    
-#    t_ = t_appended.reshape(-1,num_features)
-#    acc_ = acc_appended.reshape(-1,num_features)
+#    t_ = t_appended.reshape(-1,num_features); acc_ = acc_appended.reshape(-1,num_features)
 #    num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, acc_, window, stride, num_features) 
 #    T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
 #    
 #    #----------------------------------------------------------------------------------------------------------------
-#    # LSTM encoder-decoder
+#    # LSTM encoder-decoder!!!
+#
 #    hidden_size = window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
-#    model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_size = T_train.shape[2], hidden_size = hidden_size, num_layers = num_layers)
 #    input_tensor = T_train
+#    model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_size = input_tensor.shape[2], hidden_size = hidden_size, num_layers = num_layers)
 #    loss = model_lstm.train_model(input_tensor, Y_train, n_epochs = n_epochs, target_len = window, batch_size = batch_size, training_prediction = 'mixed_teacher_forcing', teacher_forcing_ratio = 0.6, learning_rate = 0.01, dynamic_tf = False)
 #
 #    # save objects!!!
@@ -80,15 +81,13 @@ def main():
 #    # save objects!!!
 #
 #    acc_dl_train = plotting_time_series.plot_train_test_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_dc, dc_, num_tsteps)
-#    if training_testing:
-#       acc_dl_test = plotting_time_series.plot_train_test_results(model_lstm, Ttest, Ttest, Ytest, stride, window, 'Test', 'Prediction', num_samples_test, num_dc, dc_, num_tsteps)
 #
     #----------------------------------------------------------------------------------------------------------------
     # Bayesian comparison
     
     # load objects!!!
-    model_lstm = load_object("model_lstm.pickle") # save the blackbox for future use!!!
-    acc_appended_noise = load_object("acc_appended_noise.pickle") # save the blackbox for future use!!!
+    model_lstm = load_object("model_lstm.pickle")  # ROM
+    acc_appended_noise = load_object("acc_appended_noise.pickle") # noisy data
     # load objects!!!
 
     for ii in range(0,num_dc):
