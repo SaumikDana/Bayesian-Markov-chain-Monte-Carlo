@@ -15,7 +15,7 @@ import torch.nn.functional as F
 class lstm_encoder(nn.Module):
     ''' Encodes time-series sequence '''
 
-    def __init__(self, input_size, hidden_size, num_layers = 1):
+    def __init__(self, input_size, hidden_size, num_layers = 1, bidirectional=False):
         
         '''
         : param input_size:     the number of features in the input X
@@ -30,7 +30,7 @@ class lstm_encoder(nn.Module):
         self.num_layers = num_layers
 
         # define LSTM layer
-        self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers)
+        self.lstm = nn.GRU(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bidirectional=bidirectional)
 
     def forward(self, x_input): # called internally by pytorch!!!
         
@@ -40,7 +40,7 @@ class lstm_encoder(nn.Module):
         :                              hidden gives the hidden state and cell state for the last
         :                              element in the sequence 
         '''
-        lstm_out, self.hidden = self.lstm(x_input.view(x_input.shape[0], x_input.shape[1], self.input_size)) # 5,5,1
+        lstm_out, self.hidden = self.lstm(x_input.view(x_input.shape[0], x_input.shape[1], self.input_size)) 
         
         return lstm_out, self.hidden     
     
@@ -59,7 +59,7 @@ class lstm_encoder(nn.Module):
 class lstm_decoder(nn.Module):
     ''' Decodes hidden state output by encoder '''
     
-    def __init__(self, input_size, hidden_size, num_layers = 1):
+    def __init__(self, input_size, hidden_size, num_layers = 1, bidirectional=False):
 
         '''
         : param input_size:     the number of features in the input X
@@ -73,7 +73,7 @@ class lstm_decoder(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers)
+        self.lstm = nn.GRU(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers,bidirectional=bidirectional)
         self.linear = nn.Linear(hidden_size, input_size)           
 
     def forward(self, x_input, encoder_hidden_states): # called internally by pytorch!!!
@@ -94,7 +94,7 @@ class lstm_decoder(nn.Module):
 class lstm_seq2seq(nn.Module):
     ''' train LSTM encoder-decoder and make predictions '''
     
-    def __init__(self, input_size, hidden_size, num_layers):
+    def __init__(self, input_size, hidden_size, num_layers, bidirectional):
 
         '''
         : param input_size:     the number of expected features in the input X
@@ -108,8 +108,8 @@ class lstm_seq2seq(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        self.encoder = lstm_encoder(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers)
-        self.decoder = lstm_decoder(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers)
+        self.encoder = lstm_encoder(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bidirectional=bidirectional)
+        self.decoder = lstm_decoder(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bidirectional=bidirectional)
 
 
     def train_model(self, input_tensor, target_tensor, n_epochs, target_len, batch_size, training_prediction = 'recursive', teacher_forcing_ratio = 0.5, learning_rate = 0.01, dynamic_tf = False):
