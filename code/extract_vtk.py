@@ -3,6 +3,7 @@ import numpy as np
 import vtk
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d as a3
+import timeseries as ts
 
 class parse_vtk:
 
@@ -136,6 +137,40 @@ class parse_vtk:
 		
 	return figure
 
+   def get_surface_information(self, vector_name):
+	"""
+	Method to get surface information.
+ 
+	:param vector_name: the vector you want to process.
+		
+	:return: displacement components
+        :rtype: array
+	"""
+        reader = vtk.vtkDataSetReader()
+        reader.SetFileName(self.infile)
+        reader.Update()
+        data = reader.GetOutput()
+        
+        npoints = data.GetNumberOfPoints()
+        point = data.GetPoint(0)
+        d = data.GetPointData()
+        
+        array = d.GetArray(vector_name)
+        
+        u, v, w, x, y, z = np.zeros(npoints),np.zeros(npoints),np.zeros(npoints),np.zeros(npoints),np.zeros(npoints),np.zeros(npoints)
+        
+        for n in range(npoints):
+            x[n], y[n], z[n] = data.GetPoint(n)
+            u[n], v[n], w[n] = array.GetTuple(n)
+        
+        # Surface information at max y
+        u = u[np.where(y==max(y))[0]]
+        v = v[np.where(y==max(y))[0]]
+        w = w[np.where(y==max(y))[0]]
+
+        del x, y, z
+            
+        return u, v, w
 
 if __name__ == '__main__':
 
@@ -143,34 +178,5 @@ if __name__ == '__main__':
 
    parser = parse_vtk(filename)
    coords = parser.parse()
-   parser.plot()
- 
-#import numpy as np
-#import vtk
-#from vtk.util.numpy_support import vtk_to_numpy
-#
-#filename = "./vtk_plots/test_t0010.vtk"
-#reader = vtk.vtkDataSetReader()
-#reader.SetFileName(filename)
-#reader.ReadAllVectorsOn()
-#reader.ReadAllScalarsOn()
-#reader.Update()
-#data = reader.GetOutput()
-#
-#print('--- Mesh information ---')
-#
-#print('Number of cells is %s, Number of pieces is %s, Number of points is %s' % (data.GetNumberOfCells(), data.GetNumberOfPieces(), data.GetNumberOfPoints()))  
-#
-#print('--- Mesh information ---')
-#
-#d=data.GetPointData()
-#
-#array=d.GetArray('displacement')
-#
-#print(type(array))
-#
-#print('Number of scalars in file is %s' % reader.GetNumberOfScalarsInFile())
-#
-#print('Number of vectors in file is %s' % reader.GetNumberOfVectorsInFile())
-#
-#print(reader.GetVectorsNameInFile(0))
+   u, v, w = parser.get_surface_information("displacement")
+
