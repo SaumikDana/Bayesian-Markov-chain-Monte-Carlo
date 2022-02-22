@@ -1,4 +1,4 @@
-
+import os
 import numpy as np
 import vtk
 import matplotlib.pyplot as plt
@@ -164,9 +164,9 @@ class parse_vtk:
             u[n], v[n], w[n] = array.GetTuple(n)
         
         # Surface information at max y
-        u = u[np.where(y==max(y))[0]]
-        v = v[np.where(y==max(y))[0]]
-        w = w[np.where(y==max(y))[0]]
+        u = u[np.where((x==max(x)) & (y==max(y)))[0]]
+        v = v[np.where((x==max(x)) & (y==max(y)))[0]]
+        w = w[np.where((x==max(x)) & (y==max(y)))[0]]
 
         del x, y, z
             
@@ -174,9 +174,23 @@ class parse_vtk:
 
 if __name__ == '__main__':
 
-   filename = "./vtk_plots/test_t0010.vtk"
+   UX, T = [], []
+   # extract all files
+   directory = './vtk_plots'
+   count_ = 0
+   for file_name in sorted(os.listdir(directory)):
+       filename = os.path.join(directory, file_name)
+       if os.path.isfile(filename):
+           count_ += 1
+           parser = parse_vtk(filename)
+           coords = parser.parse()
+           u, v, w = parser.get_surface_information("displacement")
+           UX.append(u[0]); T.append(count_)
 
-   parser = parse_vtk(filename)
-   coords = parser.parse()
-   u, v, w = parser.get_surface_information("displacement")
-
+   plt.figure()
+   plt.plot(T, UX, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = 'Target')
+   plt.xlabel('Time stamp')
+   plt.ylabel('DispX $(m)$')
+   plt.legend(frameon=False)
+   plt.tight_layout()
+   plt.show()
