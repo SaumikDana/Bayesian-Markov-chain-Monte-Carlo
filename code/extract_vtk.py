@@ -5,6 +5,25 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d as a3
 import timeseries as ts
 
+def plot(T, UX, UY, linewidth = 1.0, markersize = 4.0):
+
+   plt.figure()
+   plt.plot(T, UX, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UX Target')
+   plt.xlabel('Time stamp')
+   plt.ylabel('DispX $(m)$')
+   plt.legend(frameon=False)
+   plt.tight_layout()
+
+   plt.figure()
+   plt.plot(T, UY, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UY Target')
+   plt.xlabel('Time stamp')
+   plt.ylabel('DispY $(m)$')
+   plt.legend(frameon=False)
+   plt.tight_layout()
+
+   plt.show()
+   plt.close('all')
+
 class parse_vtk:
 
    def __init__(self,filename):
@@ -174,8 +193,7 @@ class parse_vtk:
 
 if __name__ == '__main__':
 
-   UX, T = [], []
-   # extract all files
+   UX, UY, T = [], [], []
    directory = './vtk_plots'
    count_ = 0
    for file_name in sorted(os.listdir(directory)):
@@ -183,14 +201,7 @@ if __name__ == '__main__':
        if os.path.isfile(filename):
            count_ += 1
            parser = parse_vtk(filename)
-           coords = parser.parse()
            u, v, w = parser.get_surface_information("displacement")
-           UX.append(u[0]); T.append(count_)
+           UX.append(u[0]); UY.append(v[0]); T.append(count_)
 
-   plt.figure()
-   plt.plot(T, UX, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = 'Target')
-   plt.xlabel('Time stamp')
-   plt.ylabel('DispX $(m)$')
-   plt.legend(frameon=False)
-   plt.tight_layout()
-   plt.show()
+   plot(T,UX,UY)
