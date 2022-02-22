@@ -38,15 +38,13 @@ def main():
     dc_ = np.logspace(math.log10(start_dc),math.log10(end_dc),num_dc)
     t_start = 0.0; t_end = 50.0; num_tsteps = 500
     window = 25; stride = 25 # make sure num_tsteps is exact multiple of window so solutions from successive values of dc do not interfere!!!
-    model = RateStateModel(t_start, t_end, num_tsteps, window) # forward model
+    model = RateStateModel(t_start = 0., t_end = 50., num_tsteps = 500, window = 25) # forward model
 
     #----------------------------------------------------------------------------------------------------------------
     # Prep data for training!!!
 
     num_features = 2
-    t_appended = np.zeros((num_dc*num_tsteps,num_features))
-    acc_appended = np.zeros((num_dc*num_tsteps,num_features))
-    acc_appended_noise = np.zeros((num_dc*num_tsteps,num_features))
+    t_appended, acc_appended, acc_appended_noise = np.zeros((num_dc*num_tsteps,num_features)), np.zeros((num_dc*num_tsteps,num_features)), np.zeros((num_dc*num_tsteps,num_features))
     
     count_dc = 0
     for dc in dc_:
@@ -72,7 +70,6 @@ def main():
 
     hidden_size = window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
     input_tensor = T_train
-    # no implementation yet on bidirectional = True!!!
     model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_size = input_tensor.shape[2], hidden_size = hidden_size, num_layers = num_layers, bidirectional = False)
     loss = model_lstm.train_model(input_tensor, Y_train, n_epochs = n_epochs, target_len = window, batch_size = batch_size, training_prediction = 'mixed_teacher_forcing', teacher_forcing_ratio = 0.6, learning_rate = 0.01, dynamic_tf = False)
     acc_dl_train = plotting_time_series.plot_train_test_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_dc, dc_, num_tsteps)
