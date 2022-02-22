@@ -18,7 +18,7 @@ y = coord[:,1]
 z = coord[:,2]
 temperature = numpy_support.vtk_to_numpy(cell2point.GetOutput().GetPointData().GetAbstractArray(1))
 
-plt.tricontourf(x,y,temperature,levels=15,cmap="jet")
+plt.tricontourf(x,y,temperature,15,cmap="jet")
 plt.gca().set_aspect("equal")
 #plt.axis('equal')
 plt.colorbar()
