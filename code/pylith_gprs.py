@@ -7,15 +7,15 @@ class pylith_gprs:
    '''
    def __init__(self):
 
-       self.num_q = 13
+       self.num_q = 1
        start_q = 100.0
        end_q = 400.0
        self.q_ = np.linspace(start_q,end_q,self.num_q)
 
-       self.num_tsteps = 19
+       self.num_tsteps = 112
 
-       self.window = 1 # make sure num_tsteps is exact multiple of window!!!
-       self.stride = 1
+       self.window = 28 # make sure num_tsteps is exact multiple of window!!!
+       self.stride = self.window
        self.num_features = 2
 
    def time_series(self):
