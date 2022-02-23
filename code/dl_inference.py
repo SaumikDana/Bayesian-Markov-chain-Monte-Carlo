@@ -75,6 +75,19 @@ def main(problem,bayesian):
        # plot!!!
        plotting_time_series.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_q, q_, num_tsteps)
 
+       # save objects!!!
+       my_file = Path(os.getcwd()+'/pylith_gprs_model_lstm.pickle')
+       if not my_file.is_file():
+          save_object(model_lstm,"pylith_gprs_model_lstm.pickle") 
+       my_file = Path(os.getcwd()+'/ux_appended.pickle')
+       if not my_file.is_file():
+          save_object(ux_appended,"ux_appended.pickle")
+
+       # bayesian!!!
+       if bayesian:
+          file1 = 'pylith_gprs_model_lstm.pickle'
+          file2 = 'ux_appended.pickle'
+          rsf_inference(file1,file2,problem_.num_q,problem_.num_tsteps,problem_.q_)      
 
     # Close it out!!!
     plt.show()

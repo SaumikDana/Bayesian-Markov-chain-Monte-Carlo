@@ -36,3 +36,29 @@ def inference(file1,file2,num_dc,num_tsteps,dc_,model):
            MCMCobj2.plot_dist(qparams2,'reduced order',dc)
 
 
+def rsf_inference(file1,file2,num_q,num_tsteps,q_):
+    # load objects!!!
+    model_lstm = load_object(file1)  # ROM
+    ux_appended = load_object(file2) # noisy data
+
+    for ii in range(0,num_q):
+
+        ux = ux_appended[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
+        ux = ux.reshape(1, num_tsteps)
+    
+        q = q_[ii]
+        print('--- q is %s ---' % q)
+
+        qstart={"Dc":500} # initial guess
+        qpriors={"Dc":["Uniform",0.1, 1000]}
+
+        nsamples = int(sys.argv[2])
+        nburn = nsamples/2
+        
+        problem_type = 'rom'
+        MCMCobj2=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+        qparams2=MCMCobj2.sample() # run the Bayesian/MCMC algorithm
+        std_MCMC2 = MCMCobj2.std2
+        MCMCobj2.plot_dist(qparams2,'reduced order',dc)
+
+
