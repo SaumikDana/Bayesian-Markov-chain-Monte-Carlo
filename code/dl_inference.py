@@ -36,6 +36,17 @@ def main(problem,bayesian):
        problem_ = pylith_gprs()
        t_appended, ux_appended, uy_appended = problem_.time_series() 
     
+       num_features = problem_.num_features
+       window = problem_.window
+       stride = problem_.stride
+       num_q = problem_.num_q
+       num_tsteps = problem_.num_tsteps
+       q_ = problem_.q_
+   
+       t_ = t_appended.reshape(-1,num_features); ux_ = ux_appended.reshape(-1,num_features)
+       num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, ux_, window, stride, num_features) 
+       T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
+    
     # LSTM encoder-decoder!!!
     hidden_size = window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
     input_tensor = T_train
