@@ -1,5 +1,6 @@
 from parse_vtk import parse_vtk
 import numpy as np
+import os
 
 class pylith_gprs:
    '''
@@ -13,6 +14,7 @@ class pylith_gprs:
        self.q_ = np.linspace(start_q,end_q,self.num_q)
 
        self.num_tsteps = 112
+       self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
 
        self.window = 28 # make sure num_tsteps is exact multiple of window!!!
        self.stride = self.window
@@ -22,9 +24,9 @@ class pylith_gprs:
 
        num_q = self.num_q
        q_ = self.q_
+       t_ = self.t_
        num_tsteps = self.num_tsteps
        num_features = self.num_features
-       model = self.model
        num_features = self.num_features
 
        t_appended =  np.zeros((num_q*num_tsteps,num_features))
@@ -34,7 +36,7 @@ class pylith_gprs:
        ux, uy = np.zeros((num_tsteps,2)), np.zeros((num_tsteps,2))
        count_q = 0
        for rate in q_:
-          directory = './vtk_plots' + '/%s' % rate
+          directory = './vtk_plots' + '/%s' % int(rate)
           count_ = 0
           for file_name in sorted(os.listdir(directory)):
               filename = os.path.join(directory, file_name)
@@ -49,7 +51,7 @@ class pylith_gprs:
           uy_ = uy.reshape(-1,num_features)
           start_ = count_q*num_tsteps
           end_ = start_ + num_tsteps
-          t_appended[start_:end_,0] = q_[:,0]
+          t_appended[start_:end_,0] = t_[:]
           t_appended[start_:end_,1] = rate
           ux_appended[start_:end_,0] = ux_[:,0]
           ux_appended[start_:end_,1] = ux_[:,1]

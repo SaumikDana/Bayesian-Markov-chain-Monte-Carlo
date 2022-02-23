@@ -47,12 +47,12 @@ def main(problem,bayesian):
        num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, ux_, window, stride, num_features) 
        T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
     
-    # LSTM encoder-decoder!!!
-    hidden_size = window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
-    input_tensor = T_train
-    model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_size = input_tensor.shape[2], hidden_size = hidden_size, num_layers = num_layers, bidirectional = False)
-    loss = model_lstm.train_model(input_tensor, Y_train, n_epochs = n_epochs, target_len = window, batch_size = batch_size, training_prediction = 'mixed_teacher_forcing', teacher_forcing_ratio = 0.6, learning_rate = 0.01, dynamic_tf = False)
-
+#    # LSTM encoder-decoder!!!
+#    hidden_size = window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
+#    input_tensor = T_train
+#    model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_size = input_tensor.shape[2], hidden_size = hidden_size, num_layers = num_layers, bidirectional = False)
+#    loss = model_lstm.train_model(input_tensor, Y_train, n_epochs = n_epochs, target_len = window, batch_size = batch_size, training_prediction = 'mixed_teacher_forcing', teacher_forcing_ratio = 0.6, learning_rate = 0.01, dynamic_tf = False)
+#
     if problem == 'rsf':
        # plot!!!
        plotting_time_series.plot_train_test_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_dc, dc_, num_tsteps)
@@ -78,6 +78,7 @@ def main(problem,bayesian):
 if __name__ == '__main__':
 
     problem = 'rsf'
+    problem = 'pylith_gprs'
     bayesian = False
     main(problem,bayesian)
 
