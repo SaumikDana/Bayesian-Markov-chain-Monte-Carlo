@@ -29,11 +29,9 @@ class RateStateModel:
         self.plotfigs=plotfigs
         self.plotname=plotname
 
-
     def set_dc(self,dc):
 
         self.consts["Dc"] = dc
-
 
     def friction(self,t,y):
 
