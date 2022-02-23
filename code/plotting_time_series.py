@@ -79,3 +79,49 @@ def rom_evaluate(self, dc):
         acc[start:end,0] = Y_train_pred[:, 0]
     
     return t.T, acc.T
+
+
+def plot_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_q, q_, num_tsteps):
+  '''
+  plot examples of the lstm encoder-decoder evaluated on the training/test data
+  
+  '''
+
+  Y_return = np.zeros([int(num_samples*window)])     
+  count_q = 0
+  for q in q_:
+
+      X = np.zeros([int(num_samples*window/num_q)]) 
+      Y = np.zeros([int(num_samples*window/num_q)])     
+      T = np.zeros([int(num_samples*window/num_q)])     
+
+      num_samples_per_q = int(num_samples/num_q) 
+
+      for ii in range(num_samples_per_q):
+
+          start = ii*stride
+          end = start + window
+
+          train_plt = X_[:, count_q*num_samples_per_q+ii, :]
+          Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
+
+          X[start:end] = Y_[:, count_q*num_samples_per_q+ii, 0]
+          Y[start:end] = Y_train_pred[:, 0]
+          T[start:end] = T_[:, count_q*num_samples_per_q+ii, 0]
+          Y_return[count_q*num_tsteps+start:count_q*num_tsteps+end] = Y_train_pred[:, 0]
+
+      plt.figure()
+      plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
+      plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
+      plt.xlabel('Time stamp')
+      plt.ylabel('Disp X $(m)$')
+      plt.legend(frameon=False)
+      plt.suptitle('%s data set for q=%s $\mu m$' % (dataset_type,q), x = 0.445, y = 1.)
+      plt.tight_layout()
+      plt.savefig('plots/%s_%s.png' % (q,dataset_type))
+
+      count_q += 1
+
+      del X,Y,T
+
+
