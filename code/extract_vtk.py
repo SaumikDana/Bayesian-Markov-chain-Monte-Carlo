@@ -3,23 +3,28 @@ import numpy as np
 import vtk
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d as a3
-import timeseries as ts
 
-def plot(T, UX, UY, linewidth = 1.0, markersize = 4.0):
+def plot(T, UX, UY, linewidth = 1.0, markersize = 4.0, rate = 100):
+
+   plt.rcParams.update({'font.size': 14})
 
    plt.figure()
-   plt.plot(T, UX, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UX Target')
+   plt.plot(T, UX, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UX Target Max X')
    plt.xlabel('Time stamp')
    plt.ylabel('DispX $(m)$')
+   plt.title('Injection rate %s MSCF/day' % rate)
    plt.legend(frameon=False)
    plt.tight_layout()
+   plt.savefig('plots/ux_%s.png' % rate)
 
    plt.figure()
-   plt.plot(T, UY, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UY Target')
+   plt.plot(T, UY, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UY Target Min X')
    plt.xlabel('Time stamp')
    plt.ylabel('DispY $(m)$')
+   plt.title('Injection rate %s MSCF/day' % rate)
    plt.legend(frameon=False)
    plt.tight_layout()
+   plt.savefig('plots/uy_%s.png' % rate)
 
    plt.show()
    plt.close('all')
@@ -184,24 +189,23 @@ class parse_vtk:
         
         # Surface information at max y
         u = u[np.where((x==max(x)) & (y==max(y)))[0]]
-        v = v[np.where((x==max(x)) & (y==max(y)))[0]]
-        w = w[np.where((x==max(x)) & (y==max(y)))[0]]
+        v = v[np.where((x==min(x)) & (y==max(y)))[0]]
 
         del x, y, z
             
-        return u, v, w
+        return u, v
 
 if __name__ == '__main__':
 
    UX, UY, T = [], [], []
-   directory = './vtk_plots'
+   rate = 100
+   directory = './vtk_plots' + '/%s' % rate
    count_ = 0
    for file_name in sorted(os.listdir(directory)):
        filename = os.path.join(directory, file_name)
        if os.path.isfile(filename):
            count_ += 1
            parser = parse_vtk(filename)
-           u, v, w = parser.get_surface_information("displacement")
+           u, v = parser.get_surface_information("displacement")
            UX.append(u[0]); UY.append(v[0]); T.append(count_)
-
-   plot(T,UX,UY)
+   plot(T,UX,UY,rate=rate)
