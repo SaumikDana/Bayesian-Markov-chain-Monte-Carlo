@@ -1,4 +1,5 @@
 from rsf import rsf
+from pylith_gprs import pylith_gprs
 import numpy as np
 from MCMC import MCMC
 import sys
@@ -31,28 +32,35 @@ def load_object(filename):
 
 def main(problem):
 
+    # rsf problem!!!
     if problem == 'rsf':
        problem_ = rsf()
        t_appended, acc_appended, acc_appended_noise = problem_.time_series() 
     
-    num_features = problem_.num_features
-    window = problem_.window
-    stride = problem_.stride
-    num_dc = problem_.num_dc
-    num_tsteps = problem_.num_tsteps
-    dc_ = problem_.dc_
+       num_features = problem_.num_features
+       window = problem_.window
+       stride = problem_.stride
+       num_dc = problem_.num_dc
+       num_tsteps = problem_.num_tsteps
+       dc_ = problem_.dc_
+   
+       t_ = t_appended.reshape(-1,num_features); acc_ = acc_appended.reshape(-1,num_features)
+       num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, acc_, window, stride, num_features) 
+       T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
 
-    t_ = t_appended.reshape(-1,num_features); acc_ = acc_appended.reshape(-1,num_features)
-    num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, acc_, window, stride, num_features) 
-    T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
+    elif problem == 'pylith_gprs':
+       problem_ = pylith_gprs()
+       t_appended, ux_appended, uy_appended = problem_.time_series() 
     
-    #----------------------------------------------------------------------------------------------------------------
     # LSTM encoder-decoder!!!
     hidden_size = window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
     input_tensor = T_train
     model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_size = input_tensor.shape[2], hidden_size = hidden_size, num_layers = num_layers, bidirectional = False)
     loss = model_lstm.train_model(input_tensor, Y_train, n_epochs = n_epochs, target_len = window, batch_size = batch_size, training_prediction = 'mixed_teacher_forcing', teacher_forcing_ratio = 0.6, learning_rate = 0.01, dynamic_tf = False)
-    plotting_time_series.plot_train_test_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_dc, dc_, num_tsteps)
+
+    # plot!!!
+    if problem == 'rsf':
+       plotting_time_series.plot_train_test_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_dc, dc_, num_tsteps)
 
 #    #----------------------------------------------------------------------------------------------------------------
 #    # save objects!!!
