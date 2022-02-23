@@ -46,8 +46,6 @@ def plot_train_test_results(lstm_model, T_, X_, Y_, stride, window, dataset_type
       count_dc += 1
 
       del X,Y,T
-      
-  return Y_return
 
 
 def rom_evaluate(self, dc):

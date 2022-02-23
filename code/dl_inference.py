@@ -1,14 +1,14 @@
-from RateStateModel import RateStateModel
+from rsf import rsf
 import numpy as np
 from MCMC import MCMC
 import sys
-import time
 import matplotlib.pyplot as plt
-import math
+
 
 import generate_dataset
 import lstm_encoder_decoder
 import plotting_time_series 
+
 
 import pickle
 
@@ -29,50 +29,30 @@ def load_object(filename):
         print("Error during unpickling object (Possibly unsupported):", ex)
 
 
-def main():
+def main(problem):
 
-    #----------------------------------------------------------------------------------------------------------------
-    # Prep data for training!!!
-    num_dc = 2
-    start_dc = 1.0; end_dc = 1000.0
-    dc_ = np.logspace(math.log10(start_dc),math.log10(end_dc),num_dc)
-    t_start = 0.0; t_end = 50.0; num_tsteps = 500
-    window = 25; stride = 25 # make sure num_tsteps is exact multiple of window so solutions from successive values of dc do not interfere!!!
-    model = RateStateModel(t_start = 0., t_end = 50., num_tsteps = 500, window = 25) # forward model
-
-    #----------------------------------------------------------------------------------------------------------------
-    # Prep data for training!!!
-
-    num_features = 2
-    t_appended, acc_appended, acc_appended_noise = np.zeros((num_dc*num_tsteps,num_features)), np.zeros((num_dc*num_tsteps,num_features)), np.zeros((num_dc*num_tsteps,num_features))
+    if problem == 'rsf':
+       problem_ = rsf()
+       t_appended, acc_appended, acc_appended_noise = problem_.time_series() 
     
-    count_dc = 0
-    for dc in dc_:
+    num_features = problem_.num_features
+    window = problem_.window
+    stride = problem_.stride
+    num_dc = problem_.num_dc
+    num_tsteps = problem_.num_tsteps
+    dc_ = problem_.dc_
 
-       model.set_dc(dc)
-       t, acc, acc_noise = model.evaluate(model.consts) # noisy data
-
-       t_ = t.reshape(-1,num_features); acc_ = acc.reshape(-1,num_features)
-
-       start_ = count_dc*num_tsteps; end_ = start_ + num_tsteps
-       t_appended[start_:end_,0] = t[:,0]; t_appended[start_:end_,1] = dc
-       acc_appended[start_:end_,0] = acc[:,0]; acc_appended[start_:end_,1] = acc[:,1]
-       acc_appended_noise[start_:end_,0] = acc_noise[:,0]; acc_appended_noise[start_:end_,1] = acc_noise[:,1]
-
-       count_dc += 1
-    
     t_ = t_appended.reshape(-1,num_features); acc_ = acc_appended.reshape(-1,num_features)
     num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, acc_, window, stride, num_features) 
     T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
     
     #----------------------------------------------------------------------------------------------------------------
     # LSTM encoder-decoder!!!
-
     hidden_size = window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
     input_tensor = T_train
     model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_size = input_tensor.shape[2], hidden_size = hidden_size, num_layers = num_layers, bidirectional = False)
     loss = model_lstm.train_model(input_tensor, Y_train, n_epochs = n_epochs, target_len = window, batch_size = batch_size, training_prediction = 'mixed_teacher_forcing', teacher_forcing_ratio = 0.6, learning_rate = 0.01, dynamic_tf = False)
-    acc_dl_train = plotting_time_series.plot_train_test_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_dc, dc_, num_tsteps)
+    plotting_time_series.plot_train_test_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_dc, dc_, num_tsteps)
 
 #    #----------------------------------------------------------------------------------------------------------------
 #    # save objects!!!
@@ -123,7 +103,8 @@ def main():
 
 if __name__ == '__main__':
 
-    main()
+    problem = 'rsf'
+    main(problem)
 
 
 
