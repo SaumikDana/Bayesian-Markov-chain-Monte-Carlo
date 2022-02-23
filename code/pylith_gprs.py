@@ -8,7 +8,7 @@ class pylith_gprs:
    '''
    def __init__(self):
 
-       self.num_q = 1
+       self.num_q = 7
        start_q = 100.0
        end_q = 400.0
        self.q_ = np.linspace(start_q,end_q,self.num_q)
