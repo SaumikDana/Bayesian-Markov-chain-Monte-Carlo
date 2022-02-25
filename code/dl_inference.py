@@ -23,8 +23,9 @@ def main(problem,rom,bayesian):
 
        # save objects!!!
        my_file = Path(os.getcwd()+'/acc_appended_noise.pickle')
-       if not my_file.is_file():
-          save_object(acc_appended_noise,"acc_appended_noise.pickle")
+       save_object(acc_appended_noise,"acc_appended_noise.pickle")
+#       if not my_file.is_file():
+#          save_object(acc_appended_noise,"acc_appended_noise.pickle")
     
        # LSTM encoder-decoder!!!
        if rom:

@@ -180,7 +180,7 @@ class MCMC:
         ax[1].plot(kde.pdf(x), x, 'b-')
         max_val = x[kde.pdf(x).argmax()]
         ax[1].plot(kde.pdf(x)[kde.pdf(x).argmax()],max_val, 'ro')
-        ax[1].annotate(str(round(max_val,2)),xy=(1.05*kde.pdf(x)[kde.pdf(x).argmax()],max_val),size=14)
+        ax[1].annotate(str(round(max_val,2)),xy=(0.75*kde.pdf(x)[kde.pdf(x).argmax()],max_val),size=14)
         ax[1].fill_betweenx(x, kde.pdf(x), np.zeros(x.shape), alpha=0.3)
         ax[1].set_xlim(0, None)
         ax[0].set_ylabel('$d_c$', fontsize=14)
@@ -190,4 +190,4 @@ class MCMC:
         ax[1].get_yaxis().set_visible(False)
         ax[1].get_xaxis().set_visible(True)
         ax[1].get_xaxis().set_ticks([])
-        fig.savefig('./plots/%s_%s_%s_.png' % (plot_title,dc,sys.argv[2]))
+        fig.savefig('./plots/burn_%s_%s_%s_.png' % (plot_title,dc,sys.argv[2]))

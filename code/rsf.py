@@ -9,7 +9,7 @@ class rsf:
    def __init__(self):
 
        self.num_dc = 1
-       start_dc = 1.0
+       start_dc = 1000.0
        end_dc = 1000.0
        self.dc_ = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_dc)
 

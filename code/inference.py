@@ -21,8 +21,8 @@ def rsf_inference_no_rom(file1,file2,num_dc,num_tsteps,dc_,model):
         qpriors={"Dc":["Uniform",0.1, 1000]}
 
         nsamples = int(sys.argv[2])
-        nburn = 0
-#        nburn = nsamples/2
+#        nburn = 0
+        nburn = nsamples/2
         
         problem_type = 'full'
         MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
