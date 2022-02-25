@@ -3,7 +3,7 @@ import numpy as np
 from scipy import integrate
 import matplotlib.pyplot as plt
 from math import exp,log,pi,sin,cos
-import torch
+#import torch
 
 class RateStateModel:
     """Class for rate and state model"""

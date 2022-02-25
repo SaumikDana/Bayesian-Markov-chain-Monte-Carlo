@@ -6,6 +6,7 @@ import sys
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 
+
 class MCMC:
     """Class for MCMC sampling"""
 
@@ -159,11 +160,19 @@ class MCMC:
 
     def plot_dist(self, qparams, plot_title, dc):
 
+#        params = {'legend.fontsize': 'large',
+#                 'axes.labelsize': 'large',
+#                 'axes.titlesize':'large',
+#                 'xtick.labelsize':'large',
+#                 'ytick.labelsize':'large'}
+#        plt.rcParams.update(params)
+
         n_rows = 1
         n_columns = 2
         gridspec = {'width_ratios': [0.7, 0.15], 'wspace': 0.15}
         fig, ax = plt.subplots(n_rows, n_columns, gridspec_kw=gridspec)
-        fig.suptitle('$d_c=%s\,\mu m$ for %s model' % (dc,plot_title))
+#        fig.suptitle('$d_c=%s\,\mu m$ for %s model' % (dc,plot_title), fontsize=14)
+        fig.suptitle('$d_c=%s\,\mu m$' % dc, fontsize=14)
         ax[0].plot(qparams[0,:], 'b-', linewidth=1.0)
         ylims = ax[0].get_ylim()
         x = np.linspace(ylims[0], ylims[1], 1000)
@@ -174,7 +183,7 @@ class MCMC:
         ax[1].annotate(str(round(max_val,2)),xy=(1.05*kde.pdf(x)[kde.pdf(x).argmax()],max_val),size=14)
         ax[1].fill_betweenx(x, kde.pdf(x), np.zeros(x.shape), alpha=0.3)
         ax[1].set_xlim(0, None)
-        ax[0].set_ylabel('$d_c$')
+        ax[0].set_ylabel('$d_c$', fontsize=14)
         ax[0].set_xlim(0, qparams.shape[1]) 
         ax[0].set_xlabel('Sample number')
         ax[1].set_xlabel('Prob. density')
