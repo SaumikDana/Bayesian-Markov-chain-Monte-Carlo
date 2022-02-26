@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 
-def plot_train_test_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
+def plot_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
   '''
   plot examples of the lstm encoder-decoder evaluated on the training/test data
   
@@ -81,7 +81,7 @@ def rom_evaluate(self, dc):
     return t.T, acc.T
 
 
-def plot_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, q_, num_tsteps):
+def plot_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
   '''
   plot examples of the lstm encoder-decoder evaluated on the training/test data
   
@@ -89,7 +89,7 @@ def plot_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective
 
   Y_return = np.zeros([int(num_samples*window)])     
   count_q = 0
-  for q in q_:
+  for q in p_:
 
       X = np.zeros([int(num_samples*window/num_p)]) 
       Y = np.zeros([int(num_samples*window/num_p)])     
@@ -116,7 +116,7 @@ def plot_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective
       plt.xlabel('Time stamp')
       plt.ylabel('Disp X $(m)$')
       plt.legend(frameon=False)
-      plt.suptitle('%s data set for q=%s $\mu m$' % (dataset_type,q), x = 0.445, y = 1.)
+      plt.suptitle('%s data set for q=%s MSCF/day' % (dataset_type,q), x = 0.445, y = 1.)
       plt.tight_layout()
       plt.savefig('plots/%s_%s.png' % (q,dataset_type))
 

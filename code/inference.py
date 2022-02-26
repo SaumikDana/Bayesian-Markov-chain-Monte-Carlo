@@ -65,7 +65,7 @@ def rsf_inference(file1,file2,num_p,num_tsteps,p_,model):
            MCMCobj2.plot_dist(qparams2,'reduced order',dc)
 
 
-def pylith_gprs_inference(file1,file2,num_p,num_tsteps,q_):
+def pylith_gprs_inference(file1,file2,num_p,num_tsteps,p_):
     # load objects!!!
     model_lstm = load_object(file1)  # ROM
     ux_appended = load_object(file2) # noisy data
@@ -75,7 +75,7 @@ def pylith_gprs_inference(file1,file2,num_p,num_tsteps,q_):
         ux = ux_appended[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
         ux = ux.reshape(1, num_tsteps)
     
-        q = q_[ii]
+        q = p_[ii]
         print('--- q is %s ---' % q)
 
         qstart={"Dc":100} # initial guess

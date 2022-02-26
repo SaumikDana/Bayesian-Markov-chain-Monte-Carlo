@@ -73,6 +73,7 @@ class MCMC:
         self.sp=2.38**2/self.qstart_vect.shape[0]
         self.n0 = 0.001;
 
+
     def sample(self):
         """
         Function for sampling using adaptive Metropolis algorithm
@@ -125,6 +126,7 @@ class MCMC:
         self.std2=np.asarray(self.std2)[self.nburn:]            
         return qparams[:,self.nburn:]
 
+
     def acceptreject(self,q_new,SSqprev,std2):
    
         # self.qstart_limits is 1 and 1000
@@ -139,6 +141,7 @@ class MCMC:
             return accept,SSqnew
         else:
             return accept,SSqprev
+
             
     def SSqcalc(self,q_new):
 
@@ -157,6 +160,7 @@ class MCMC:
         acc = acc.reshape(1,acc.shape[0])
         SSq=np.sum((acc-self.data)**2,axis=1) # squared error
         return SSq
+
 
     def plot_dist(self, qparams, plot_title, dc):
 
