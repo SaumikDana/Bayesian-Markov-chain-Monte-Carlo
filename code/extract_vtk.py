@@ -4,30 +4,52 @@ import vtk
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d as a3
 
-def plot(T, UX, UY, linewidth = 1.0, markersize = 4.0, rate = 100):
+def plot(T, U, linewidth = 1.0, markersize = 4.0, rate = 100):
 
    plt.rcParams.update({'font.size': 14})
 
-   plt.figure()
-   plt.plot(T, UX, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UX Target Max X')
-   plt.xlabel('Time stamp')
-   plt.ylabel('DispX $(m)$')
-   plt.title('Injection rate %s MSCF/day' % rate)
-   plt.legend(frameon=False)
-   plt.tight_layout()
-   plt.savefig('plots/ux_%s.png' % rate)
+#   plt.figure()
+#   plt.plot(T, UX, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UX Target Max X')
+#   plt.xlabel('Time stamp')
+#   plt.ylabel('DispX $(m)$')
+#   plt.title('Injection rate %s MSCF/day' % rate)
+#   plt.legend(frameon=False)
+#   plt.tight_layout()
+#   plt.savefig('plots/ux_%s.png' % rate)
+#
+#   plt.figure()
+#   plt.plot(T, UY, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UY Target Min X')
+#   plt.xlabel('Time stamp')
+#   plt.ylabel('DispY $(m)$')
+#   plt.title('Injection rate %s MSCF/day' % rate)
+#   plt.legend(frameon=False)
+#   plt.tight_layout()
+#   plt.savefig('plots/uy_%s.png' % rate)
 
    plt.figure()
-   plt.plot(T, UY, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UY Target Min X')
+   plt.plot(T, U, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'U Target')
    plt.xlabel('Time stamp')
-   plt.ylabel('DispY $(m)$')
+   plt.ylabel('Disp $(m)$')
    plt.title('Injection rate %s MSCF/day' % rate)
-   plt.legend(frameon=False)
+   plt.legend(frameon=False,loc='best')
    plt.tight_layout()
-   plt.savefig('plots/uy_%s.png' % rate)
+   plt.savefig('plots/u_%s.png' % rate)
+
+   U = np.asarray(U).reshape(len(U),-1); T = np.asarray(T).reshape(len(T),-1)
+   U_noise = U + 1.0*np.abs(U)*np.random.randn(U.shape[0],U.shape[1]) #synthetic data
+
+   plt.figure()
+   plt.plot(T, U_noise, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'Noisy data')
+   plt.xlabel('Time stamp')
+   plt.ylabel('Disp $(m)$')
+   plt.title('Injection rate %s MSCF/day' % rate)
+   plt.legend(frameon=False,loc='best')
+   plt.tight_layout()
+   plt.savefig('plots/noisy_u_%s.png' % rate)
 
    plt.show()
    plt.close('all')
+
 
 class parse_vtk:
 
@@ -187,17 +209,18 @@ class parse_vtk:
             x[n], y[n], z[n] = data.GetPoint(n)
             u[n], v[n], w[n] = array.GetTuple(n)
         
-        # Surface information at max y
+        # Surface information at max x and max y
         u = u[np.where((x==max(x)) & (y==max(y)))[0]]
-        v = v[np.where((x==min(x)) & (y==max(y)))[0]]
+        v = v[np.where((x==max(x)) & (y==max(y)))[0]]
         
         del x, y, z
             
-        return u, v
+        return u, v, np.sqrt(u**2+v**2)
 
+# Driver code
 if __name__ == '__main__':
 
-   UX, UY, T = [], [], []
+   UX, UY, U, T = [], [], [], []
    rate = 400
    directory = './vtk_plots' + '/%s' % rate
    count_ = 0
@@ -206,6 +229,8 @@ if __name__ == '__main__':
        if os.path.isfile(filename):
            count_ += 1
            parser = parse_vtk(filename)
-           u, v = parser.get_surface_information("displacement")
-           UX.append(u[0]); UY.append(v[0]); T.append(count_)
-   plot(T,UX,UY,rate=rate)
+           u, v, disp = parser.get_surface_information("displacement")
+           UX.append(u[0]); UY.append(v[0]); U.append(disp[0]); T.append(count_)
+   # plot
+   plot(T,U,rate=rate)
+   del u, v, disp, UX, UY, U, T

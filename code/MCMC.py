@@ -26,7 +26,7 @@ class MCMC:
         self.problem_type=problem_type
         self.consts=model.consts
 
-        for arg in self.qstart.keys(): # arg is Dc
+        for arg in self.qstart.keys(): # arg is Dc/q
             self.consts[arg]=qstart[arg] # qstart[arg] is 100
 
         if(self.problem_type=='full'): # high fidelity model

@@ -63,7 +63,7 @@ def main(problem,rom,bayesian):
     # pylith-gprs problem!!!
     elif problem == 'pylith_gprs':
        problem_ = pylith_gprs()
-       t_appended, ux_appended, uy_appended = problem_.time_series() 
+       t_appended, u_appended, ux_appended, uy_appended = problem_.time_series() 
    
        # save objects!!! 
        my_file = Path(os.getcwd()+'/ux_appended.pickle')
@@ -78,8 +78,8 @@ def main(problem,rom,bayesian):
           num_q = problem_.num_q
           num_tsteps = problem_.num_tsteps
           q_ = problem_.q_
-          t_ = t_appended.reshape(-1,num_features); ux_ = ux_appended.reshape(-1,num_features)
-          num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, ux_, window, stride, num_features) 
+          t_ = t_appended.reshape(-1,num_features); u_ = u_appended.reshape(-1,num_features)
+          num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, u_, window, stride, num_features) 
           T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
           hidden_size = window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
           input_tensor = T_train
@@ -97,7 +97,7 @@ def main(problem,rom,bayesian):
        # bayesian!!!
        if bayesian:
           file1 = 'model_lstm.pickle'
-          file2 = 'ux_appended.pickle'
+          file2 = 'u_appended.pickle'
           pylith_gprs_inference(file1,file2,problem_.num_q,problem_.num_tsteps,problem_.q_)      
 
     # Close it out!!!

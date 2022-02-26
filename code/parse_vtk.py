@@ -1,10 +1,12 @@
 import numpy as np
 import vtk
 
+# Base class for parsing vtk files
 class parse_vtk:
 
    def __init__(self,filename):
 
+        # vtk file name
         self.infile = filename
    
    def get_surface_information(self, vector_name):
@@ -13,7 +15,7 @@ class parse_vtk:
         
         :param vector_name: the vector you want to process.
         	
-        :return: displacement components
+        :return: displacement (u, u_x and u_y)
         :rtype: array
         """
         reader = vtk.vtkDataSetReader()
@@ -22,7 +24,6 @@ class parse_vtk:
         data = reader.GetOutput()
         
         npoints = data.GetNumberOfPoints()
-        point = data.GetPoint(0)
         d = data.GetPointData()
         
         array = d.GetArray(vector_name)
@@ -33,11 +34,11 @@ class parse_vtk:
             x[n], y[n], z[n] = data.GetPoint(n)
             u[n], v[n], w[n] = array.GetTuple(n)
         
-        # Surface information at max y
+        # Surface information at max x and max y
         u = u[np.where((x==max(x)) & (y==max(y)))[0]]
         v = v[np.where((x==min(x)) & (y==max(y)))[0]]
         
         del x, y, z
             
-        return u[0], v[0]
+        return np.sqrt(u[0]**2+v[0]**2), u[0], v[0]
 
