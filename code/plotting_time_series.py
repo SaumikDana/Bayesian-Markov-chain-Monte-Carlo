@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 
-def plot_train_test_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_dc, dc_, num_tsteps):
+def plot_train_test_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
   '''
   plot examples of the lstm encoder-decoder evaluated on the training/test data
   
@@ -14,11 +14,11 @@ def plot_train_test_results(lstm_model, T_, X_, Y_, stride, window, dataset_type
   count_dc = 0
   for dc in dc_:
 
-      X = np.zeros([int(num_samples*window/num_dc)]) 
-      Y = np.zeros([int(num_samples*window/num_dc)])     
-      T = np.zeros([int(num_samples*window/num_dc)])     
+      X = np.zeros([int(num_samples*window/num_p)]) 
+      Y = np.zeros([int(num_samples*window/num_p)])     
+      T = np.zeros([int(num_samples*window/num_p)])     
 
-      num_samples_per_dc = int(num_samples/num_dc) 
+      num_samples_per_dc = int(num_samples/num_p) 
 
       for ii in range(num_samples_per_dc):
 
@@ -81,7 +81,7 @@ def rom_evaluate(self, dc):
     return t.T, acc.T
 
 
-def plot_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_q, q_, num_tsteps):
+def plot_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, q_, num_tsteps):
   '''
   plot examples of the lstm encoder-decoder evaluated on the training/test data
   
@@ -91,11 +91,11 @@ def plot_results(lstm_model, T_, X_, Y_, stride, window, dataset_type, objective
   count_q = 0
   for q in q_:
 
-      X = np.zeros([int(num_samples*window/num_q)]) 
-      Y = np.zeros([int(num_samples*window/num_q)])     
-      T = np.zeros([int(num_samples*window/num_q)])     
+      X = np.zeros([int(num_samples*window/num_p)]) 
+      Y = np.zeros([int(num_samples*window/num_p)])     
+      T = np.zeros([int(num_samples*window/num_p)])     
 
-      num_samples_per_q = int(num_samples/num_q) 
+      num_samples_per_q = int(num_samples/num_p) 
 
       for ii in range(num_samples_per_q):
 

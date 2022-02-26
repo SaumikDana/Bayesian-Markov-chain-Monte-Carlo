@@ -3,18 +3,18 @@ import sys
 from save_load import save_object, load_object
 
 
-def rsf_inference_no_rom(file1,file2,num_dc,num_tsteps,dc_,model):
+def rsf_inference_no_rom(file1,file2,num_p,num_tsteps,p_,model):
     # load objects!!!
     model_lstm = load_object(file1)  # ROM
     acc_appended_noise = load_object(file2) # noisy data
 
-    for ii in range(0,num_dc):
+    for ii in range(0,num_p):
 
         # noisy data!!!
         acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
         acc = acc.reshape(1, num_tsteps)
      
-        dc = dc_[ii]
+        dc = p_[ii]
         print('--- dc is %s ---' % dc)
 
         qstart={"Dc":100} # initial guess
@@ -31,19 +31,19 @@ def rsf_inference_no_rom(file1,file2,num_dc,num_tsteps,dc_,model):
         MCMCobj1.plot_dist(qparams1,'full',dc)
 
 
-def rsf_inference(file1,file2,num_dc,num_tsteps,dc_,model):
+def rsf_inference(file1,file2,num_p,num_tsteps,p_,model):
     # load objects!!!
     model_lstm = load_object(file1)  # ROM
     acc_appended_noise = load_object(file2) # noisy data
 
-    for ii in range(0,num_dc):
+    for ii in range(0,num_p):
 
         if ii == 2 or ii == 11 or ii == 13 or ii == 15 or ii == 16 or ii == 17:
            # noisy data!!!
            acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
            acc = acc.reshape(1, num_tsteps)
      
-           dc = dc_[ii]
+           dc = p_[ii]
            print('--- dc is %s ---' % dc)
 
            qstart={"Dc":100} # initial guess
@@ -65,12 +65,12 @@ def rsf_inference(file1,file2,num_dc,num_tsteps,dc_,model):
            MCMCobj2.plot_dist(qparams2,'reduced order',dc)
 
 
-def pylith_gprs_inference(file1,file2,num_q,num_tsteps,q_):
+def pylith_gprs_inference(file1,file2,num_p,num_tsteps,q_):
     # load objects!!!
     model_lstm = load_object(file1)  # ROM
     ux_appended = load_object(file2) # noisy data
 
-    for ii in range(0,num_q):
+    for ii in range(0,num_p):
 
         ux = ux_appended[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
         ux = ux.reshape(1, num_tsteps)

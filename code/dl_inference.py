@@ -32,9 +32,9 @@ def main(problem,rom,bayesian):
           num_features = problem_.num_features
           window = problem_.window
           stride = problem_.stride
-          num_dc = problem_.num_dc
+          num_p = problem_.num_p
           num_tsteps = problem_.num_tsteps
-          dc_ = problem_.dc_
+          p_ = problem_.p_
           t_ = t_appended.reshape(-1,num_features); acc_ = acc_appended.reshape(-1,num_features)
           num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, acc_, window, stride, num_features) 
           T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
@@ -49,16 +49,16 @@ def main(problem,rom,bayesian):
              save_object(model_lstm,"model_lstm.pickle") 
 
           # plot!!!
-          plotting_time_series.plot_train_test_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_dc, dc_, num_tsteps)
+          plotting_time_series.plot_train_test_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_p, p_, num_tsteps)
 
        # bayesian!!!
        if bayesian:
           file1 = 'model_lstm.pickle'
           file2 = 'acc_appended_noise.pickle'
           if rom:
-             rsf_inference(file1,file2,problem_.num_dc,problem_.num_tsteps,problem_.dc_,problem_.model)      
+             rsf_inference(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.p_,problem_.model)      
           else:
-             rsf_inference_no_rom(file1,file2,problem_.num_dc,problem_.num_tsteps,problem_.dc_,problem_.model)      
+             rsf_inference_no_rom(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.p_,problem_.model)      
 
     # pylith-gprs problem!!!
     elif problem == 'pylith_gprs':
@@ -75,7 +75,7 @@ def main(problem,rom,bayesian):
           num_features = problem_.num_features
           window = problem_.window
           stride = problem_.stride
-          num_q = problem_.num_q
+          num_p = problem_.num_p
           num_tsteps = problem_.num_tsteps
           q_ = problem_.q_
           t_ = t_appended.reshape(-1,num_features); u_ = u_appended.reshape(-1,num_features)
@@ -92,13 +92,13 @@ def main(problem,rom,bayesian):
              save_object(model_lstm,"model_lstm.pickle") 
 
           # plot!!!
-          plotting_time_series.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_q, q_, num_tsteps)
+          plotting_time_series.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, stride, window, 'Training', 'Reconstruction', num_samples_train, num_p, q_, num_tsteps)
 
        # bayesian!!!
        if bayesian:
           file1 = 'model_lstm.pickle'
           file2 = 'u_appended.pickle'
-          pylith_gprs_inference(file1,file2,problem_.num_q,problem_.num_tsteps,problem_.q_)      
+          pylith_gprs_inference(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.q_)      
 
     # Close it out!!!
     plt.show()

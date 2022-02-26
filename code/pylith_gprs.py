@@ -8,10 +8,10 @@ class pylith_gprs:
    '''
    def __init__(self):
 
-       self.num_q = 7
+       self.num_p = 7
        start_q = 100.0
        end_q = 400.0
-       self.q_ = np.linspace(start_q,end_q,self.num_q)
+       self.q_ = np.linspace(start_q,end_q,self.num_p)
 
        self.num_tsteps = 112
        self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
@@ -22,17 +22,17 @@ class pylith_gprs:
 
    def time_series(self):
 
-       num_q = self.num_q
+       num_p = self.num_p
        q_ = self.q_
        t_ = self.t_
        num_tsteps = self.num_tsteps
        num_features = self.num_features
        num_features = self.num_features
 
-       t_appended =  np.zeros((num_q*num_tsteps,num_features))
-       u_appended =  np.zeros((num_q*num_tsteps,num_features))
-       ux_appended =  np.zeros((num_q*num_tsteps,num_features))
-       uy_appended = np.zeros((num_q*num_tsteps,num_features))
+       t_appended =  np.zeros((num_p*num_tsteps,num_features))
+       u_appended =  np.zeros((num_p*num_tsteps,num_features))
+       ux_appended =  np.zeros((num_p*num_tsteps,num_features))
+       uy_appended = np.zeros((num_p*num_tsteps,num_features))
        
        u, ux, uy = np.zeros((num_tsteps,2)), np.zeros((num_tsteps,2)), np.zeros((num_tsteps,2))
        count_q = 0

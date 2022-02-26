@@ -1,4 +1,4 @@
-# Author: Laura Kulowski
+# Author: Saumik Dana
 
 '''
 
@@ -41,7 +41,7 @@ def synthetic_data(dc = 1.0):
 
     return t_.T.flatten(), acc.T.flatten(), acc_noise.T.flatten()
 
-def train_test_split(t, y, num_dc, num_):
+def train_test_split(t, y, num_):
   '''
   
   split time series into train/test sets

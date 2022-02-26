@@ -8,10 +8,10 @@ class rsf:
    '''
    def __init__(self):
 
-       self.num_dc = 1
+       self.num_p = 1
        start_dc = 1000.0
        end_dc = 1000.0
-       self.dc_ = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_dc)
+       self.p_ = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_p)
 
        t_start = 0.0
        t_end = 50.0
@@ -25,19 +25,19 @@ class rsf:
 
    def time_series(self):
 
-       num_dc = self.num_dc
-       dc_ = self.dc_
+       num_p = self.num_p
+       p_ = self.p_
        num_tsteps = self.num_tsteps
        num_features = self.num_features
        model = self.model
        num_features = self.num_features
 
-       t_appended =  np.zeros((num_dc*num_tsteps,num_features))
-       acc_appended =  np.zeros((num_dc*num_tsteps,num_features))
-       acc_appended_noise = np.zeros((num_dc*num_tsteps,num_features))
+       t_appended =  np.zeros((num_p*num_tsteps,num_features))
+       acc_appended =  np.zeros((num_p*num_tsteps,num_features))
+       acc_appended_noise = np.zeros((num_p*num_tsteps,num_features))
        
        count_dc = 0
-       for dc in dc_:
+       for dc in p_:
           model.set_dc(dc)
           t, acc, acc_noise = model.evaluate(model.consts) # noisy data
           t_ = t.reshape(-1,num_features); acc_ = acc.reshape(-1,num_features)
