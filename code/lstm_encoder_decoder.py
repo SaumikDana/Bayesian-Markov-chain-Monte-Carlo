@@ -15,7 +15,7 @@ import torch.nn.functional as F
 class lstm_encoder(nn.Module):
     ''' Encodes time-series sequence '''
 
-    def __init__(self, input_size, hidden_size, num_layers = 1, bidirectional=False):
+    def __init__(self, input_size, hidden_size, num_layers, bidirectional):
         
         '''
         : param input_size:     the number of features in the input X
@@ -112,7 +112,7 @@ class lstm_seq2seq(nn.Module):
         self.decoder = lstm_decoder(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bidirectional=bidirectional)
 
 
-    def train_model(self, input_tensor, target_tensor, n_epochs, target_len, batch_size, training_prediction = 'recursive', teacher_forcing_ratio = 0.5, learning_rate = 0.01, dynamic_tf = False):
+    def train_model(self, input_tensor, target_tensor, n_epochs, target_len, batch_size, training_prediction = 'mixed_teacher_forcing', teacher_forcing_ratio = 0.6, learning_rate = 0.01, dynamic_tf = False):
         
         '''
         train lstm encoder-decoder

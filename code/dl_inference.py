@@ -22,8 +22,8 @@ def build_lstm(t_appended, var_appended, problem_):
     T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
     hidden_size = problem_.window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
     input_tensor = T_train
-    model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_size = input_tensor.shape[2], hidden_size = hidden_size, num_layers = num_layers, bidirectional = False)
-    loss = model_lstm.train_model(input_tensor, Y_train, n_epochs = n_epochs, target_len = window, batch_size = batch_size, training_prediction = 'mixed_teacher_forcing', teacher_forcing_ratio = 0.6, learning_rate = 0.01, dynamic_tf = False)
+    model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], hidden_size, num_layers, False)
+    loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, window, batch_size)
 
     # save objects!!!
     my_file = Path(os.getcwd()+'/model_lstm.pickle')
