@@ -40,5 +40,5 @@ class parse_vtk:
         
         del x, y, z
             
-        return np.sqrt(u[0]**2+v[0]**2), u[0], v[0]
+        return np.sqrt(u[0]**2+v[0]**2)
 

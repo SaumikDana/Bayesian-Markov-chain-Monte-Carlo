@@ -52,7 +52,7 @@ class rsf:
        if not my_file.is_file():
           save_object(acc_appended_noise,"acc_appended_noise.pickle")
    
-       return t_appended, acc_appended, acc_appended_noise
+       return t_appended, acc_appended, my_file
 
     
    def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):

@@ -33,10 +33,9 @@ class pylith_gprs:
 
        t_appended =  np.zeros((num_p*num_tsteps,num_features))
        u_appended =  np.zeros((num_p*num_tsteps,num_features))
-       ux_appended =  np.zeros((num_p*num_tsteps,num_features))
-       uy_appended = np.zeros((num_p*num_tsteps,num_features))
+       u_appended_noise =  np.zeros((num_p*num_tsteps,num_features))
        
-       u, ux, uy = np.zeros((num_tsteps,2)), np.zeros((num_tsteps,2)), np.zeros((num_tsteps,2))
+       u = np.zeros((num_tsteps,2))
        count_q = 0
        for rate in p_:
           directory = './vtk_plots' + '/%s' % int(rate)
@@ -45,33 +44,31 @@ class pylith_gprs:
               filename = os.path.join(directory, file_name)
               if os.path.isfile(filename):
                   parser = parse_vtk(filename)
-                  u[count_,0], ux[count_,0], uy[count_,0] = parser.get_surface_information("displacement")
+                  u[count_,0] = parser.get_surface_information("displacement")
                   u[count_,1] = u[count_,0]
-                  ux[count_,1] = ux[count_,0]
-                  uy[count_,1] = uy[count_,0]
                   count_ += 1
 
+          temp = np.asarray(u).reshape(len(u),-1)
+          u_noise = temp + 1.0*np.abs(temp)*np.random.randn(temp.shape[0],temp.shape[1]) #synthetic data
+
           u_ = u.reshape(-1,num_features)
-          ux_ = ux.reshape(-1,num_features)
-          uy_ = uy.reshape(-1,num_features)
+          u_noise = u_noise.reshape(-1,num_features)
           start_ = count_q*num_tsteps
           end_ = start_ + num_tsteps
           t_appended[start_:end_,0] = t_[:]
           t_appended[start_:end_,1] = rate
           u_appended[start_:end_,0] = u_[:,0]
           u_appended[start_:end_,0] = u_[:,0]
-          ux_appended[start_:end_,1] = ux_[:,1]
-          ux_appended[start_:end_,1] = ux_[:,1]
-          uy_appended[start_:end_,0] = uy_[:,0]
-          uy_appended[start_:end_,1] = uy_[:,1]
+          u_appended_noise[start_:end_,0] = u_noise[:,0]
+          u_appended_noise[start_:end_,0] = u_noise[:,0]
           count_q += 1
    
        # save objects!!! 
-       my_file = Path(os.getcwd()+'/u_appended.pickle')
+       my_file = Path(os.getcwd()+'/u_appended_noise.pickle')
        if not my_file.is_file():
-          save_object(u_appended,"u_appended.pickle")
+          save_object(u_appended_noise,"u_appended_noise.pickle")
    
-       return t_appended, u_appended, ux_appended, uy_appended
+       return t_appended, u_appended, my_file
 
 
    def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):

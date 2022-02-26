@@ -33,7 +33,7 @@ def build_lstm(t_appended, var_appended, problem_):
     # plot!!!
     problem_.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, problem_.stride, problem_.window, 'Training', 'Reconstruction', num_samples_train, problem_.num_p, problem_.p_, problem_.num_tsteps)
 
-    return model_lstm
+    return my_file
 
     
 def main(problem,rom,bayesian):
@@ -41,16 +41,14 @@ def main(problem,rom,bayesian):
     # rsf problem!!!
     if problem == 'rsf':
        problem_ = rsf()
-       t_appended, acc_appended, acc_appended_noise = problem_.time_series() 
+       t_appended, acc_appended, file2 = problem_.time_series() 
 
        if rom:
        # LSTM encoder-decoder!!!
-          model_lstm = build_lstm(t_appended,acc_appended,problem_)
+         file1 = build_lstm(t_appended,acc_appended,problem_)
 
        # bayesian!!!
        if bayesian:
-          file1 = 'model_lstm.pickle'
-          file2 = 'acc_appended_noise.pickle'
           if rom:
              rsf_inference(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.p_,problem_.model)      
           else:
@@ -59,22 +57,22 @@ def main(problem,rom,bayesian):
     # pylith-gprs problem!!!
     elif problem == 'pylith_gprs':
        problem_ = pylith_gprs()
-       t_appended, u_appended, ux_appended, uy_appended = problem_.time_series() 
+       t_appended, u_appended, file2 = problem_.time_series() 
 
        if rom:   
        # LSTM encoder-decoder!!!
-          model_lstm = build_lstm(t_appended,u_appended,problem_)
+          file1 = build_lstm(t_appended,u_appended,problem_)
 
        # bayesian!!!
        if bayesian:
-          file1 = 'model_lstm.pickle'
-          file2 = 'u_appended.pickle'
           pylith_gprs_inference(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.p_)      
 
     # Close it out!!!
     plt.show()
     plt.close('all')
 
+
+# Driver code!!!
 if __name__ == '__main__':
 
     problem = 'rsf'
