@@ -29,9 +29,11 @@ class RateStateModel:
         self.plotfigs=plotfigs
         self.plotname=plotname
 
+
     def set_dc(self,dc):
 
         self.consts["Dc"] = dc
+
 
     def friction(self,t,y):
 
@@ -74,6 +76,7 @@ class RateStateModel:
             dydt[2] = v/self.consts["a"]*(dydt[0] - self.consts["b"]/y[1]*dydt[1])
 
         return dydt
+
 
     def evaluate(self,params):
 

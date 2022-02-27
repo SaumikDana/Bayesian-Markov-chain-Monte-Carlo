@@ -9,6 +9,7 @@ from MCMC import MCMC
 import sys
 import torch
 import matplotlib.pyplot as plt
+from scipy.stats import gaussian_kde
 
 
 class pylith_gprs:
@@ -17,7 +18,7 @@ class pylith_gprs:
    '''
    def __init__(self):
 
-       self.num_p = 7
+       self.num_p = 1
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
@@ -28,6 +29,9 @@ class pylith_gprs:
        self.window = 28 # make sure num_tsteps is exact multiple of window!!!
        self.stride = self.window
        self.num_features = 2
+
+       self.consts={}
+       self.consts["q"] = 1000 # dummy!!!
 
 
    def time_series(self):
@@ -71,12 +75,7 @@ class pylith_gprs:
           u_appended_noise[start_:end_,0] = u_noise[:,0]
           count_q += 1
    
-       # save objects!!! 
-       my_file = Path(os.getcwd()+'/u_appended_noise.pickle')
-       if not my_file.is_file():
-          save_object(u_appended_noise,"u_appended_noise.pickle")
-   
-       return t_appended, u_appended, my_file
+       return t_appended, u_appended, u_appended_noise
 
  
    def build_lstm(self, t_appended, var_appended):
@@ -94,11 +93,9 @@ class pylith_gprs:
        my_file = Path(os.getcwd()+'/model_lstm.pickle')
        if not my_file.is_file():
           save_object(model_lstm,"model_lstm.pickle") 
-   
+
        # plot!!!
        self.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, self.stride, self.window, 'Training', 'Reconstruction', num_samples_train, self.num_p, self.p_, self.num_tsteps)
-   
-       return my_file
 
 
    def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
@@ -144,4 +141,95 @@ class pylith_gprs:
    
          del X,Y,T
    
+
+   def inference(self,u_appended_noise):
+       # load objects!!!
+       model_lstm = load_object('model_lstm.pickle')  # ROM
    
+       num_p = self.num_p
+       num_tsteps = self.num_tsteps
+       p_ = self.p_
+   
+       for ii in range(0,num_p):
+   
+           u = u_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
+           u = u.reshape(1, num_tsteps)
+       
+           q = p_[ii]
+           print('--- q is %s ---' % q)
+   
+           qstart={"q":1} # Initial guess of 1!!!
+           qpriors={"q":["Uniform",0.1, 1000]}
+   
+           nsamples = int(sys.argv[2])
+           nburn = nsamples/2
+           
+           problem_type = 'rom'
+           MCMCobj2=MCMC(self,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=u,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=100,verbose=True)
+           qparams2=MCMCobj2.sample() # run the Bayesian/MCMC algorithm
+           std_MCMC2 = MCMCobj2.std2
+           self.plot_dist(qparams2,q)
+   
+
+   def rom_evaluate(self,params,lstm_model):
+        
+       for arg in params.keys():
+           self.consts[arg] = params[arg]
+
+       num_steps = self.num_tsteps 
+       window = self.window
+   
+       # Create arrays to store trajectory
+       t = np.zeros((num_steps,2)) 
+       acc = np.zeros((num_steps,2)) 
+   
+       t[0,0] = 1 
+   
+       k = 1
+       while k < num_steps:
+           t[k,0] = t[k-1,0] + 1
+           k += 1
+   
+       t[:,1] = self.consts["q"]
+       num_steps_ = int(num_steps/window) 
+       train_plt = np.zeros((window,2)) 
+    
+       for ii in range(num_steps_):
+   
+           start = ii*window
+           end = start + window
+   
+           train_plt[0:window,0] = t[start:end,0]
+           train_plt[0:window,1] = t[start:end,1]
+           Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
+           acc[start:end,0] = Y_train_pred[:, 0]
+           acc[start:end,1] = Y_train_pred[:, 0]
+       
+       return t, acc
+
+
+   def plot_dist(self, qparams, q):
+
+       n_rows = 1
+       n_columns = 2
+       gridspec = {'width_ratios': [0.7, 0.15], 'wspace': 0.15}
+       fig, ax = plt.subplots(n_rows, n_columns, gridspec_kw=gridspec)
+       fig.suptitle('q=%s MSCF/day' % q, fontsize=14)
+       ax[0].plot(qparams[0,:], 'b-', linewidth=1.0)
+       ylims = ax[0].get_ylim()
+       x = np.linspace(ylims[0], ylims[1], 1000)
+       kde = gaussian_kde(qparams[0,:])
+       ax[1].plot(kde.pdf(x), x, 'b-')
+       max_val = x[kde.pdf(x).argmax()]
+       ax[1].plot(kde.pdf(x)[kde.pdf(x).argmax()],max_val, 'ro')
+       ax[1].annotate(str(round(max_val,2)),xy=(0.90*kde.pdf(x)[kde.pdf(x).argmax()],max_val),size=14)
+       ax[1].fill_betweenx(x, kde.pdf(x), np.zeros(x.shape), alpha=0.3)
+       ax[1].set_xlim(0, None)
+       ax[0].set_ylabel('q', fontsize=14)
+       ax[0].set_xlim(0, qparams.shape[1]) 
+       ax[0].set_xlabel('Sample number')
+       ax[1].set_xlabel('Prob. density')
+       ax[1].get_yaxis().set_visible(False)
+       ax[1].get_xaxis().set_visible(True)
+       ax[1].get_xaxis().set_ticks([])
+       fig.savefig('./plots/pylith_gprs_burn_%s_%s_.png' % (q,sys.argv[2]))

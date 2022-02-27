@@ -181,7 +181,7 @@ class MCMC:
         ax[1].plot(kde.pdf(x), x, 'b-')
         max_val = x[kde.pdf(x).argmax()]
         ax[1].plot(kde.pdf(x)[kde.pdf(x).argmax()],max_val, 'ro')
-        ax[1].annotate(str(round(max_val,2)),xy=(0.75*kde.pdf(x)[kde.pdf(x).argmax()],max_val),size=14)
+        ax[1].annotate(str(round(max_val,2)),xy=(0.90*kde.pdf(x)[kde.pdf(x).argmax()],max_val),size=14)
         ax[1].fill_betweenx(x, kde.pdf(x), np.zeros(x.shape), alpha=0.3)
         ax[1].set_xlim(0, None)
         ax[0].set_ylabel('$d_c$', fontsize=14)

@@ -26,15 +26,15 @@ def main(problem,rom,bayesian):
     elif problem == 'pylith_gprs':
     # pylith-gprs problem!!!
        problem_ = pylith_gprs()
-       t_appended, u_appended, file2 = problem_.time_series() 
+       t_appended, u_appended, u_appended_noise = problem_.time_series() 
 
        if rom:   
        # LSTM encoder-decoder!!!
-          file1 = problem_.build_lstm(t_appended,u_appended)
+          problem_.build_lstm(t_appended,u_appended)
 
        if bayesian:
        # bayesian!!!
-          pylith_gprs_inference(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.p_)      
+          problem_.inference(u_appended_noise)      
 
     # Close it out!!!
     plt.show()
@@ -46,10 +46,10 @@ if __name__ == '__main__':
 
 #    problem = 'rsf'
     problem = 'pylith_gprs'
-#    rom = False
-    rom = True
-    bayesian = False
-#    bayesian = True
+    rom = False
+#    rom = True
+#    bayesian = False
+    bayesian = True
     main(problem,rom,bayesian)
 
 

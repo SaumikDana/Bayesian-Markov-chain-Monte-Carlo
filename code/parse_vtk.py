@@ -35,7 +35,7 @@ class parse_vtk:
             u[n], v[n], w[n] = array.GetTuple(n)
         
         # Surface information at max x and max y
-        u = u[np.where((x==max(x)) & (y==max(y)))[0]]
+        u = u[np.where((x==min(x)) & (y==max(y)))[0]]
         v = v[np.where((x==min(x)) & (y==max(y)))[0]]
         
         del x, y, z
