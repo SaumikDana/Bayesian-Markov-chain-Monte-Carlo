@@ -6,8 +6,7 @@ import mpl_toolkits.mplot3d as a3
 
 def plot(T, U, linewidth = 1.0, markersize = 4.0, rate = 100):
 
-   plt.rcParams.update({'font.size': 16})
-
+#   plt.rcParams.update({'font.size': 16})
 #   plt.figure()
 #   plt.plot(T, UX, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UX Target Max X')
 #   plt.xlabel('Time stamp')
@@ -17,6 +16,7 @@ def plot(T, U, linewidth = 1.0, markersize = 4.0, rate = 100):
 #   plt.tight_layout()
 #   plt.savefig('plots/ux_%s.png' % rate)
 #
+#   plt.rcParams.update({'font.size': 16})
 #   plt.figure()
 #   plt.plot(T, UY, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UY Target Min X')
 #   plt.xlabel('Time stamp')
@@ -26,6 +26,7 @@ def plot(T, U, linewidth = 1.0, markersize = 4.0, rate = 100):
 #   plt.tight_layout()
 #   plt.savefig('plots/uy_%s.png' % rate)
 
+   plt.rcParams.update({'font.size': 16})
    plt.figure()
    plt.plot(T, U, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'U Target')
    plt.xlabel('Time stamp')
@@ -38,6 +39,7 @@ def plot(T, U, linewidth = 1.0, markersize = 4.0, rate = 100):
    U = np.asarray(U).reshape(len(U),-1); T = np.asarray(T).reshape(len(T),-1)
    U_noise = U + 1.0*np.abs(U)*np.random.randn(U.shape[0],U.shape[1]) #synthetic data
 
+   plt.rcParams.update({'font.size': 16})
    plt.figure()
    plt.plot(T, U_noise, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'Noisy data')
    plt.xlabel('Time stamp')
@@ -46,9 +48,6 @@ def plot(T, U, linewidth = 1.0, markersize = 4.0, rate = 100):
    plt.legend(frameon=False,loc='best')
    plt.tight_layout()
    plt.savefig('plots/noisy_u_%s.png' % rate)
-
-   plt.show()
-   plt.close('all')
 
 
 class parse_vtk:
@@ -221,7 +220,7 @@ class parse_vtk:
 if __name__ == '__main__':
 
    UX, UY, U, T = [], [], [], []
-   rate = 100
+   rate = 400
    directory = './vtk_plots' + '/%s' % rate
    count_ = 0
    for file_name in sorted(os.listdir(directory)):
@@ -234,3 +233,6 @@ if __name__ == '__main__':
    # plot
    plot(T,U,rate=rate)
    del u, v, disp, UX, UY, U, T
+   plt.show()
+   plt.close('all')
+
