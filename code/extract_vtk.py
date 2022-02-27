@@ -6,7 +6,7 @@ import mpl_toolkits.mplot3d as a3
 
 def plot(T, U, linewidth = 1.0, markersize = 4.0, rate = 100):
 
-   plt.rcParams.update({'font.size': 14})
+   plt.rcParams.update({'font.size': 16})
 
 #   plt.figure()
 #   plt.plot(T, UX, '-o', color = (0.76, 0.01, 0.01), linewidth = linewidth, markersize = markersize, label = 'UX Target Max X')
@@ -221,7 +221,7 @@ class parse_vtk:
 if __name__ == '__main__':
 
    UX, UY, U, T = [], [], [], []
-   rate = 400
+   rate = 100
    directory = './vtk_plots' + '/%s' % rate
    count_ = 0
    for file_name in sorted(os.listdir(directory)):

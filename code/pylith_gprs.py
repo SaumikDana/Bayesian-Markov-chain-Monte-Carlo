@@ -1,6 +1,14 @@
 from parse_vtk import parse_vtk
 import numpy as np
 import os
+from pathlib import Path
+from save_load import save_object, load_object
+import generate_dataset
+import lstm_encoder_decoder
+from MCMC import MCMC
+import sys
+import torch
+import matplotlib.pyplot as plt
 
 
 class pylith_gprs:
@@ -70,13 +78,34 @@ class pylith_gprs:
    
        return t_appended, u_appended, my_file
 
+ 
+   def build_lstm(self, t_appended, var_appended):
+    
+       # build rom!!!
+       t_ = t_appended.reshape(-1,self.num_features); var_ = var_appended.reshape(-1,self.num_features)
+       num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, var_, self.window, self.stride, self.num_features) 
+       T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
+       hidden_size = self.window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
+       input_tensor = T_train
+       model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], hidden_size, num_layers, False)
+       loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, self.window, batch_size)
+   
+       # save objects!!!
+       my_file = Path(os.getcwd()+'/model_lstm.pickle')
+       if not my_file.is_file():
+          save_object(model_lstm,"model_lstm.pickle") 
+   
+       # plot!!!
+       self.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, self.stride, self.window, 'Training', 'Reconstruction', num_samples_train, self.num_p, self.p_, self.num_tsteps)
+   
+       return my_file
+
 
    def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
      '''
      plot examples of the lstm encoder-decoder evaluated on the training/test data
      
      '''
-   
      Y_return = np.zeros([int(num_samples*window)])     
      count_q = 0
      for q in p_:
@@ -100,11 +129,12 @@ class pylith_gprs:
              T[start:end] = T_[:, count_q*num_samples_per_q+ii, 0]
              Y_return[count_q*num_tsteps+start:count_q*num_tsteps+end] = Y_train_pred[:, 0]
    
+         plt.rcParams.update({'font.size': 16})
          plt.figure()
          plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
          plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
          plt.xlabel('Time stamp')
-         plt.ylabel('Disp X $(m)$')
+         plt.ylabel('Disp $(m)$')
          plt.legend(frameon=False)
          plt.suptitle('%s data set for q=%s MSCF/day' % (dataset_type,q), x = 0.445, y = 1.)
          plt.tight_layout()

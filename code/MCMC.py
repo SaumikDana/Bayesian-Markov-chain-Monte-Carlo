@@ -26,12 +26,14 @@ class MCMC:
         self.problem_type=problem_type
         self.consts=model.consts
 
-        for arg in self.qstart.keys(): # arg is Dc/q
-            self.consts[arg]=qstart[arg] # qstart[arg] is 100
+        for arg in self.qstart.keys(): 
+            self.consts[arg]=qstart[arg] 
 
-        if(self.problem_type=='full'): # high fidelity model
+        if(self.problem_type=='full'): 
+        # high fidelity model
            t_,acc_,temp_=self.model.evaluate(self.consts)
-        else: # reduced order model
+        else: 
+        # reduced order model
            t_,acc_=self.model.rom_evaluate(self.consts,lstm_model)
 
         acc = acc_[:,0] 
@@ -39,14 +41,16 @@ class MCMC:
         self.std2=[np.sum((acc-self.data)**2,axis=1)[0]/(acc.shape[1]-len(self.qpriors.keys()))]
 
         X=[]
-        for arg in self.qpriors.keys(): # arg is Dc
+        for arg in self.qpriors.keys(): 
 
             consts_dq=copy.deepcopy(self.consts) 
             consts_dq[arg]=consts_dq[arg]*(1+1e-6) 
 
-            if(self.problem_type=='full'): # high fidelity model
+            if(self.problem_type=='full'): 
+            # high fidelity model
                t_,acc_dq_,temp_=self.model.evaluate(consts_dq)
-            else: # reduced order model
+            else: 
+            # reduced order model
                t_,acc_dq_=self.model.rom_evaluate(consts_dq,lstm_model)
 
             acc_dq = acc_dq_[:,0] 
@@ -57,17 +61,15 @@ class MCMC:
         X=np.linalg.inv(np.dot(X.T,X))
         self.Vstart=self.std2[0]*X # initial variance
 
-        # self.qstart is {'Dc': 100}
         self.qstart_vect=np.zeros((len(self.qstart),1))
         self.qstart_limits=np.zeros((len(self.qstart),2))
-        # len(self.qstart) is 1
         flag=0
 
-        for arg in self.qstart.keys(): # arg is Dc
+        for arg in self.qstart.keys(): 
 
-            self.qstart_vect[flag,0]=self.qstart[arg] # 100
-            self.qstart_limits[flag,0]=self.qpriors[arg][1] # 1
-            self.qstart_limits[flag,1]=self.qpriors[arg][2] # 1000
+            self.qstart_vect[flag,0]=self.qstart[arg] 
+            self.qstart_limits[flag,0]=self.qpriors[arg][1] 
+            self.qstart_limits[flag,1]=self.qpriors[arg][2] 
             flag=flag+1
 
         self.sp=2.38**2/self.qstart_vect.shape[0]
@@ -80,21 +82,22 @@ class MCMC:
         Return:
             Q_MCMC: Accepted samples
         """
-        qparams=copy.deepcopy(self.qstart_vect) # (array([[100.]])
-        qmean_old=copy.deepcopy(self.qstart_vect) # (array([[100.]])
-        qmean=copy.deepcopy(self.qstart_vect) # (array([[100.]])
+        qparams=copy.deepcopy(self.qstart_vect) 
+        qmean_old=copy.deepcopy(self.qstart_vect) 
+        qmean=copy.deepcopy(self.qstart_vect) 
 
-        Vold=copy.deepcopy(self.Vstart) # (array([[193177.94081491]]) 
-        Vnew=copy.deepcopy(self.Vstart) # (array([[193177.94081491]])
+        Vold=copy.deepcopy(self.Vstart)  
+        Vnew=copy.deepcopy(self.Vstart) 
 
         SSqprev=self.SSqcalc(qparams) # squared error
         iaccept=0
 
         for isample in range(0,self.nsamples):
  
-            # qparams keep building up !!!
-            q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) # (-1,1) meaning stacking in a column vector of size N*1
-            # q_new is randomly sampled from a multivariate normal distribution with mean qparams[:,-1]==last element of qparams!!!, covariance Vold
+            # qparams keep building up!!!
+            q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
+            # q_new is randomly sampled from a multivariate normal distribution with mean qparams[:,-1]==last element of qparams!!!
+
             accept,SSqnew=self.acceptreject(q_new,SSqprev,self.std2[-1])
             print(isample,accept)
             print("Generated sample ---- ",np.asscalar(q_new))
@@ -129,8 +132,7 @@ class MCMC:
 
     def acceptreject(self,q_new,SSqprev,std2):
    
-        # self.qstart_limits is 1 and 1000
-        # accept if the randomly thrown value is between 1 and 1000 !!!
+        # accept if the randomly thrown value is between limits!!!
         accept=np.all(q_new[:,0]>self.qstart_limits[:,0]) and np.all(q_new[:,0]<self.qstart_limits[:,1])
        
         if accept:
@@ -146,14 +148,16 @@ class MCMC:
     def SSqcalc(self,q_new):
 
         flag=0
-        for arg in self.qstart.keys(): # Dc
+        for arg in self.qstart.keys(): 
             consts_dq=copy.deepcopy(self.consts)
             consts_dq[arg]=q_new[flag,]
             flag=flag+1
 
-        if(self.problem_type=='full'): # high fidelity model
+        if(self.problem_type=='full'): 
+        # high fidelity model
            t_,acc_,temp_=self.model.evaluate(consts_dq)
-        else: # reduced order model
+        else: 
+        # reduced order model
            t_,acc_=self.model.rom_evaluate(consts_dq,self.lstm_model)
 
         acc = acc_[:,0] 
@@ -163,13 +167,6 @@ class MCMC:
 
 
     def plot_dist(self, qparams, plot_title, dc):
-
-#        params = {'legend.fontsize': 'large',
-#                 'axes.labelsize': 'large',
-#                 'axes.titlesize':'large',
-#                 'xtick.labelsize':'large',
-#                 'ytick.labelsize':'large'}
-#        plt.rcParams.update(params)
 
         n_rows = 1
         n_columns = 2
