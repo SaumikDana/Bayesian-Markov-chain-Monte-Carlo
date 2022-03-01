@@ -4,29 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 
-    
-def main(args):
 
-    # rsf problem!!!
-    if args.problem == 'rsf':
-       problem = rsf(args)
-
-    # pylith-gprs problem!!!
-    elif args.problem == 'coupled':
-       problem = pylith_gprs(args)
-
-    # Solve the problem!!!
-    problem.solve()
-
-    # Close it out!!!
-    plt.show()
-    plt.close('all')
-
-
-# Driver code!!!
 if __name__ == '__main__':
 
-    #Usage: python dl_inference.py -problem coupled -nepochs 100 -nsamples 100 --bayesian
+    #Usage: python dl_inference.py -problem coupled -epochs 100 -samples 100 --bayesian
     parser = argparse.ArgumentParser()
     parser.add_argument('-problem', dest='problem', type=str, help="Problem type")
     parser.add_argument('-epochs',dest='num_epochs', type=int, help="Number of Epochs")
@@ -36,5 +17,17 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    main(args)
+    # rsf problem
+    if args.problem == 'rsf':
+       problem = rsf(args)
+    # pylith-gprs problem
+    elif args.problem == 'coupled':
+       problem = pylith_gprs(args)
+
+    # Solve the problem
+    problem.solve()
+
+    # Close it out
+    plt.show()
+    plt.close('all')
 
