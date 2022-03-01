@@ -22,7 +22,6 @@ class pylith_gprs:
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
-       np.random.shuffle(self.p_)
 
        self.num_tsteps = 115
        self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
@@ -30,7 +29,7 @@ class pylith_gprs:
        self.window = 23 # make sure num_tsteps is exact multiple of window!!!
        self.stride = self.window
        self.num_features = 2
-       self.hidden_size = self.window/2
+       self.hidden_size = self.window/1
        self.batch_size = 1
        self.num_layers = 1 
 
@@ -93,7 +92,7 @@ class pylith_gprs:
           t_appended[start_:end_,0] = t_[:]
           t_appended[start_:end_,1] = rate
 
-          u_appended[start_:end_,0] = u_[:,0]
+          u_appended[start_:end_,0] = -np.log(u_[:,0]) # log!!!
           u_appended[start_:end_,1] = u_appended[start_:end_,0]
 
           u_appended_noise[start_:end_,0] = u_noise[:,0]
@@ -111,7 +110,8 @@ class pylith_gprs:
    def build_lstm(self):
     
        # build rom!!!
-       t_ = self.t_appended.reshape(-1,self.num_features); var_ = self.u_appended.reshape(-1,self.num_features)
+       t_ = self.t_appended.reshape(-1,self.num_features)
+       var_ = self.u_appended.reshape(-1,self.num_features)
        num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, var_, self.window, self.stride, self.num_features) 
        T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
        n_epochs = self.args.num_epochs
@@ -131,7 +131,6 @@ class pylith_gprs:
      plot examples of the lstm encoder-decoder evaluated on the training/test data
      
      '''
-     Y_return = np.zeros([int(num_samples*window)])     
      count_q = 0
      for q in p_:
    
@@ -147,12 +146,12 @@ class pylith_gprs:
              end = start + window
    
              train_plt = X_[:, count_q*num_samples_per_q+ii, :]
+             train_plt = X_[:, count_q*num_samples_per_q+ii, :]
              Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
    
              X[start:end] = Y_[:, count_q*num_samples_per_q+ii, 0]
              Y[start:end] = Y_train_pred[:, 0]
              T[start:end] = T_[:, count_q*num_samples_per_q+ii, 0]
-             Y_return[count_q*num_tsteps+start:count_q*num_tsteps+end] = Y_train_pred[:, 0]
    
          plt.rcParams.update({'font.size': 16})
          plt.figure()

@@ -5,6 +5,7 @@ import random
 import os, errno
 import sys
 from tqdm import trange
+from sklearn import utils
 
 import torch
 import torch.nn as nn
@@ -158,6 +159,11 @@ class lstm_seq2seq(nn.Module):
                     input_batch = input_tensor[:, b: b + batch_size, :]
                     target_batch = target_tensor[:, b: b + batch_size, :]
 
+                    # shuffling every epoch!!!
+                    input_batch, target_batch = utils.shuffle(input_batch.detach().numpy(), target_batch.detach().numpy())
+                    input_batch = torch.from_numpy(input_batch).type(torch.Tensor)
+                    target_batch = torch.from_numpy(target_batch).type(torch.Tensor)
+
                     # outputs tensor
                     outputs = torch.zeros(target_len, batch_size, input_batch.shape[2])
 
@@ -240,7 +246,7 @@ class lstm_seq2seq(nn.Module):
         '''
 
         # encode input_tensor
-        input_tensor = input_tensor.unsqueeze(1)     # add in batch size of 1
+        input_tensor = input_tensor.unsqueeze(1)     
         encoder_output, encoder_hidden = self.encoder(input_tensor)
 
         # initialize tensor for predictions
