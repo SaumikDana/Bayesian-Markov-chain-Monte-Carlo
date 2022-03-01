@@ -39,6 +39,19 @@ class pylith_gprs:
        self.args = args
 
 
+   def solve(self):
+
+       t_appended, u_appended, u_appended_noise = self.time_series() 
+
+       if self.args.reduction:   
+       # LSTM encoder-decoder!!!
+          self.build_lstm(t_appended,u_appended)
+
+       if self.args.bayesian:
+       # bayesian!!!
+          self.inference(u_appended_noise)      
+
+
    def time_series(self):
 
        num_p = self.num_p
@@ -98,9 +111,9 @@ class pylith_gprs:
        model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], self.hidden_size, self.num_layers, False)
        loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, self.window, self.batch_size)
    
-       # save objects!!!
+       # pickle the rom!!!
        my_file = Path(os.getcwd()+'/model_lstm.pickle')
-       if not my_file.is_file():
+       if not my_file.is_file() or self.args.reduction:
           save_object(model_lstm,"model_lstm.pickle") 
 
        # plot!!!

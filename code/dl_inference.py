@@ -26,16 +26,8 @@ def main(args):
 
     elif args.problem == 'coupled':
     # pylith-gprs problem!!!
-       problem_ = pylith_gprs(args)
-       t_appended, u_appended, u_appended_noise = problem_.time_series() 
-
-       if args.reduction:   
-       # LSTM encoder-decoder!!!
-          problem_.build_lstm(t_appended,u_appended)
-
-       if args.bayesian:
-       # bayesian!!!
-          problem_.inference(u_appended_noise)      
+       problem = pylith_gprs(args)
+       problem.solve()
 
     # Close it out!!!
     plt.show()
@@ -45,7 +37,6 @@ def main(args):
 # Driver code!!!
 if __name__ == '__main__':
 
-    #arguments!!!
     #Usage: python dl_inference.py -problem coupled -nepochs 100 -nsamples 100 --bayesian
     parser = argparse.ArgumentParser()
     parser.add_argument('-problem', dest='problem', type=str, help="Problem type")
@@ -57,7 +48,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args)
-
-
-
 
