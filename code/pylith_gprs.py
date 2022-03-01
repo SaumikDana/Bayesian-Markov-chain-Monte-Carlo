@@ -22,6 +22,7 @@ class pylith_gprs:
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
+       np.random.shuffle(self.p_)
 
        self.num_tsteps = 115
        self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
@@ -38,18 +39,21 @@ class pylith_gprs:
 
        self.args = args
 
+       self.lstm_file = 'model_lstm.pickle'
+       self.data_file = 'data.pickle'
+ 
 
    def solve(self):
 
-       t_appended, u_appended, u_appended_noise = self.time_series() 
+       self.time_series() 
 
        if self.args.reduction:   
        # LSTM encoder-decoder!!!
-          self.build_lstm(t_appended,u_appended)
+          self.build_lstm()
 
        if self.args.bayesian:
        # bayesian!!!
-          self.inference(u_appended_noise)      
+          self.inference()      
 
 
    def time_series(self):
@@ -96,14 +100,18 @@ class pylith_gprs:
           u_appended_noise[start_:end_,1] = u_appended_noise[start_:end_,0]
 
           count_q += 1
-   
-       return t_appended, u_appended, u_appended_noise
+  
+       self.t_appended = t_appended
+       self.u_appended = u_appended
+ 
+       # pickle the data!!!
+       save_object(u_appended_noise,self.data_file)
 
  
-   def build_lstm(self, t_appended, var_appended):
+   def build_lstm(self):
     
        # build rom!!!
-       t_ = t_appended.reshape(-1,self.num_features); var_ = var_appended.reshape(-1,self.num_features)
+       t_ = self.t_appended.reshape(-1,self.num_features); var_ = self.u_appended.reshape(-1,self.num_features)
        num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, var_, self.window, self.stride, self.num_features) 
        T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
        n_epochs = self.args.num_epochs
@@ -112,9 +120,7 @@ class pylith_gprs:
        loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, self.window, self.batch_size)
    
        # pickle the rom!!!
-       my_file = Path(os.getcwd()+'/model_lstm.pickle')
-       if not my_file.is_file() or self.args.reduction:
-          save_object(model_lstm,"model_lstm.pickle") 
+       save_object(model_lstm,self.lstm_file)
 
        # plot!!!
        self.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, self.stride, self.window, 'Training', 'Reconstruction', num_samples_train, self.num_p, self.p_, self.num_tsteps)
@@ -164,9 +170,13 @@ class pylith_gprs:
          del X,Y,T
    
 
-   def inference(self,u_appended_noise):
-       # load objects!!!
-       model_lstm = load_object('model_lstm.pickle')  # ROM
+   def inference(self):
+
+       # load reduced order model!!!
+       model_lstm = load_object(self.lstm_file)
+
+       # load data!!!
+       u_appended_noise = load_object(self.data_file)
    
        num_p = self.num_p
        num_tsteps = self.num_tsteps
@@ -189,7 +199,6 @@ class pylith_gprs:
            problem_type = 'rom'
            MCMCobj2=MCMC(self,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=noisy,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=100,verbose=True)
            qparams2=MCMCobj2.sample() # run the Bayesian/MCMC algorithm
-           std_MCMC2 = MCMCobj2.std2
            self.plot_dist(qparams2,q)
    
 

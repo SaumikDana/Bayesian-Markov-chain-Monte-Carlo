@@ -1,6 +1,5 @@
 from rsf import rsf
 from pylith_gprs import pylith_gprs
-from inference import rsf_inference,rsf_inference_no_rom,pylith_gprs_inference
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
@@ -8,26 +7,16 @@ import argparse
     
 def main(args):
 
-    if args.problem == 'rsf':
     # rsf problem!!!
-       problem_ = rsf()
-       t_appended, acc_appended, file2 = problem_.time_series() 
+    if args.problem == 'rsf':
+       problem = rsf(args)
 
-       if args.reduction:
-       # LSTM encoder-decoder!!!
-         file1 = problem_.build_lstm(t_appended,acc_appended)
-
-       if args.bayesian:
-       # bayesian!!!
-          if rom:
-             rsf_inference(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.p_,problem_.model)      
-          else:
-             rsf_inference_no_rom(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.p_,problem_.model)      
-
-    elif args.problem == 'coupled':
     # pylith-gprs problem!!!
+    elif args.problem == 'coupled':
        problem = pylith_gprs(args)
-       problem.solve()
+
+    # Solve the problem!!!
+    problem.solve()
 
     # Close it out!!!
     plt.show()

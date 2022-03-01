@@ -14,10 +14,10 @@ class rsf:
    '''
    Driver class for RSF model
    '''
-   def __init__(self):
+   def __init__(self,args):
 
        self.num_p = 1
-       start_dc = 1000.0
+       start_dc = 1.0
        end_dc = 1000.0
        self.p_ = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_p)
 
@@ -30,6 +30,27 @@ class rsf:
        self.num_features = 2
 
        self.model = RateStateModel(t_start, t_end, num_tsteps = self.num_tsteps, window = self.window) # forward model
+       self.args = args
+
+       self.lstm_file = 'model_lstm.pickle'
+       self.data_file = 'data.pickle'
+ 
+
+   def solve(self,args):
+
+       self.time_series() 
+
+       if self.args.reduction:
+       # LSTM encoder-decoder!!!
+         self.build_lstm()
+
+       if self.args.bayesian:
+       # bayesian!!!
+          if self.args.reduction:
+             self.rsf_inference()      
+          else:
+             self.rsf_inference_no_rom()      
+
 
    def time_series(self):
 
@@ -55,18 +76,18 @@ class rsf:
           acc_appended_noise[start_:end_,0] = acc_noise[:,0]; acc_appended_noise[start_:end_,1] = acc_noise[:,1]
           count_dc += 1
 
-       # save objects!!!
-       my_file = Path(os.getcwd()+'/acc_appended_noise.pickle')
-       if not my_file.is_file():
-          save_object(acc_appended_noise,"acc_appended_noise.pickle")
-   
-       return t_appended, acc_appended, my_file
+  
+       self.t_appended = t_appended
+       self.acc_appended = acc_appended
+ 
+       # pickle data!!!
+       save_object(acc_appended_noise,self.data_file)
 
  
-   def build_lstm(self, t_appended, var_appended):
+   def build_lstm(self):
     
        # build rom!!!
-       t_ = t_appended.reshape(-1,self.num_features); var_ = var_appended.reshape(-1,self.num_features)
+       t_ = self.t_appended.reshape(-1,self.num_features); var_ = self.acc_appended.reshape(-1,self.num_features)
        num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, var_, self.window, self.stride, self.num_features) 
        T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
        hidden_size = self.window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
@@ -74,15 +95,11 @@ class rsf:
        model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], hidden_size, num_layers, False)
        loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, self.window, batch_size)
    
-       # save objects!!!
-       my_file = Path(os.getcwd()+'/model_lstm.pickle')
-       if not my_file.is_file():
-          save_object(model_lstm,"model_lstm.pickle") 
+       # pickle reduced order model!!!
+       save_object(model_lstm,self.lstm_file) 
    
        # plot!!!
        self.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, self.stride, self.window, 'Training', 'Reconstruction', num_samples_train, self.num_p, self.p_, self.num_tsteps)
-   
-       return my_file
 
    
    def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
@@ -127,6 +144,80 @@ class rsf:
          count_dc += 1
    
          del X,Y,T
+   
+   
+   def rsf_inference_no_rom(self):
+
+       # load reduced order model!!!
+       model_lstm = load_object(self.lstm_file)
+
+       # load data!!!
+       acc_appended_noise = load_object(self.data_file)
+
+       num_p = self.num_p
+       p_ = self.p_
+       num_tsteps = self.num_tsteps
+       model = self.model
+  
+       for ii in range(0,num_p):
+  
+          # noisy data!!!
+          acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
+          acc = acc.reshape(1, num_tsteps)
+       
+          dc = p_[ii]
+          print('--- dc is %s ---' % dc)
+  
+          qstart={"Dc":100} # initial guess
+          qpriors={"Dc":["Uniform",0.1, 1000]}
+  
+          nsamples = int(sys.argv[2])
+          nburn = nsamples/2
+          
+          problem_type = 'full'
+          MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+          qparams1=MCMCobj1.sample() # run the Bayesian/MCMC algorithm
+          MCMCobj1.plot_dist(qparams1,'full',dc)
+  
+
+   def rsf_inference(self):
+
+       # load reduced order model!!!
+       model_lstm = load_object(self.lstm_file)
+
+       # load data!!!
+       acc_appended_noise = load_object(self.data_file)
+
+       num_p = self.num_p
+       p_ = self.p_
+       num_tsteps = self.num_tsteps
+       model = self.model
+   
+       for ii in range(0,num_p):
+   
+           if ii == 2 or ii == 11 or ii == 13 or ii == 15 or ii == 16 or ii == 17:
+              # noisy data!!!
+              acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
+              acc = acc.reshape(1, num_tsteps)
+        
+              dc = p_[ii]
+              print('--- dc is %s ---' % dc)
+   
+              qstart={"Dc":100} # initial guess
+              qpriors={"Dc":["Uniform",0.1, 1000]}
+   
+              nsamples = int(sys.argv[2])
+              nburn = nsamples/2
+              
+              problem_type = 'full'
+              MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+              qparams1=MCMCobj1.sample() # run the Bayesian/MCMC algorithm
+              MCMCobj1.plot_dist(qparams1,'full',dc)
+   
+              problem_type = 'rom'
+              MCMCobj2=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+              qparams2=MCMCobj2.sample() # run the Bayesian/MCMC algorithm
+              MCMCobj2.plot_dist(qparams2,'reduced order',dc)
    
    
    
