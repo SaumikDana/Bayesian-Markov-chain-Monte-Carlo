@@ -31,7 +31,8 @@ class lstm_encoder(nn.Module):
         self.num_layers = num_layers
 
         # define LSTM layer
-        self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bidirectional=bidirectional)
+        self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bidirectional=bidirectional)
+
 
     def forward(self, x_input): # called internally by pytorch!!!
         
@@ -44,6 +45,7 @@ class lstm_encoder(nn.Module):
         lstm_out, self.hidden = self.lstm(x_input.view(x_input.shape[0], x_input.shape[1], self.input_size)) 
         
         return lstm_out, self.hidden     
+
     
     def init_hidden(self, batch_size):
         
@@ -74,7 +76,7 @@ class lstm_decoder(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        self.lstm = nn.LSTM(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers,bidirectional=bidirectional)
+        self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers,bidirectional=bidirectional)
         self.linear = nn.Linear(hidden_size, input_size)           
 
     def forward(self, x_input, encoder_hidden_states): # called internally by pytorch!!!
@@ -113,7 +115,7 @@ class lstm_seq2seq(nn.Module):
         self.decoder = lstm_decoder(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bidirectional=bidirectional)
 
 
-    def train_model(self, input_tensor, target_tensor, n_epochs, target_len, batch_size, training_prediction = 'mixed_teacher_forcing', teacher_forcing_ratio = 0.6, learning_rate = 0.01, dynamic_tf = False):
+    def train_model(self, input_tensor, target_tensor, n_epochs, target_len, batch_size):
         
         '''
         train lstm encoder-decoder
@@ -135,7 +137,13 @@ class lstm_seq2seq(nn.Module):
         :                                  reduces the amount of teacher forcing for each epoch
         : return losses:                   array of loss function for each epoch
         '''
-        
+
+        # training information
+        training_prediction = 'mixed_teacher_forcing'
+        teacher_forcing_ratio = 0.6
+        learning_rate = 0.01
+        dynamic_tf = True
+   
         # initialize array of losses 
         losses = np.full(n_epochs, np.nan) # fill up a column vector of nans!!
 
@@ -154,15 +162,14 @@ class lstm_seq2seq(nn.Module):
                 num_tf = 0
                 num_no_tf = 0
 
-                for b in range(n_batches):
+                # shuffled list!!!
+                b_ = range(n_batches)
+                random.shuffle(b_)
+
+                for b in b_:
                     # select data 
                     input_batch = input_tensor[:, b: b + batch_size, :]
                     target_batch = target_tensor[:, b: b + batch_size, :]
-
-                    # shuffling every epoch!!!
-                    input_batch, target_batch = utils.shuffle(input_batch.detach().numpy(), target_batch.detach().numpy())
-                    input_batch = torch.from_numpy(input_batch).type(torch.Tensor)
-                    target_batch = torch.from_numpy(target_batch).type(torch.Tensor)
 
                     # outputs tensor
                     outputs = torch.zeros(target_len, batch_size, input_batch.shape[2])
@@ -177,7 +184,7 @@ class lstm_seq2seq(nn.Module):
                     encoder_output, encoder_hidden = self.encoder(input_batch)
 
                     # decoder with teacher forcing
-                    decoder_input = input_batch[-1, :, :]   # shape: (batch_size, input_size)
+                    decoder_input = input_batch[-1, :, :]   
                     decoder_hidden = encoder_hidden
  
                     if training_prediction == 'recursive':
@@ -236,6 +243,7 @@ class lstm_seq2seq(nn.Module):
                 tr.set_postfix(loss="{0:.3f}".format(batch_loss))
             
         return losses
+
 
     def predict(self, input_tensor, target_len):
         

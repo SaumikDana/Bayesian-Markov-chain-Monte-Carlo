@@ -11,6 +11,7 @@ from RateStateModel import RateStateModel # RSF model
 import numpy as np
 import torch
 import math
+import random
 
 def synthetic_data(dc = 1.0):
     
@@ -104,8 +105,11 @@ def windowed_dataset(t, y, window, stride, num_features = 1):
         for ii in np.arange(num_samples):
             start_x = stride * ii
             end_x = start_x + window
-            Y[0:window, ii, ff] = y[start_x:end_x, ff] 
-            T[0:window, ii, ff] = t[start_x:end_x, ff]
+
+            index = range(start_x,end_x)
+
+            Y[0:window, ii, ff] = y[index, ff] 
+            T[0:window, ii, ff] = t[index, ff]
 
     return num_samples, T, Y
 

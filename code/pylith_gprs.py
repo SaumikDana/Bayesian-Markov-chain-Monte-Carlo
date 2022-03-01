@@ -22,15 +22,19 @@ class pylith_gprs:
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
+       np.random.shuffle(self.p_) # shuffle apriori!!!
 
        self.num_tsteps = 115
        self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
 
-       self.window = 23 # make sure num_tsteps is exact multiple of window!!!
+       self.window = 23 # make sure num_tsteps is exact multiple of window*batch_size!!!
        self.stride = self.window
-       self.num_features = 2
-       self.hidden_size = self.window/1
        self.batch_size = 1
+
+       self.num_features = 2
+
+       self.hidden_size = self.window/1
+
        self.num_layers = 1 
 
        self.consts={}
@@ -92,7 +96,7 @@ class pylith_gprs:
           t_appended[start_:end_,0] = t_[:]
           t_appended[start_:end_,1] = rate
 
-          u_appended[start_:end_,0] = -np.log(u_[:,0]) # log!!!
+          u_appended[start_:end_,0] = u_[:,0] 
           u_appended[start_:end_,1] = u_appended[start_:end_,0]
 
           u_appended_noise[start_:end_,0] = u_noise[:,0]
