@@ -3,36 +3,37 @@ from pylith_gprs import pylith_gprs
 from inference import rsf_inference,rsf_inference_no_rom,pylith_gprs_inference
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 
     
-def main(problem,rom,bayesian):
+def main(args):
 
-    if problem == 'rsf':
+    if args.problem == 'rsf':
     # rsf problem!!!
        problem_ = rsf()
        t_appended, acc_appended, file2 = problem_.time_series() 
 
-       if rom:
+       if args.reduction:
        # LSTM encoder-decoder!!!
          file1 = problem_.build_lstm(t_appended,acc_appended)
 
-       if bayesian:
+       if args.bayesian:
        # bayesian!!!
           if rom:
              rsf_inference(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.p_,problem_.model)      
           else:
              rsf_inference_no_rom(file1,file2,problem_.num_p,problem_.num_tsteps,problem_.p_,problem_.model)      
 
-    elif problem == 'pylith_gprs':
+    elif args.problem == 'coupled':
     # pylith-gprs problem!!!
-       problem_ = pylith_gprs()
+       problem_ = pylith_gprs(args)
        t_appended, u_appended, u_appended_noise = problem_.time_series() 
 
-       if rom:   
+       if args.reduction:   
        # LSTM encoder-decoder!!!
           problem_.build_lstm(t_appended,u_appended)
 
-       if bayesian:
+       if args.bayesian:
        # bayesian!!!
           problem_.inference(u_appended_noise)      
 
@@ -44,13 +45,18 @@ def main(problem,rom,bayesian):
 # Driver code!!!
 if __name__ == '__main__':
 
-#    problem = 'rsf'
-    problem = 'pylith_gprs'
-    rom = False
-#    rom = True
-#    bayesian = False
-    bayesian = True
-    main(problem,rom,bayesian)
+    #arguments!!!
+    #Usage: python dl_inference.py -problem coupled -nepochs 100 -nsamples 100 --bayesian
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-problem', dest='problem', type=str, help="Problem type")
+    parser.add_argument('-epochs',dest='num_epochs', type=int, help="Number of Epochs")
+    parser.add_argument('-samples',dest='num_samples', type=int, help="Number of Samples")
+    parser.add_argument('--reduction', dest='reduction', action='store_true')
+    parser.add_argument('--bayesian', dest='bayesian', action='store_true')
+
+    args = parser.parse_args()
+
+    main(args)
 
 
 
