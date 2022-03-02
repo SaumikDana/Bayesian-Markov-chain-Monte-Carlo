@@ -1,3 +1,4 @@
+
 from parse_vtk import parse_vtk
 import numpy as np
 import os
@@ -18,17 +19,17 @@ class pylith_gprs:
    '''
    def __init__(self,args):
 
-       self.num_p = 7
+       self.num_p = 1
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
        np.random.shuffle(self.p_) # shuffle apriori!!!
 
        self.num_tsteps = 115
-       self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
 
-       self.window = 23 # make sure num_tsteps is exact multiple of window*batch_size!!!
-       self.stride = self.window
+       # make sure (num_tsteps-1) is exact multiple of both window and stride to avoid losing any data points!!!
+       self.window = 19 
+       self.stride = 19
        self.batch_size = 1
 
        self.num_features = 2
@@ -52,6 +53,7 @@ class pylith_gprs:
 
        if self.args.reduction:   
        # LSTM encoder-decoder!!!
+          self.build_windowed_dataset()
           self.build_lstm()
 
        if self.args.bayesian:
@@ -61,20 +63,18 @@ class pylith_gprs:
 
    def time_series(self):
 
-       num_p = self.num_p
-       p_ = self.p_
-       t_ = self.t_
-       num_tsteps = self.num_tsteps
-       num_features = self.num_features
-       num_features = self.num_features
+       # taking difference for better fitment!!!
+       self.num_tsteps -= 1
 
-       t_appended =  np.zeros((num_p*num_tsteps,num_features))
-       u_appended =  np.zeros((num_p*num_tsteps,num_features))
-       u_appended_noise =  np.zeros((num_p*num_tsteps,num_features))
+       self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
+       t_appended =  np.zeros((self.num_p*self.num_tsteps,self.num_features))
+       u_appended =  np.zeros((self.num_p*self.num_tsteps,self.num_features))
+       u_appended_noise =  np.zeros((self.num_p*self.num_tsteps,self.num_features))
        
-       u = np.zeros((num_tsteps,2))
        count_q = 0
-       for rate in p_:
+       for rate in self.p_:
+          # since we are taking difference for better fitment!!!
+          u = np.zeros((self.num_tsteps+1,2))
           directory = './vtk_plots' + '/%s' % int(rate)
           count_ = 0
           for file_name in sorted(os.listdir(directory)):
@@ -85,15 +85,18 @@ class pylith_gprs:
                   u[count_,1] = u[count_,0]
                   count_ += 1
 
+          # taking difference for better fitment!!!
+          u = np.diff(u, axis=0) 
+
           temp = np.asarray(u).reshape(len(u),-1)
           u_noise = temp + 1.0*np.abs(temp)*np.random.randn(temp.shape[0],temp.shape[1]) #synthetic data
 
-          u_ = u.reshape(-1,num_features)
-          u_noise = u_noise.reshape(-1,num_features)
-          start_ = count_q*num_tsteps
-          end_ = start_ + num_tsteps
+          u_ = u.reshape(-1,self.num_features)
+          u_noise = u_noise.reshape(-1,self.num_features)
+          start_ = count_q*self.num_tsteps
+          end_ = start_ + self.num_tsteps
 
-          t_appended[start_:end_,0] = t_[:]
+          t_appended[start_:end_,0] = self.t_[:]
           t_appended[start_:end_,1] = rate
 
           u_appended[start_:end_,0] = u_[:,0] 
@@ -111,13 +114,53 @@ class pylith_gprs:
        save_object(u_appended_noise,self.data_file)
 
  
+   def build_windowed_dataset(self):
+    
+       # build windowed dataset!!!
+       t_ = self.t_appended.reshape(-1,self.num_features)
+       var_ = self.u_appended.reshape(-1,self.num_features)
+       self.num_samples_train, self.Ttrain, self.Ytrain = self.windowed_dataset(t_, var_) 
+
+
+   def windowed_dataset(self,t, y):
+    
+       L = y.shape[0]
+       num_samples = (L - self.window) // self.stride + 1
+       print(L,num_samples)
+   #    num_samples = int(math.ceil(L/stride))
+   
+       Y = np.zeros([self.window, num_samples, self.num_features])     
+       T = np.zeros([self.window, num_samples, self.num_features])     
+      
+       for ff in np.arange(self.num_features):
+           for ii in np.arange(num_samples):
+               start_x = self.stride * ii
+               end_x = start_x + self.window
+   
+               index = range(start_x,end_x)
+               print(index)
+   
+               Y[0:self.window, ii, ff] = y[index, ff] 
+               T[0:self.window, ii, ff] = t[index, ff]
+   
+       return num_samples, T, Y
+
+
+   def numpy_to_torch(self,Ttrain, Ytrain):
+       '''
+       convert numpy array to PyTorch tensor
+       
+       '''
+       T_train_torch = torch.from_numpy(Ttrain).type(torch.Tensor)
+       Y_train_torch = torch.from_numpy(Ytrain).type(torch.Tensor)
+       
+       return T_train_torch, Y_train_torch
+
+
    def build_lstm(self):
     
        # build rom!!!
-       t_ = self.t_appended.reshape(-1,self.num_features)
-       var_ = self.u_appended.reshape(-1,self.num_features)
-       num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, var_, self.window, self.stride, self.num_features) 
-       T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
+       T_train, Y_train = self.numpy_to_torch(self.Ttrain, self.Ytrain)
        n_epochs = self.args.num_epochs
        input_tensor = T_train
        model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], self.hidden_size, self.num_layers, False)
@@ -127,7 +170,7 @@ class pylith_gprs:
        save_object(model_lstm,self.lstm_file)
 
        # plot!!!
-       self.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, self.stride, self.window, 'Training', 'Reconstruction', num_samples_train, self.num_p, self.p_, self.num_tsteps)
+#       self.plot_results(model_lstm, self.Ttrain, self.Ttrain, self.Ytrain, self.stride, self.window, 'Training', 'Reconstruction', self.num_samples_train, self.num_p, self.p_, self.num_tsteps)
 
 
    def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
@@ -149,7 +192,6 @@ class pylith_gprs:
              start = ii*stride
              end = start + window
    
-             train_plt = X_[:, count_q*num_samples_per_q+ii, :]
              train_plt = X_[:, count_q*num_samples_per_q+ii, :]
              Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
    

@@ -96,7 +96,8 @@ def windowed_dataset(t, y, window, stride, num_features = 1):
     '''
  
     L = y.shape[0]
-    num_samples = int(math.ceil(L/stride))
+    num_samples = (L - window) // stride + 1
+#    num_samples = int(math.ceil(L/stride))
 
     Y = np.zeros([window, num_samples, num_features])     
     T = np.zeros([window, num_samples, num_features])     
