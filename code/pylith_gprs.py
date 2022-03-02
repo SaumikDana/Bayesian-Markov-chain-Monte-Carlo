@@ -29,7 +29,7 @@ class pylith_gprs:
 
        # too many parameters!!!
        self.window = 25
-       self.stride = 4
+       self.stride = 1
        self.batch_size = 1
        self.hidden_size = 5
 
@@ -161,14 +161,15 @@ class pylith_gprs:
        save_object(model_lstm,self.lstm_file)
 
        # plot!!!
-       self.plot(model_lstm, self.Ttrain, self.Ttrain, self.Ytrain, self.stride, self.window, 'Training', 'Reconstruction', self.num_samples_train, self.num_p, self.p_, self.num_tsteps)
+       self.plot(model_lstm, self.Ttrain, self.Ttrain, self.Ytrain, self.stride, self.window, 'Training', 'Reconstruction',)
 
 
-   def plot(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
+   def plot(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective):
      '''
      plot examples of the lstm encoder-decoder evaluated on the training/test data
      
      '''
+     num_samples, num_p, p_, num_tsteps = self.num_samples_train, self.num_p, self.p_, self.num_tsteps 
      count_q = 0
      for q in p_:
    
@@ -177,6 +178,8 @@ class pylith_gprs:
          T = np.zeros([self.window,num_samples])     
 
          T__ = np.zeros([self.end_x])     
+         X__ = np.zeros([self.end_x])     
+         Y__ = np.zeros([self.end_x])     
   
          for ii in range(num_samples):
    
@@ -189,37 +192,43 @@ class pylith_gprs:
 
              if ii != 0:
                xy, ind1, ind2 = np.intersect1d(T[:,ii-1],T[:,ii],return_indices=True)
-               for indx in range(2*self.window-ind1.shape[0]):
-                  if indx < ind1[0]:
-                     T__[indx+(ii-1)*stride] = T[indx,ii-1]
-                  elif indx > ind1[-1]:
-                     T__[indx+(ii-1)*stride] = T[indx-ind1[-1],ii]
-                  else:
-                     T__[indx+(ii-1)*stride] = (T[indx-ind1[0],ii-1]+T[ind2[0]-indx,ii])/2
+               end = 2*self.window - ind1.shape[0]
 
-             print(T__)
+               T__[(ii-1)*stride+0:(ii-1)*stride+ind1[0]] = T[0:ind1[0],ii-1] 
+               T__[(ii-1)*stride+ind1[0]:(ii-1)*stride+ind1[-1]] = (T[ind1[0]:ind1[-1],ii-1] + T[ind2[0]:ind2[-1],ii])/2 
+               T__[(ii-1)*stride+ind1[-1]:(ii-1)*stride+end] = T[ind2[-1]:T[:,ii].shape[0],ii] 
 
-#         plt.rcParams.update({'font.size': 16})
-#         plt.figure()
-#         plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
-#         plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
-#         plt.xlabel('Time stamp')
-#         plt.ylabel('Disp $(m)$')
-#         plt.legend(frameon=False)
-#         plt.suptitle('%s data set for q=%s MSCF/day' % (dataset_type,q), x = 0.445, y = 1.)
-#         plt.tight_layout()
-#         plt.savefig('plots/%s_%s.png' % (q,dataset_type))
+               X__[(ii-1)*stride+0:(ii-1)*stride+ind1[0]] = X[0:ind1[0],ii-1] 
+               X__[(ii-1)*stride+ind1[0]:(ii-1)*stride+ind1[-1]] = (X[ind1[0]:ind1[-1],ii-1] + X[ind2[0]:ind2[-1],ii])/2 
+               X__[(ii-1)*stride+ind1[-1]:(ii-1)*stride+end] = X[ind2[-1]:X[:,ii].shape[0],ii] 
+
+               Y__[(ii-1)*stride+0:(ii-1)*stride+ind1[0]] = Y[0:ind1[0],ii-1] 
+               Y__[(ii-1)*stride+ind1[0]:(ii-1)*stride+ind1[-1]] = (Y[ind1[0]:ind1[-1],ii-1] + Y[ind2[0]:ind2[-1],ii])/2 
+               Y__[(ii-1)*stride+ind1[-1]:(ii-1)*stride+end] = Y[ind2[-1]:Y[:,ii].shape[0],ii] 
+
+
+         plt.rcParams.update({'font.size': 16})
+         plt.figure()
+         plt.plot(T__, X__, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
+         plt.plot(T__, Y__, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
+         plt.xlabel('Time stamp')
+         plt.ylabel('Disp $(m)$')
+         plt.legend(frameon=False)
+         plt.suptitle('%s data set for q=%s MSCF/day' % (dataset_type,q), x = 0.445, y = 1.)
+         plt.tight_layout()
+         plt.savefig('plots/%s_%s.png' % (q,dataset_type))
    
          count_q += 1
    
          del X,Y,T
    
 
-   def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
+   def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective):
      '''
      plot examples of the lstm encoder-decoder evaluated on the training/test data
      
      '''
+     num_samples, num_p, p_, num_tsteps = self.num_samples_train, self.num_p, self.p_, self.num_tsteps 
      count_q = 0
      for q in p_:
    
