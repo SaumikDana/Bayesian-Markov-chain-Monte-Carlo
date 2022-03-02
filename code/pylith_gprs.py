@@ -27,14 +27,13 @@ class pylith_gprs:
 
        self.num_tsteps = 115
 
-       # make sure (num_tsteps-1) is exact multiple of both window and stride to avoid losing any data points!!!
-       self.window = 15
+       # too many parameters!!!
+       self.window = 25
        self.stride = 4
        self.batch_size = 1
+       self.hidden_size = 5
 
        self.num_features = 2
-
-       self.hidden_size = self.window/1
 
        self.num_layers = 1 
 
@@ -101,7 +100,7 @@ class pylith_gprs:
           count_q += 1
   
        self.t_appended = t_appended
-       self.u_appended = u_appended_noise
+       self.u_appended = u_appended
  
        # pickle the data!!!
        save_object(u_appended_noise,self.data_file)
@@ -124,16 +123,16 @@ class pylith_gprs:
        T = np.zeros([self.window, num_samples, self.num_features])     
       
        for ff in np.arange(self.num_features):
+
            for ii in np.arange(num_samples):
+
                start_x = self.stride * ii
                end_x = start_x + self.window
- 
-               print(ii) 
-               index = range(start_x,end_x)
-               print(index)
+
+               self.end_x = end_x # end of final window may not be the end of data!!!
    
-               Y[0:self.window, ii, ff] = y[index, ff] 
-               T[0:self.window, ii, ff] = t[index, ff]
+               Y[0:self.window, ii, ff] = y[start_x:end_x, ff] 
+               T[0:self.window, ii, ff] = t[start_x:end_x, ff]
    
        return num_samples, T, Y
 
@@ -173,28 +172,34 @@ class pylith_gprs:
      count_q = 0
      for q in p_:
    
-         X = [] 
-         Y = []     
-         T = []     
+         X = np.zeros([self.end_x]) 
+         Y = np.zeros([self.end_x])     
+         T = np.zeros([self.end_x])     
   
          for ii in range(num_samples):
    
              train_plt = X_[:, ii, :]
              Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
-   
+ 
              start = ii*stride
-             end = start + stride
-             if ii == (num_samples-1):
-                end = start + window # last window!!!
+             end = start + window
 
-             X.extend(Y_[0:end-start, ii, 0].tolist())
-             Y.extend(Y_train_pred[0:end-start, 0].tolist())
-             T.extend(T_[0:end-start, ii, 0].tolist())
+             X[start:end] += Y_[:, ii, 0]
+             Y[start:end] += Y_train_pred[:, 0]
+             T[start:end] += T_[:, ii, 0]
+             print('-----------------------')
+             print(T_[:, ii, 0])
+
+         # averaging!!!
+         X = X/num_samples
+         Y = Y/num_samples
+         T = T/num_samples
+         print(self.end_x)
 
          plt.rcParams.update({'font.size': 16})
          plt.figure()
          plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
-         plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
+#         plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
          plt.xlabel('Time stamp')
          plt.ylabel('Disp $(m)$')
          plt.legend(frameon=False)
