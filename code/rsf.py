@@ -75,7 +75,6 @@ class rsf:
           acc_appended[start_:end_,0] = acc[:,0]; acc_appended[start_:end_,1] = acc[:,1]
           acc_appended_noise[start_:end_,0] = acc_noise[:,0]; acc_appended_noise[start_:end_,1] = acc_noise[:,1]
           count_dc += 1
-
   
        self.t_appended = t_appended
        self.acc_appended = acc_appended

@@ -1,4 +1,3 @@
-
 from parse_vtk import parse_vtk
 import numpy as np
 import os
@@ -12,6 +11,7 @@ import torch
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 from sklearn.preprocessing import MinMaxScaler
+
 
 class pylith_gprs:
    '''
@@ -28,8 +28,8 @@ class pylith_gprs:
        self.num_tsteps = 115
 
        # make sure (num_tsteps-1) is exact multiple of both window and stride to avoid losing any data points!!!
-       self.window = 19 
-       self.stride = 19
+       self.window = 15
+       self.stride = 4
        self.batch_size = 1
 
        self.num_features = 2
@@ -63,9 +63,6 @@ class pylith_gprs:
 
    def time_series(self):
 
-       # taking difference for better fitment!!!
-       self.num_tsteps -= 1
-
        self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
        t_appended =  np.zeros((self.num_p*self.num_tsteps,self.num_features))
        u_appended =  np.zeros((self.num_p*self.num_tsteps,self.num_features))
@@ -73,8 +70,7 @@ class pylith_gprs:
        
        count_q = 0
        for rate in self.p_:
-          # since we are taking difference for better fitment!!!
-          u = np.zeros((self.num_tsteps+1,2))
+          u = np.zeros((self.num_tsteps,2))
           directory = './vtk_plots' + '/%s' % int(rate)
           count_ = 0
           for file_name in sorted(os.listdir(directory)):
@@ -84,9 +80,6 @@ class pylith_gprs:
                   u[count_,0] = parser.get_surface_information("displacement")
                   u[count_,1] = u[count_,0]
                   count_ += 1
-
-          # taking difference for better fitment!!!
-          u = np.diff(u, axis=0) 
 
           temp = np.asarray(u).reshape(len(u),-1)
           u_noise = temp + 1.0*np.abs(temp)*np.random.randn(temp.shape[0],temp.shape[1]) #synthetic data
@@ -108,7 +101,7 @@ class pylith_gprs:
           count_q += 1
   
        self.t_appended = t_appended
-       self.u_appended = u_appended
+       self.u_appended = u_appended_noise
  
        # pickle the data!!!
        save_object(u_appended_noise,self.data_file)
@@ -126,8 +119,6 @@ class pylith_gprs:
     
        L = y.shape[0]
        num_samples = (L - self.window) // self.stride + 1
-       print(L,num_samples)
-   #    num_samples = int(math.ceil(L/stride))
    
        Y = np.zeros([self.window, num_samples, self.num_features])     
        T = np.zeros([self.window, num_samples, self.num_features])     
@@ -136,7 +127,8 @@ class pylith_gprs:
            for ii in np.arange(num_samples):
                start_x = self.stride * ii
                end_x = start_x + self.window
-   
+ 
+               print(ii) 
                index = range(start_x,end_x)
                print(index)
    
@@ -170,8 +162,50 @@ class pylith_gprs:
        save_object(model_lstm,self.lstm_file)
 
        # plot!!!
-#       self.plot_results(model_lstm, self.Ttrain, self.Ttrain, self.Ytrain, self.stride, self.window, 'Training', 'Reconstruction', self.num_samples_train, self.num_p, self.p_, self.num_tsteps)
+       self.plot(model_lstm, self.Ttrain, self.Ttrain, self.Ytrain, self.stride, self.window, 'Training', 'Reconstruction', self.num_samples_train, self.num_p, self.p_, self.num_tsteps)
 
+
+   def plot(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
+     '''
+     plot examples of the lstm encoder-decoder evaluated on the training/test data
+     
+     '''
+     count_q = 0
+     for q in p_:
+   
+         X = [] 
+         Y = []     
+         T = []     
+  
+         for ii in range(num_samples):
+   
+             train_plt = X_[:, ii, :]
+             Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
+   
+             start = ii*stride
+             end = start + stride
+             if ii == (num_samples-1):
+                end = start + window # last window!!!
+
+             X.extend(Y_[0:end-start, ii, 0].tolist())
+             Y.extend(Y_train_pred[0:end-start, 0].tolist())
+             T.extend(T_[0:end-start, ii, 0].tolist())
+
+         plt.rcParams.update({'font.size': 16})
+         plt.figure()
+         plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
+         plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
+         plt.xlabel('Time stamp')
+         plt.ylabel('Disp $(m)$')
+         plt.legend(frameon=False)
+         plt.suptitle('%s data set for q=%s MSCF/day' % (dataset_type,q), x = 0.445, y = 1.)
+         plt.tight_layout()
+         plt.savefig('plots/%s_%s.png' % (q,dataset_type))
+   
+         count_q += 1
+   
+         del X,Y,T
+   
 
    def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
      '''
