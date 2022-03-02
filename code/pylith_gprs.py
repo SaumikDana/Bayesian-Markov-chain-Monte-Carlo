@@ -19,6 +19,8 @@ class pylith_gprs:
    '''
    def __init__(self,args):
 
+       self.args = args
+
        self.num_p = 1
        start_q = 100.0
        end_q = 400.0
@@ -29,7 +31,9 @@ class pylith_gprs:
 
        # too many parameters!!!
        self.window = 25
-       self.stride = 1
+       self.stride = self.window
+       if self.args.overlap:
+         self.stride = 1
        self.batch_size = 1
        self.hidden_size = 5
 
@@ -39,8 +43,6 @@ class pylith_gprs:
 
        self.consts={}
        self.consts["q"] = 1000 # dummy!!!
-
-       self.args = args
 
        self.lstm_file = 'model_lstm.pickle'
        self.data_file = 'data.pickle'
@@ -161,15 +163,18 @@ class pylith_gprs:
        save_object(model_lstm,self.lstm_file)
 
        # plot!!!
-       self.plot(model_lstm, self.Ttrain, self.Ttrain, self.Ytrain, self.stride, self.window, 'Training', 'Reconstruction',)
+       if self.args.overlap:
+         self.plot(model_lstm, self.Ttrain, self.Ttrain, self.Ytrain, 'Training', 'Reconstruction',)
+       else:
+         self.plot_results(model_lstm, self.Ttrain, self.Ttrain, self.Ytrain, 'Training', 'Reconstruction',)
 
 
-   def plot(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective):
+   def plot(self,lstm_model, T_, X_, Y_, dataset_type, objective):
      '''
      plot examples of the lstm encoder-decoder evaluated on the training/test data
      
      '''
-     num_samples, num_p, p_, num_tsteps = self.num_samples_train, self.num_p, self.p_, self.num_tsteps 
+     stride,window,num_samples,num_p,p_,num_tsteps = self.stride,self.window,self.num_samples_train,self.num_p,self.p_,self.num_tsteps 
      count_q = 0
      for q in p_:
    
@@ -220,15 +225,15 @@ class pylith_gprs:
    
          count_q += 1
    
-         del X,Y,T
+         del X,Y,T,X__,Y__,T__
    
 
-   def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective):
+   def plot_results(self,lstm_model, T_, X_, Y_, dataset_type, objective):
      '''
      plot examples of the lstm encoder-decoder evaluated on the training/test data
      
      '''
-     num_samples, num_p, p_, num_tsteps = self.num_samples_train, self.num_p, self.p_, self.num_tsteps 
+     stride,window,num_samples,num_p,p_,num_tsteps = self.stride,self.window,self.num_samples_train,self.num_p,self.p_,self.num_tsteps 
      count_q = 0
      for q in p_:
    

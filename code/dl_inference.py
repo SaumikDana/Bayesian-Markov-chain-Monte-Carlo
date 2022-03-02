@@ -13,6 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('-epochs',dest='num_epochs', type=int, help="Number of Epochs")
     parser.add_argument('-samples',dest='num_samples', type=int, help="Number of Samples")
     parser.add_argument('--reduction', dest='reduction', action='store_true')
+    parser.add_argument('--overlap', dest='overlap', action='store_true')
     parser.add_argument('--bayesian', dest='bayesian', action='store_true')
 
     args = parser.parse_args()
