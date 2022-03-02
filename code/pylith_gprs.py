@@ -11,7 +11,7 @@ import torch
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 from sklearn.preprocessing import MinMaxScaler
-
+from scipy import signal
 
 class pylith_gprs:
    '''
@@ -131,8 +131,8 @@ class pylith_gprs:
 
                self.end_x = end_x # end of final window may not be the end of data!!!
    
-               Y[0:self.window, ii, ff] = y[start_x:end_x, ff] 
-               T[0:self.window, ii, ff] = t[start_x:end_x, ff]
+               Y[:, ii, ff] = y[start_x:end_x, ff] 
+               T[:, ii, ff] = t[start_x:end_x, ff]
    
        return num_samples, T, Y
 
@@ -172,37 +172,42 @@ class pylith_gprs:
      count_q = 0
      for q in p_:
    
-         X = np.zeros([self.end_x]) 
-         Y = np.zeros([self.end_x])     
-         T = np.zeros([self.end_x])     
+         X = np.zeros([self.window,num_samples]) 
+         Y = np.zeros([self.window,num_samples])     
+         T = np.zeros([self.window,num_samples])     
+
+         T__ = np.zeros([self.end_x])     
   
          for ii in range(num_samples):
    
              train_plt = X_[:, ii, :]
              Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
- 
-             start = ii*stride
-             end = start + window
 
-             X[start:end] += np.convolve(Y_[:, ii, 0],np.ones_like(Y_[:, ii, 0]),'same')
-             Y[start:end] += np.convolve(Y_train_pred[:, 0],np.ones_like(Y_train_pred[:, 0]),'same')
-             T[start:end] += np.convolve(T_[:, ii, 0],np.ones_like(T_[:, ii, 0]),'same')
+             X[:,ii] = Y_[:, ii, 0]
+             Y[:,ii] = Y_train_pred[:, 0]
+             T[:,ii] = T_[:, ii, 0]
 
-         # averaging!!!
-         X = X/num_samples
-         Y = Y/num_samples
-         T = T/num_samples
+             if ii != 0:
+               xy, ind1, ind2 = np.intersect1d(T[:,ii-1],T[:,ii],return_indices=True)
+               for indx in range(2*self.window-ind1.shape[0]):
+                  if indx < ind1[0]:
+                     T__[indx+(ii-1)*stride] = T[indx,ii-1]
+                  elif indx > ind2[0]:
+                     T__[indx+(ii-1)*stride] = T[indx,ii]
+                  else:
+                     T__[indx+(ii-1)*stride] = (T[indx-ind1[0],ii-1]+T[ind2[0]-indx,ii])/2
 
-         plt.rcParams.update({'font.size': 16})
-         plt.figure()
-         plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
+
+#         plt.rcParams.update({'font.size': 16})
+#         plt.figure()
+#         plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
 #         plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
-         plt.xlabel('Time stamp')
-         plt.ylabel('Disp $(m)$')
-         plt.legend(frameon=False)
-         plt.suptitle('%s data set for q=%s MSCF/day' % (dataset_type,q), x = 0.445, y = 1.)
-         plt.tight_layout()
-         plt.savefig('plots/%s_%s.png' % (q,dataset_type))
+#         plt.xlabel('Time stamp')
+#         plt.ylabel('Disp $(m)$')
+#         plt.legend(frameon=False)
+#         plt.suptitle('%s data set for q=%s MSCF/day' % (dataset_type,q), x = 0.445, y = 1.)
+#         plt.tight_layout()
+#         plt.savefig('plots/%s_%s.png' % (q,dataset_type))
    
          count_q += 1
    
