@@ -192,11 +192,12 @@ class pylith_gprs:
                for indx in range(2*self.window-ind1.shape[0]):
                   if indx < ind1[0]:
                      T__[indx+(ii-1)*stride] = T[indx,ii-1]
-                  elif indx > ind2[0]:
-                     T__[indx+(ii-1)*stride] = T[indx,ii]
+                  elif indx > ind1[-1]:
+                     T__[indx+(ii-1)*stride] = T[indx-ind1[-1],ii]
                   else:
                      T__[indx+(ii-1)*stride] = (T[indx-ind1[0],ii-1]+T[ind2[0]-indx,ii])/2
 
+             print(T__)
 
 #         plt.rcParams.update({'font.size': 16})
 #         plt.figure()
