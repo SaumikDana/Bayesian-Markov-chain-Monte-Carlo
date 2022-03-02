@@ -184,17 +184,14 @@ class pylith_gprs:
              start = ii*stride
              end = start + window
 
-             X[start:end] += Y_[:, ii, 0]
-             Y[start:end] += Y_train_pred[:, 0]
-             T[start:end] += T_[:, ii, 0]
-             print('-----------------------')
-             print(T_[:, ii, 0])
+             X[start:end] += np.convolve(Y_[:, ii, 0],np.ones_like(Y_[:, ii, 0]),'same')
+             Y[start:end] += np.convolve(Y_train_pred[:, 0],np.ones_like(Y_train_pred[:, 0]),'same')
+             T[start:end] += np.convolve(T_[:, ii, 0],np.ones_like(T_[:, ii, 0]),'same')
 
          # averaging!!!
          X = X/num_samples
          Y = Y/num_samples
          T = T/num_samples
-         print(self.end_x)
 
          plt.rcParams.update({'font.size': 16})
          plt.figure()
