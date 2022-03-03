@@ -30,7 +30,7 @@ class pylith_gprs:
        self.num_tsteps = 115
 
        # too many parameters!!!
-       self.window = 25
+       self.window = 10
        self.stride = self.window
        if self.args.overlap:
          self.stride = 1
@@ -50,15 +50,15 @@ class pylith_gprs:
 
    def solve(self):
 
+       # build time series!!!
        self.time_series() 
 
-       if self.args.reduction:   
        # LSTM encoder-decoder!!!
-          self.build_windowed_dataset()
+       if self.args.reduction:   
           self.build_lstm()
 
-       if self.args.bayesian:
        # bayesian!!!
+       if self.args.bayesian:
           self.inference()      
 
 
@@ -108,35 +108,32 @@ class pylith_gprs:
        save_object(u_appended_noise,self.data_file)
 
  
-   def build_windowed_dataset(self):
+   def window_dataset(self):
     
-       # build windowed dataset!!!
        t_ = self.t_appended.reshape(-1,self.num_features)
        var_ = self.u_appended.reshape(-1,self.num_features)
-       self.num_samples_train, self.Ttrain, self.Ytrain = self.windowed_dataset(t_, var_) 
-
-
-   def windowed_dataset(self,t, y):
     
-       L = y.shape[0]
-       num_samples = (L - self.window) // self.stride + 1
+       self.num_samples = (var_.shape[0] - self.window) // self.stride + 1
    
-       Y = np.zeros([self.window, num_samples, self.num_features])     
-       T = np.zeros([self.window, num_samples, self.num_features])     
+       Y = np.zeros([self.window, self.num_samples, self.num_features])     
+       T = np.zeros([self.window, self.num_samples, self.num_features])     
       
        for ff in np.arange(self.num_features):
 
-           for ii in np.arange(num_samples):
+           for ii in np.arange(self.num_samples):
 
                start_x = self.stride * ii
                end_x = start_x + self.window
 
                self.end_x = end_x # end of final window may not be the end of data!!!
    
-               Y[:, ii, ff] = y[start_x:end_x, ff] 
-               T[:, ii, ff] = t[start_x:end_x, ff]
+               Y[:, ii, ff] = var_[start_x:end_x, ff] 
+               T[:, ii, ff] = t_[start_x:end_x, ff]
+
+       self.Ttrain = T
+       self.Ytrain = Y
    
-       return num_samples, T, Y
+       del T, Y
 
 
    def numpy_to_torch(self,Ttrain, Ytrain):
@@ -152,6 +149,9 @@ class pylith_gprs:
 
    def build_lstm(self):
     
+       # window dataset!!!
+       self.window_dataset()
+
        # build rom!!!
        T_train, Y_train = self.numpy_to_torch(self.Ttrain, self.Ytrain)
        n_epochs = self.args.num_epochs
@@ -174,7 +174,7 @@ class pylith_gprs:
      plot examples of the lstm encoder-decoder evaluated on the training/test data
      
      '''
-     stride,window,num_samples,num_p,p_,num_tsteps = self.stride,self.window,self.num_samples_train,self.num_p,self.p_,self.num_tsteps 
+     stride,window,num_samples,num_p,p_,num_tsteps = self.stride,self.window,self.num_samples,self.num_p,self.p_,self.num_tsteps 
      count_q = 0
      for q in p_:
    
@@ -214,8 +214,8 @@ class pylith_gprs:
 
          plt.rcParams.update({'font.size': 16})
          plt.figure()
-         plt.plot(T__, X__, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
-         plt.plot(T__, Y__, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
+         plt.plot(T__, X__, '-o', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
+         plt.plot(T__, Y__, '-o', color = (0.76, 0.01, 0.01), linewidth = 1.0, marker = '.', markersize = 6.0, markeredgecolor = 'k', label = '%s' % objective)
          plt.xlabel('Time stamp')
          plt.ylabel('Disp $(m)$')
          plt.legend(frameon=False)
@@ -233,7 +233,7 @@ class pylith_gprs:
      plot examples of the lstm encoder-decoder evaluated on the training/test data
      
      '''
-     stride,window,num_samples,num_p,p_,num_tsteps = self.stride,self.window,self.num_samples_train,self.num_p,self.p_,self.num_tsteps 
+     stride,window,num_samples,num_p,p_,num_tsteps = self.stride,self.window,self.num_samples,self.num_p,self.p_,self.num_tsteps 
      count_q = 0
      for q in p_:
    
@@ -257,8 +257,8 @@ class pylith_gprs:
    
          plt.rcParams.update({'font.size': 16})
          plt.figure()
-         plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
-         plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
+         plt.plot(T, X, '-o', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
+         plt.plot(T, Y, '-o', color = (0.76, 0.01, 0.01), linewidth = 1.0, marker = '.', markersize = 6.0, markeredgecolor = 'k', label = '%s' % objective)
          plt.xlabel('Time stamp')
          plt.ylabel('Disp $(m)$')
          plt.legend(frameon=False)
