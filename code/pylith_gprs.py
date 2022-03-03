@@ -13,6 +13,7 @@ from scipy.stats import gaussian_kde
 from sklearn.preprocessing import MinMaxScaler
 from scipy import signal
 
+
 class pylith_gprs:
    '''
    Driver class for Pylith GPRS model
@@ -21,7 +22,7 @@ class pylith_gprs:
 
        self.args = args
 
-       self.num_p = 2
+       self.num_p = 4
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
@@ -65,6 +66,7 @@ class pylith_gprs:
    def time_series(self):
 
        self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
+
        t_appended =  np.zeros((self.num_p*self.num_tsteps,self.num_features))
        u_appended =  np.zeros((self.num_p*self.num_tsteps,self.num_features))
        u_appended_noise =  np.zeros((self.num_p*self.num_tsteps,self.num_features))
@@ -108,11 +110,51 @@ class pylith_gprs:
        save_object(u_appended_noise,self.data_file)
 
  
+   def window_dataset_overlap(self):
+    
+       t_ = self.t_appended.reshape(-1,self.num_features)
+       var_ = self.u_appended.reshape(-1,self.num_features)
+  
+       Y = np.zeros([self.num_p, self.window, self.num_samples, self.num_features])     
+       T = np.zeros([self.num_p, self.window, self.num_samples, self.num_features])     
+      
+       count_q = 0
+
+       for q in self.p_: 
+
+          t__ = np.zeros([self.num_tsteps,self.num_features]) 
+          t__[:,:] = t_[count_q*self.num_tsteps:count_q*self.num_tsteps+num_steps,:]
+
+          var__ = np.zeros([self.num_tsteps,2]) 
+          var__[:,:] = var_[count_q*self.num_tsteps:count_q*self.num_tsteps+num_steps,:]
+
+          self.num_samples = (var__.shape[0] - self.window) // self.stride + 1
+   
+          for ff in np.arange(self.num_features):
+
+              for ii in np.arange(self.num_samples):
+
+                  start_x = self.stride * ii
+                  end_x = start_x + self.window
+
+                  self.end_x = end_x # end of final window may not be the end of data!!!
+ 
+                  Y[count_q, :, ii, ff] = var__[start_x:end_x, ff] 
+                  T[count_q, :, ii, ff] = t__[start_x:end_x, ff]
+
+          count_q += 1
+
+       self.Ttrain = T
+       self.Ytrain = Y
+   
+       del T, Y
+
+
    def window_dataset(self):
     
        t_ = self.t_appended.reshape(-1,self.num_features)
        var_ = self.u_appended.reshape(-1,self.num_features)
-    
+
        self.num_samples = (var_.shape[0] - self.window) // self.stride + 1
    
        Y = np.zeros([self.window, self.num_samples, self.num_features])     
