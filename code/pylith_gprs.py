@@ -22,7 +22,7 @@ class pylith_gprs:
 
        self.args = args
 
-       self.num_p = 2
+       self.num_p = 7
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
@@ -30,13 +30,18 @@ class pylith_gprs:
 
        self.num_tsteps = 115
 
-       # too many parameters!!!
-       self.window = 5
+       if self.args.overlap:
+         self.window = 10 
+       else:
+         self.window = 23 # for nonoverlapping approach, num_tsteps has to be exact multiple of window!!!
+
        self.stride = self.window
+
        if self.args.overlap:
          self.stride = 1
+
        self.batch_size = 1
-       self.hidden_size = 2
+       self.hidden_size = 5
 
        self.num_features = 2
 
@@ -258,14 +263,14 @@ class pylith_gprs:
 
          plt.rcParams.update({'font.size': 16})
          plt.figure()
-         plt.plot(T__, X__, '-o', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
-         plt.plot(T__, Y__, '-o', color = (0.76, 0.01, 0.01), linewidth = 1.0, marker = '.', markersize = 6.0, markeredgecolor = 'k', label = '%s' % objective)
+         plt.plot(T__, X__, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, label = 'Target')
+         plt.plot(T__, Y__, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, label = '%s' % objective)
          plt.xlabel('Time stamp')
          plt.ylabel('Disp $(m)$')
          plt.legend(frameon=False)
          plt.suptitle('%s data set for q=%s MSCF/day' % (dataset_type,q), x = 0.445, y = 1.)
          plt.tight_layout()
-         plt.savefig('plots/%s_%s.png' % (q,dataset_type))
+         plt.savefig('plots/%s_%s_overlap.png' % (q,dataset_type))
    
          count_q += 1
    
@@ -301,8 +306,8 @@ class pylith_gprs:
    
          plt.rcParams.update({'font.size': 16})
          plt.figure()
-         plt.plot(T, X, '-o', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
-         plt.plot(T, Y, '-o', color = (0.76, 0.01, 0.01), linewidth = 1.0, marker = '.', markersize = 6.0, markeredgecolor = 'k', label = '%s' % objective)
+         plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, label = 'Target')
+         plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, label = '%s' % objective)
          plt.xlabel('Time stamp')
          plt.ylabel('Disp $(m)$')
          plt.legend(frameon=False)
@@ -404,4 +409,9 @@ class pylith_gprs:
        ax[1].get_yaxis().set_visible(False)
        ax[1].get_xaxis().set_visible(True)
        ax[1].get_xaxis().set_ticks([])
-       fig.savefig('./plots/pylith_gprs_burn_%s_%s_.png' % (q,self.args.num_samples))
+
+       if self.args.overlap:
+         fig.savefig('./plots/pylith_gprs_burn_%s_%s_overlap.png' % (q,self.args.num_samples))
+       else:
+         fig.savefig('./plots/pylith_gprs_burn_%s_%s_.png' % (q,self.args.num_samples))
+

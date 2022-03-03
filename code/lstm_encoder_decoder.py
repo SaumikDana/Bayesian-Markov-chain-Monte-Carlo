@@ -31,7 +31,7 @@ class lstm_encoder(nn.Module):
         self.num_layers = num_layers
 
         # define LSTM layer
-        self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, nonlinearity = 'relu')
+        self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, nonlinearity = 'tanh')
 
 
     def forward(self, x_input): # called internally by pytorch!!!
@@ -76,7 +76,7 @@ class lstm_decoder(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, nonlinearity = 'relu')
+        self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, nonlinearity = 'tanh')
         self.linear = nn.Linear(hidden_size, input_size)           
 
     def forward(self, x_input, encoder_hidden_states): # called internally by pytorch!!!
@@ -240,7 +240,7 @@ class lstm_seq2seq(nn.Module):
                     teacher_forcing_ratio = teacher_forcing_ratio - 0.02 
 
                 # progress bar 
-                tr.set_postfix(loss="{0:.3f}".format(batch_loss))
+                tr.set_postfix(loss="{0:.6f}".format(batch_loss))
             
         return losses
 
