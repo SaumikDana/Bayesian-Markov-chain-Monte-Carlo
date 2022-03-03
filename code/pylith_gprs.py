@@ -22,7 +22,7 @@ class pylith_gprs:
 
        self.args = args
 
-       self.num_p = 4
+       self.num_p = 2
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
@@ -31,12 +31,12 @@ class pylith_gprs:
        self.num_tsteps = 115
 
        # too many parameters!!!
-       self.window = 10
+       self.window = 5
        self.stride = self.window
        if self.args.overlap:
          self.stride = 1
        self.batch_size = 1
-       self.hidden_size = 5
+       self.hidden_size = 2
 
        self.num_features = 2
 
@@ -114,22 +114,20 @@ class pylith_gprs:
     
        t_ = self.t_appended.reshape(-1,self.num_features)
        var_ = self.u_appended.reshape(-1,self.num_features)
-  
-       Y = np.zeros([self.num_p, self.window, self.num_samples, self.num_features])     
-       T = np.zeros([self.num_p, self.window, self.num_samples, self.num_features])     
-      
+       
+       self.num_samples = int((self.num_tsteps - self.window) // self.stride + 1)
+       Y = np.zeros([self.window, self.num_samples*self.num_p, self.num_features])     
+       T = np.zeros([self.window, self.num_samples*self.num_p, self.num_features])     
+   
        count_q = 0
-
        for q in self.p_: 
 
           t__ = np.zeros([self.num_tsteps,self.num_features]) 
-          t__[:,:] = t_[count_q*self.num_tsteps:count_q*self.num_tsteps+num_steps,:]
+          t__[:,:] = t_[count_q*self.num_tsteps:count_q*self.num_tsteps+self.num_tsteps,:]
 
-          var__ = np.zeros([self.num_tsteps,2]) 
-          var__[:,:] = var_[count_q*self.num_tsteps:count_q*self.num_tsteps+num_steps,:]
+          var__ = np.zeros([self.num_tsteps,self.num_features]) 
+          var__[:,:] = var_[count_q*self.num_tsteps:count_q*self.num_tsteps+self.num_tsteps,:]
 
-          self.num_samples = (var__.shape[0] - self.window) // self.stride + 1
-   
           for ff in np.arange(self.num_features):
 
               for ii in np.arange(self.num_samples):
@@ -139,8 +137,8 @@ class pylith_gprs:
 
                   self.end_x = end_x # end of final window may not be the end of data!!!
  
-                  Y[count_q, :, ii, ff] = var__[start_x:end_x, ff] 
-                  T[count_q, :, ii, ff] = t__[start_x:end_x, ff]
+                  Y[:,count_q*self.num_samples+ii, ff] = var__[start_x:end_x, ff] 
+                  T[:,count_q*self.num_samples+ii, ff] = t__[start_x:end_x, ff]
 
           count_q += 1
 
@@ -192,7 +190,10 @@ class pylith_gprs:
    def build_lstm(self):
     
        # window dataset!!!
-       self.window_dataset()
+       if self.args.overlap:
+         self.window_dataset_overlap()
+       else:
+         self.window_dataset()
 
        # build rom!!!
        T_train, Y_train = self.numpy_to_torch(self.Ttrain, self.Ytrain)
@@ -217,9 +218,10 @@ class pylith_gprs:
      
      '''
      stride,window,num_samples,num_p,p_,num_tsteps = self.stride,self.window,self.num_samples,self.num_p,self.p_,self.num_tsteps 
+
      count_q = 0
      for q in p_:
-   
+ 
          X = np.zeros([self.window,num_samples]) 
          Y = np.zeros([self.window,num_samples])     
          T = np.zeros([self.window,num_samples])     
@@ -228,14 +230,14 @@ class pylith_gprs:
          X__ = np.zeros([self.end_x])     
          Y__ = np.zeros([self.end_x])     
   
-         for ii in range(num_samples):
+         for ii in np.arange(self.num_samples):
    
-             train_plt = X_[:, ii, :]
+             train_plt = X_[:, count_q*self.num_samples+ii, :]
              Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
 
-             X[:,ii] = Y_[:, ii, 0]
+             X[:,ii] = Y_[:, count_q*self.num_samples+ii, 0]
              Y[:,ii] = Y_train_pred[:, 0]
-             T[:,ii] = T_[:, ii, 0]
+             T[:,ii] = T_[:, count_q*self.num_samples+ii, 0]
 
              if ii != 0:
                xy, ind1, ind2 = np.intersect1d(T[:,ii-1],T[:,ii],return_indices=True)
