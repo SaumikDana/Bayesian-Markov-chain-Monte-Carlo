@@ -21,7 +21,7 @@ class pylith_gprs:
 
        self.args = args
 
-       self.num_p = 1
+       self.num_p = 2
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
@@ -126,7 +126,7 @@ class pylith_gprs:
                end_x = start_x + self.window
 
                self.end_x = end_x # end of final window may not be the end of data!!!
-   
+ 
                Y[:, ii, ff] = var_[start_x:end_x, ff] 
                T[:, ii, ff] = t_[start_x:end_x, ff]
 
