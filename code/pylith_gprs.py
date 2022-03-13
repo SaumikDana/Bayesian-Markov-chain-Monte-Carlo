@@ -11,6 +11,7 @@ import torch
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.utils import shuffle
 from scipy import signal
 
 
@@ -22,11 +23,10 @@ class pylith_gprs:
 
        self.args = args
 
-       self.num_p = 7
+       self.num_p = 2
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
-       np.random.shuffle(self.p_) # shuffle apriori!!!
 
        self.num_tsteps = 115
 
@@ -36,7 +36,6 @@ class pylith_gprs:
          self.window = 23 # for nonoverlapping approach, num_tsteps has to be exact multiple of window!!!
 
        self.stride = self.window
-
        if self.args.overlap:
          self.stride = 1
 
@@ -109,7 +108,8 @@ class pylith_gprs:
           count_q += 1
   
        self.t_appended = t_appended
-       self.u_appended = u_appended
+       self.u_appended = u_appended_noise
+#       self.u_appended = u_appended
  
        # pickle the data!!!
        save_object(u_appended_noise,self.data_file)
