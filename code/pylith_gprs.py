@@ -23,7 +23,8 @@ class pylith_gprs:
 
        self.args = args
 
-       self.num_p = 2
+       # important to note that all data across injection rates needed to be used to construct a rom for inference!!!
+       self.num_p = 7
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
@@ -55,11 +56,9 @@ class pylith_gprs:
 
    def solve(self):
 
-       # build time series!!!
-       self.time_series() 
-
        # LSTM encoder-decoder!!!
        if self.args.reduction:   
+          self.time_series() # build time series!!!
           self.build_lstm()
 
        # bayesian!!!
@@ -108,8 +107,7 @@ class pylith_gprs:
           count_q += 1
   
        self.t_appended = t_appended
-       self.u_appended = u_appended_noise
-#       self.u_appended = u_appended
+       self.u_appended = u_appended
  
        # pickle the data!!!
        save_object(u_appended_noise,self.data_file)
@@ -364,6 +362,7 @@ class pylith_gprs:
        t = np.zeros((num_steps,2)) 
        acc = np.zeros((num_steps,2)) 
    
+       self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
        t[:,0] = self.t_[:]
        t[:,1] = self.consts["q"]
   

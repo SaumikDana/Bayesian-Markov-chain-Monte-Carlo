@@ -57,6 +57,9 @@ class MCMC:
 
             acc_dq = acc_dq_[:,0] 
             acc_dq = acc_dq.reshape(1,acc_dq.shape[0])
+            print(acc[0,:])
+            print('---------')
+            print(acc_dq[0,:])
             X.append((acc_dq[0,:]-acc[0,:])/(consts_dq[arg]*1e-6)) 
 
         # Chapter 8 in Ralf Smith's book !!!
