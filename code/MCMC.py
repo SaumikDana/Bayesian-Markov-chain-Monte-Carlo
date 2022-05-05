@@ -57,9 +57,6 @@ class MCMC:
 
             acc_dq = acc_dq_[:,0] 
             acc_dq = acc_dq.reshape(1,acc_dq.shape[0])
-            print(acc[0,:])
-            print('---------')
-            print(acc_dq[0,:])
             X.append((acc_dq[0,:]-acc[0,:])/(consts_dq[arg]*1e-6)) 
 
         # Chapter 8 in Ralf Smith's book !!!
@@ -117,15 +114,15 @@ class MCMC:
             bval=0.5*(self.n0*self.std2[-1]+SSqprev);
             self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
 
-            if np.mod((isample+1),self.adapt_interval)==0:
-                try:
-                    Vnew=2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
-                    if qparams.shape[0]==1:
-                        Vnew=np.reshape(Vnew,(-1,1))
-                    R = np.linalg.cholesky(Vnew)
-                    Vold=copy.deepcopy(Vnew)
-                except:
-                    pass
+#            if np.mod((isample+1),self.adapt_interval)==0:
+#                try:
+#                    Vnew=2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
+#                    if qparams.shape[0]==1:
+#                        Vnew=np.reshape(Vnew,(-1,1))
+#                    R = np.linalg.cholesky(Vnew)
+#                    Vold=copy.deepcopy(Vnew)
+#                except:
+#                    pass
         
         print("acceptance ratio:",iaccept/self.nsamples)
         self.std2=np.asarray(self.std2)[self.nburn:]            

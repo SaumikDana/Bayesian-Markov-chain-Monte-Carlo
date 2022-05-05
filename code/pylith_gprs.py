@@ -24,7 +24,7 @@ class pylith_gprs:
        self.args = args
 
        # important to note that all data across injection rates needed to be used to construct a rom for inference!!!
-       self.num_p = 7
+       self.num_p = 1
        start_q = 100.0
        end_q = 400.0
        self.p_ = np.linspace(start_q,end_q,self.num_p)
@@ -63,6 +63,7 @@ class pylith_gprs:
 
        # bayesian!!!
        if self.args.bayesian:
+          self.time_series() # build time series!!!
           self.inference()      
 
 
@@ -110,7 +111,7 @@ class pylith_gprs:
        self.u_appended = u_appended
  
        # pickle the data!!!
-       save_object(u_appended_noise,self.data_file)
+#       save_object(u_appended_noise,self.data_file)
 
  
    def window_dataset_overlap(self):
@@ -192,23 +193,27 @@ class pylith_gprs:
 
    def build_lstm(self):
     
-       # window dataset!!!
+       # window dataset
        if self.args.overlap:
          self.window_dataset_overlap()
        else:
          self.window_dataset()
 
-       # build rom!!!
+       # build rom
        T_train, Y_train = self.numpy_to_torch(self.Ttrain, self.Ytrain)
        n_epochs = self.args.num_epochs
        input_tensor = T_train
+
+       # instantiate object of class lstm_seq2seq
        model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], self.hidden_size, self.num_layers, False)
+
+       # train the LSTM autoencoder
        loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, self.window, self.batch_size)
    
-       # pickle the rom!!!
+       # pickle the rom
        save_object(model_lstm,self.lstm_file)
 
-       # plot!!!
+       # plot
        if self.args.overlap:
          self.plot(model_lstm, self.Ttrain, self.Ttrain, self.Ytrain, 'Training', 'Reconstruction',)
        else:
@@ -333,20 +338,20 @@ class pylith_gprs:
        for ii in range(0,num_p):
    
            noisy = u_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
-           noisy = noisy.reshape(1, num_tsteps)
+           noisy = noisy.reshape(1,num_tsteps)
        
            q = p_[ii]
            print('--- q is %s ---' % q)
    
-           qstart={"q":1} # Initial guess of 1!!!
-           qpriors={"q":["Uniform",1,500]}
+           qstart={"q":250} # Initial guess of 250!!!
+           qpriors={"q":["Uniform",0,500]}
    
            nsamples = self.args.num_samples
            nburn = nsamples/2
            
            problem_type = 'rom'
-           MCMCobj2=MCMC(self,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=noisy,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=100,verbose=True)
-           qparams2=MCMCobj2.sample() # run the Bayesian/MCMC algorithm
+           MCMCobj2 = MCMC(self,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=noisy,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=50,verbose=True)
+           qparams2 = MCMCobj2.sample() # run the Bayesian/MCMC algorithm
            self.plot_dist(qparams2,q)
    
 
@@ -362,7 +367,6 @@ class pylith_gprs:
        t = np.zeros((num_steps,2)) 
        acc = np.zeros((num_steps,2)) 
    
-       self.t_ = np.linspace(1,self.num_tsteps,self.num_tsteps)
        t[:,0] = self.t_[:]
        t[:,1] = self.consts["q"]
   
@@ -412,5 +416,5 @@ class pylith_gprs:
        if self.args.overlap:
          fig.savefig('./plots/pylith_gprs_burn_%s_%s_overlap.png' % (q,self.args.num_samples))
        else:
-         fig.savefig('./plots/pylith_gprs_burn_%s_%s_.png' % (q,self.args.num_samples))
+         fig.savefig('./plots/pylith_gprs_burn_%s_%s_1.png' % (q,self.args.num_samples))
 

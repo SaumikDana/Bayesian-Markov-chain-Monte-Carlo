@@ -30,11 +30,10 @@ class lstm_encoder(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        # define LSTM layer
         self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, nonlinearity = 'tanh')
 
 
-    def forward(self, x_input): # called internally by pytorch!!!
+    def forward(self, x_input): # called internally by pytorch
         
         '''
         : param x_input:               input of shape (seq_len, # in batch, input_size)
@@ -79,7 +78,8 @@ class lstm_decoder(nn.Module):
         self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, nonlinearity = 'tanh')
         self.linear = nn.Linear(hidden_size, input_size)           
 
-    def forward(self, x_input, encoder_hidden_states): # called internally by pytorch!!!
+
+    def forward(self, x_input, encoder_hidden_states): # called internally by pytorch
         
         '''        
         : param x_input:                    should be 2D (batch_size, input_size)
@@ -94,6 +94,7 @@ class lstm_decoder(nn.Module):
         
         return output, self.hidden
 
+
 class lstm_seq2seq(nn.Module):
     ''' train LSTM encoder-decoder and make predictions '''
     
@@ -103,7 +104,6 @@ class lstm_seq2seq(nn.Module):
         : param input_size:     the number of expected features in the input X
         : param hidden_size:    the number of features in the hidden state h
         '''
-        # The super() builtin returns a proxy object (temporary object of the superclass) that allows us to access methods of the base class.
 
         super(lstm_seq2seq, self).__init__() # torch.nn.module is base class for all neural networks
 
