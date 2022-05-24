@@ -111,8 +111,8 @@ class lstm_seq2seq(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        self.encoder = lstm_encoder(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bidirectional=bidirectional)
-        self.decoder = lstm_decoder(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, bidirectional=bidirectional)
+        self.encoder = lstm_encoder(input_size=input_size,hidden_size=hidden_size,num_layers=num_layers, bidirectional=bidirectional)
+        self.decoder = lstm_decoder(input_size=input_size,hidden_size=hidden_size,num_layers=num_layers, bidirectional=bidirectional)
 
 
     def train_model(self, input_tensor, target_tensor, n_epochs, target_len, batch_size):

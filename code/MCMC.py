@@ -59,10 +59,10 @@ class MCMC:
             acc_dq = acc_dq.reshape(1,acc_dq.shape[0])
             X.append((acc_dq[0,:]-acc[0,:])/(consts_dq[arg]*1e-6)) 
 
-        # Chapter 8 in Ralf Smith's book !!!
         X=np.asarray(X).T
         X=np.linalg.inv(np.dot(X.T,X))
         self.Vstart=self.std2[0]*X 
+        # initial covariance matrix constructed!!!
 
         self.qstart_vect=np.zeros((len(self.qstart),1))
         self.qstart_limits=np.zeros((len(self.qstart),2))
@@ -97,6 +97,7 @@ class MCMC:
             q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
 
             accept,SSqnew=self.acceptreject(q_new,SSqprev,self.std2[-1])
+
             print(isample,accept)
             print("Generated sample ---- ",np.asscalar(q_new))
 
@@ -108,21 +109,21 @@ class MCMC:
                 q_new=np.reshape(qparams[:,-1],(-1,1))
                 qparams=np.concatenate((qparams,q_new),axis=1)
 
-            # Update standard deviation
-            # Chapter 8 in Ralf Smith's book !!!
+            # Update standard deviation!!!
             aval=0.5*(self.n0+self.data.shape[1]);
             bval=0.5*(self.n0*self.std2[-1]+SSqprev);
             self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
 
-#            if np.mod((isample+1),self.adapt_interval)==0:
-#                try:
-#                    Vnew=2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
-#                    if qparams.shape[0]==1:
-#                        Vnew=np.reshape(Vnew,(-1,1))
-#                    R = np.linalg.cholesky(Vnew)
-#                    Vold=copy.deepcopy(Vnew)
-#                except:
-#                    pass
+            # this adaptation makes it adaptive metropolis!!!
+            if np.mod((isample+1),self.adapt_interval)==0:
+                try:
+                    Vnew=2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
+                    if qparams.shape[0]==1:
+                        Vnew=np.reshape(Vnew,(-1,1))
+                    R = np.linalg.cholesky(Vnew)
+                    Vold=copy.deepcopy(Vnew)
+                except:
+                    pass
         
         print("acceptance ratio:",iaccept/self.nsamples)
         self.std2=np.asarray(self.std2)[self.nburn:]            
