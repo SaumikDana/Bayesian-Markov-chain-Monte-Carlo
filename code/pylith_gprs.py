@@ -226,8 +226,8 @@ class pylith_gprs:
      
      '''
      stride,window,num_samples,num_p,p_,num_tsteps = self.stride,self.window,self.num_samples,self.num_p,self.p_,self.num_tsteps 
-
      count_q = 0
+
      for q in p_:
  
          X = np.zeros([self.window,num_samples]) 
@@ -350,9 +350,12 @@ class pylith_gprs:
            nburn = nsamples/2
            
            problem_type = 'rom'
+
            MCMCobj2 = MCMC(self,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=noisy,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=50,verbose=True)
+
            qparams2 = MCMCobj2.sample() # run the Bayesian/MCMC algorithm
-           self.plot_dist(qparams2,q)
+           
+           self.plot_dist(qparams2,q) # plot the distribution of sampled points
    
 
    def rom_evaluate(self,params,lstm_model):
@@ -393,17 +396,20 @@ class pylith_gprs:
        n_rows = 1
        n_columns = 2
        gridspec = {'width_ratios': [0.7, 0.15], 'wspace': 0.15}
+
        fig, ax = plt.subplots(n_rows, n_columns, gridspec_kw=gridspec)
        fig.suptitle('q=%s MSCF/day' % q)
        ax[0].plot(qparams[0,:], 'b-', linewidth=1.0)
        ylims = ax[0].get_ylim()
        x = np.linspace(ylims[0], ylims[1], 1000)
        kde = gaussian_kde(qparams[0,:])
+
        ax[1].plot(kde.pdf(x), x, 'b-')
        max_val = x[kde.pdf(x).argmax()]
        ax[1].plot(kde.pdf(x)[kde.pdf(x).argmax()],max_val, 'ro')
        ax[1].annotate(str(round(max_val,2)),xy=(1.05*kde.pdf(x)[kde.pdf(x).argmax()],max_val),size=14)
        ax[1].fill_betweenx(x, kde.pdf(x), np.zeros(x.shape), alpha=0.3)
+
        ax[1].set_xlim(0, None)
        ax[0].set_ylabel('q')
        ax[0].set_xlim(0, qparams.shape[1]) 
