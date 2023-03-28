@@ -16,25 +16,32 @@ class rsf:
    '''
    def __init__(self,args):
 
+       # Define the range of values for the critical slip distance
        self.num_p = 1
        start_dc = 1.0
        end_dc = 1000.0
        self.p_ = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_p)
 
+       # Define the time range and number of time steps for the forward model
        t_start = 0.0
        t_end = 50.0
        self.num_tsteps = 500
 
+       # Define the window size and stride for generating the training data
        self.window = 25 # make sure num_tsteps is exact multiple of window!!!
        self.stride = 25
        self.num_features = 2
 
+       # Create an instance of the RateStateModel class
        self.model = RateStateModel(t_start, t_end, num_tsteps = self.num_tsteps, window = self.window) # forward model
+
+       # Store the input arguments
        self.args = args
 
+       # Define file names for saving and loading data and LSTM model
        self.lstm_file = 'model_lstm.pickle'
        self.data_file = 'data.pickle'
- 
+
 
    def solve(self,args):
 
