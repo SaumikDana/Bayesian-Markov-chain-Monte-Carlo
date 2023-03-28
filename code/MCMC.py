@@ -6,19 +6,6 @@ import sys
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 
-"""
-
-__init__: Initializes the sampling process with the necessary parameters and constructs the initial covariance matrix.
-
-sample: Performs the MCMC sampling using the adaptive Metropolis algorithm, updating the covariance matrix at specified intervals.
-
-acceptreject: Determines whether a new sample should be accepted or rejected based on the calculated squared error and random chance.
-
-SSqcalc: Calculates the squared error for a given set of parameters.
-
-plot_dist: Plots the distribution of the samples and saves the plot to a file.
-
-"""
 
 class MCMC:
     """
