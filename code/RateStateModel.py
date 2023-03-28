@@ -9,29 +9,53 @@ class RateStateModel:
     """Class for rate and state model"""
 
     def __init__(self,t_start,t_end,num_tsteps,window,plotfigs=False,plotname="test.png"):
+        """
+        Initialize the RateStateModel object.
 
+        Args:
+        t_start (float): Starting time for the simulation.
+        t_end (float): End time for the simulation.
+        num_tsteps (int): Number of time steps for the simulation.
+        window (float): Time window used for calculating the sliding velocity.
+        plotfigs (bool): If True, plot figures during the simulation.
+        plotname (str): Name of the plot file.
+
+        Returns:
+        None
+        """
+
+        # Define model constants
         consts={}
         consts["a"]=0.011;  consts["b"]=0.014;   consts["mu_ref"]=0.6
         consts["V_ref"]= 1;   consts["k1"]= 1e-7
 
-        # Time range
+        # Define time range
         consts["t_start"]=t_start;  consts["t_final"]=t_end; 
         consts["delta_t"]=(t_end-t_start)/num_tsteps
 
-        # Initial conditions
+        # Define initial conditions
         consts["mu_t_zero"] = 0.6;  consts["V_ref"] = 1.0
-        
+
+        # Add additional model constants
         consts["mu_ref"] = 0.6
         consts["RadiationDamping"]=True  
         consts["window"]=window 
- 
+
         self.consts=consts
         self.plotfigs=plotfigs
         self.plotname=plotname
 
 
     def set_dc(self,dc):
+        """
+        Set the characteristic slip distance of the model.
 
+        Args:
+        dc (float): Characteristic slip distance.
+
+        Returns:
+        None
+        """
         self.consts["Dc"] = dc
 
 
