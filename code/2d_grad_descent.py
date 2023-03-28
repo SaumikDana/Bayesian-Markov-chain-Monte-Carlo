@@ -4,6 +4,25 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 
 def gradient_descent(gradient, start, learn_rate, n_iter=50, tol=1e-8):
+    """
+    Gradient descent optimization algorithm.
+    
+    Parameters:
+        gradient (function): Function that takes a 2-element numpy array as input and returns
+                             a 2-element numpy array representing the gradient of the function
+                             to be optimized.
+        start (numpy array): 2-element numpy array representing the starting point for optimization.
+        learn_rate (float):  Learning rate for gradient descent.
+        n_iter (int):        Maximum number of iterations for gradient descent. Default is 50.
+        tol (float):         Tolerance for convergence. If the absolute value of all elements in the
+                             gradient is less than or equal to tol, the algorithm stops. Default is 1e-8.
+                             
+    Returns:
+        numpy array: 2-element numpy array representing the optimal point found by the algorithm.
+        int:         Number of iterations required to converge.
+        list:        List of x-coordinates visited during optimization.
+        list:        List of y-coordinates visited during optimization.
+    """
     vector = start
     count = 0
     lst0 = []
@@ -19,7 +38,7 @@ def gradient_descent(gradient, start, learn_rate, n_iter=50, tol=1e-8):
     return vector,count,lst0,lst1
 
 if __name__ == '__main__':
-
+    
     rate = 0.05
     
     opt,count,lst0,lst1=gradient_descent(gradient=lambda v: np.array([2 * v[0], 4 * v[1]**3]),
