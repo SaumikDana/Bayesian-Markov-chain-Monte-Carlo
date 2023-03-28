@@ -6,6 +6,19 @@ import sys
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 
+"""
+
+__init__: Initializes the sampling process with the necessary parameters and constructs the initial covariance matrix.
+
+sample: Performs the MCMC sampling using the adaptive Metropolis algorithm, updating the covariance matrix at specified intervals.
+
+acceptreject: Determines whether a new sample should be accepted or rejected based on the calculated squared error and random chance.
+
+SSqcalc: Calculates the squared error for a given set of parameters.
+
+plot_dist: Plots the distribution of the samples and saves the plot to a file.
+
+"""
 
 class MCMC:
     """
@@ -168,29 +181,59 @@ class MCMC:
 
 
     def plot_dist(self, qparams, plot_title, dc):
-
+        # Set up the plot layout with 1 row and 2 columns, and adjust the width ratios and space between subplots
         n_rows = 1
         n_columns = 2
         gridspec = {'width_ratios': [0.7, 0.15], 'wspace': 0.15}
+
+        # Create the subplots with the specified gridspec
         fig, ax = plt.subplots(n_rows, n_columns, gridspec_kw=gridspec)
+
+        # Set the main plot title with the specified dc value
         fig.suptitle(f'$d_c={dc}\,\mu m$', fontsize=14)
+
+        # Plot the MCMC samples as a blue line in the first subplot
         ax[0].plot(qparams[0, :], 'b-', linewidth=1.0)
+
+        # Get the limits of the y-axis
         ylims = ax[0].get_ylim()
+
+        # Create an array of 1000 evenly spaced points between the y-axis limits
         x = np.linspace(ylims[0], ylims[1], 1000)
+
+        # Calculate the probability density function using Gaussian Kernel Density Estimation
         kde = gaussian_kde(qparams[0, :])
+
+        # Plot the probability density function as a blue line in the second subplot
         ax[1].plot(kde.pdf(x), x, 'b-')
+
+        # Find the maximum value of the probability density function
         max_val = x[kde.pdf(x).argmax()]
+
+        # Plot the maximum value as a red dot and annotate it with the value
         ax[1].plot(kde.pdf(x)[kde.pdf(x).argmax()], max_val, 'ro')
         ax[1].annotate(str(round(max_val, 2)), xy=(0.90 * kde.pdf(x)[kde.pdf(x).argmax()], max_val), size=14)
+
+        # Fill the area under the probability density function with a light blue color
         ax[1].fill_betweenx(x, kde.pdf(x), np.zeros(x.shape), alpha=0.3)
+
+        # Set the x-axis limits for the second subplot
         ax[1].set_xlim(0, None)
+
+        # Set labels and axis limits for the first subplot
         ax[0].set_ylabel('$d_c$', fontsize=14)
         ax[0].set_xlim(0, qparams.shape[1])
         ax[0].set_xlabel('Sample number')
+
+        # Set the x-axis label for the second subplot and hide the y-axis
         ax[1].set_xlabel('Prob. density')
         ax[1].get_yaxis().set_visible(False)
         ax[1].get_xaxis().set_visible(True)
         ax[1].get_xaxis().set_ticks([])
+
+        # Create an output directory for the plots if it doesn't already exist
         output_path = Path('plots')
         output_path.mkdir(parents=True, exist_ok=True)
+
+        # Save the figure to the output directory with the specified file name
         fig.savefig(output_path / f'burn_{plot_title}_{dc}_{sys.argv[2]}_.png')
