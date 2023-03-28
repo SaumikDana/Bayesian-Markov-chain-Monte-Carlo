@@ -152,6 +152,18 @@ def sample(self):
     self.std2=np.asarray(self.std2)[self.nburn:] # Trim the estimate of the standard deviation to exclude burn-in samples
     return qparams[:,self.nburn:]
 
+"""
+The acceptreject() function is a component of the Metropolis-Hastings algorithm, 
+and implements the accept-reject step. Given a proposed new set of parameter values q_new, 
+the function computes whether or not to accept these values as the new state of the Markov chain. 
+If the new values are within the specified limits, 
+the function computes the sum of squares error of the proposed state SSqnew, 
+as well as the acceptance probability. 
+If the acceptance probability is greater than a random number drawn from a uniform distribution between 0 and 1, 
+then the proposal is accepted. 
+The function returns a tuple containing a boolean indicating whether the proposal is accepted or rejected, 
+and the sum of squares error of the proposal (either the previous or the new one).
+"""
 def acceptreject(self, q_new, SSqprev, std2):
     """
     Implementation of the accept-reject step in Metropolis-Hastings algorithm.
