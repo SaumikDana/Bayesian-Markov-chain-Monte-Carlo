@@ -64,35 +64,40 @@ class rsf:
 
    def time_series(self):
 
+       # Extract relevant variables
        num_p = self.num_p
        p_ = self.p_
        num_tsteps = self.num_tsteps
        num_features = self.num_features
        model = self.model
-       num_features = self.num_features
 
+       # Create arrays to store the time and acceleration data for all values of dc
        t_appended =  np.zeros((num_p*num_tsteps,num_features))
        acc_appended =  np.zeros((num_p*num_tsteps,num_features))
        acc_appended_noise = np.zeros((num_p*num_tsteps,num_features))
        
        count_dc = 0
        for dc in p_:
+          # Evaluate the model for the current value of dc
           model.set_dc(dc)
           t, acc, acc_noise = model.evaluate(model.consts) # noisy data
           t_ = t.reshape(-1,num_features); acc_ = acc.reshape(-1,num_features)
+
+          # Append the time and acceleration data to the corresponding arrays
           start_ = count_dc*num_tsteps; end_ = start_ + num_tsteps
           t_appended[start_:end_,0] = t[:,0]; t_appended[start_:end_,1] = dc
           acc_appended[start_:end_,0] = acc[:,0]; acc_appended[start_:end_,1] = acc[:,1]
           acc_appended_noise[start_:end_,0] = acc_noise[:,0]; acc_appended_noise[start_:end_,1] = acc_noise[:,1]
           count_dc += 1
   
+       # Store the time and acceleration data as attributes of the class
        self.t_appended = t_appended
        self.acc_appended = acc_appended
  
-       # pickle data!!!
+       # Save the data using pickle
        save_object(acc_appended_noise,self.data_file)
 
- 
+      
    def build_lstm(self):
     
        # build rom!!!
