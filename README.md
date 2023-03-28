@@ -15,7 +15,7 @@ Dependencies
     Clone the repository.
     Install the required packages by running: pip install -r requirements.txt
 
-Usage
+### Usage
 
 To use this script, navigate to the directory containing the script and run the following command:
 
@@ -27,12 +27,12 @@ To use this script, navigate to the directory containing the script and run the 
     --overlap: Optional argument to use overlap technique for solving the problem.
     --bayesian: Optional argument to use Bayesian inference for solving the problem.
 
-Example
+### Example
 
 To solve an RSF problem with 100 epochs and 100 samples, with data reduction and overlap techniques applied, run the following command:
 
     python dl_inference.py -epochs 100 -samples 100 --reduction --overlap
-Output
+### Output
 
 The script generates visualizations of the solved problem using the matplotlib.pyplot module. The visualizations are displayed using plt.show() and closed using plt.close('all').
 
