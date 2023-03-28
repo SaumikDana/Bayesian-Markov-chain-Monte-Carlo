@@ -24,69 +24,70 @@ class MCMC:
     """
     Class for MCMC sampling
     """
-    def __init__(self,model,qpriors,nsamples,nburn,data,problem_type,lstm_model,qstart=None,adapt_interval=100,verbose=True):
+    def __init__(self, model, qpriors, nsamples, nburn, data, problem_type, lstm_model, qstart=None, adapt_interval=100, verbose=True):
         """
         Initialize the sampling process
         """
-        self.model=model
-        self.qstart=qstart
-        self.qpriors=qpriors
-        self.nsamples=nsamples
-        self.nburn=nburn
-        self.verbose=verbose
-        self.adapt_interval=adapt_interval
-        self.data=data
-        self.lstm_model=lstm_model
-        self.problem_type=problem_type
-        self.consts=model.consts
+        self.model = model
+        self.qstart = qstart
+        self.qpriors = qpriors
+        self.nsamples = nsamples
+        self.nburn = nburn
+        self.verbose = verbose
+        self.adapt_interval = adapt_interval
+        self.data = data
+        self.lstm_model = lstm_model
+        self.problem_type = problem_type
+        self.consts = model.consts
         self.n0 = 0.01
 
-        # initial guess!!
-        for arg in self.qstart.keys(): 
-            self.consts[arg]=qstart[arg] 
-        
-        if(self.problem_type=='full'): 
-        # high fidelity model
-           t_,acc_,temp_=self.model.evaluate(self.consts)
-        else: 
-        # reduced order model
-           t_,acc_=self.model.rom_evaluate(self.consts,lstm_model)
+        # Set the initial guess using the qstart dictionary
+        for arg in self.qstart.keys():
+            self.consts[arg] = qstart[arg]
 
-        #constructing initial covariance matrix !!!
-        acc = acc_[:,0] 
-        acc = acc.reshape(1,acc.shape[0])
-        self.std2=[np.sum((acc-self.data)**2,axis=1)[0]/(acc.shape[1]-len(self.qpriors.keys()))]
-        X=[]
+        # Evaluate the model based on the problem type (full or reduced order model)
+        if self.problem_type == 'full':
+            # High fidelity model
+            t_, acc_, temp_ = self.model.evaluate(self.consts)
+        else:
+            # Reduced order model
+            t_, acc_ = self.model.rom_evaluate(self.consts, lstm_model)
 
-        for arg in self.qpriors.keys(): 
+        # Construct the initial covariance matrix
+        acc = acc_[:, 0]
+        acc = acc.reshape(1, acc.shape[0])
+        self.std2 = [np.sum((acc - self.data) ** 2, axis=1)[0] / (acc.shape[1] - len(self.qpriors.keys()))]
+        X = []
 
-            consts_dq=copy.deepcopy(self.consts) 
-            consts_dq[arg]=consts_dq[arg]*(1+1e-6) 
+        # Iterate through the qpriors keys to construct the initial covariance matrix
+        for arg in self.qpriors.keys():
+            consts_dq = copy.deepcopy(self.consts)
+            consts_dq[arg] = consts_dq[arg] * (1 + 1e-6)
 
-            if(self.problem_type=='full'): # high fidelity model
-               t_,acc_dq_,temp_=self.model.evaluate(consts_dq)
-            else: # reduced order model
-               t_,acc_dq_=self.model.rom_evaluate(consts_dq,lstm_model)
+            # Evaluate the model based on the problem type (full or reduced order model)
+            if self.problem_type == 'full':  # High fidelity model
+                t_, acc_dq_, temp_ = self.model.evaluate(consts_dq)
+            else:  # Reduced order model
+                t_, acc_dq_ = self.model.rom_evaluate(consts_dq, lstm_model)
 
-            acc_dq = acc_dq_[:,0] 
-            acc_dq = acc_dq.reshape(1,acc_dq.shape[0])
-            X.append((acc_dq[0,:]-acc[0,:])/(consts_dq[arg]*1e-6)) 
+            acc_dq = acc_dq_[:, 0]
+            acc_dq = acc_dq.reshape(1, acc_dq.shape[0])
+            X.append((acc_dq[0, :] - acc[0, :]) / (consts_dq[arg] * 1e-6))
 
-        X=np.asarray(X).T
-        X=np.linalg.inv(np.dot(X.T,X))
-        self.Vstart=self.std2[0]*X 
-        # initial covariance matrix constructed!!!
+        # Compute the inverse of the product of the transpose of X and X
+        X = np.asarray(X).T
+        X = np.linalg.inv(np.dot(X.T, X))
+        self.Vstart = self.std2[0] * X  # Construct the initial covariance matrix
 
-        self.qstart_vect=np.zeros((len(self.qstart),1))
-        self.qstart_limits=np.zeros((len(self.qstart),2))
-        flag=0
-        for arg in self.qstart.keys(): 
-
-            self.qstart_vect[flag,0]=self.qstart[arg] 
-            self.qstart_limits[flag,0]=self.qpriors[arg][1] 
-            self.qstart_limits[flag,1]=self.qpriors[arg][2] 
-            flag=flag+1
-
+        # Set up the initial qstart vector and qstart limits
+        self.qstart_vect = np.zeros((len(self.qstart), 1))
+        self.qstart_limits = np.zeros((len(self.qstart), 2))
+        flag = 0
+        for arg in self.qstart.keys():
+            self.qstart_vect[flag, 0] = self.qstart[arg]
+            self.qstart_limits[flag, 0] = self.qpriors[arg][1]
+            self.qstart_limits[flag, 1] = self.qpriors[arg][2]
+            flag = flag + 1
 
     def sample(self):
         """
