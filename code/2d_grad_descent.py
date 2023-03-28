@@ -41,16 +41,26 @@ if __name__ == '__main__':
     
     rate = 0.05
     
+    # Call gradient_descent function with function gradient, starting point start, 
+    # learning rate learn_rate, and tolerance for convergence tol as input.
+    # The function gradient is defined as a lambda function that takes a 2-element numpy array as input and returns
+    # a 2-element numpy array representing the gradient of the function to be optimized.
     opt,count,lst0,lst1=gradient_descent(gradient=lambda v: np.array([2 * v[0], 4 * v[1]**3]),
             start=np.array([1.0, 1.0]), learn_rate=rate, tol=1e-08)
 
+    # Create a meshgrid of x and y values and compute the corresponding z-values for the function to be optimized.
     x = np.meshgrid(np.linspace(-1.1,1.1,100),np.linspace(-1.1,1.1,100))
     y = x[0]**2 + x[1]**4
+    
+    # Create a 3D plot of the function.
     fig, ax = plt.subplots(subplot_kw={'projection': '3d'})
     ax.plot_surface(x[0], x[1], y)
+    
+    # Compute the z-values for the optimization path and plot it on the 3D plot.
     yp = [lst0[i]**2+lst1[i]**4 for i in range(len(lst0))]
     plt.plot(lst0,lst1,yp,'ro-')
+    
+    # Add a title to the plot that shows the learning rate used for the optimization.
     plt.title('Learning rate %s' %rate)
     plt.show()
-
 
