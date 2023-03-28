@@ -89,60 +89,68 @@ class MCMC:
             self.qstart_limits[flag, 1] = self.qpriors[arg][2]
             flag = flag + 1
 
-    def sample(self):
-        """
-        Function for sampling using adaptive Metropolis algorithm
-        Return:
-            Q_MCMC: Accepted samples
-        """
-        qparams=copy.deepcopy(self.qstart_vect) 
-        qmean_old=copy.deepcopy(self.qstart_vect) 
-        qmean=copy.deepcopy(self.qstart_vect) 
+def sample(self):
+    """
+    Function for sampling using adaptive Metropolis algorithm
 
-        Vold=copy.deepcopy(self.Vstart)  
-        Vnew=copy.deepcopy(self.Vstart) 
-
-        SSqprev=self.SSqcalc(qparams) # squared error
-        iaccept=0
-
-        for isample in range(0,self.nsamples):
+    Return:
+        Q_MCMC: Accepted samples
+    """
+    
+    # Initialize variables
+    qparams=copy.deepcopy(self.qstart_vect) # Array of sampled parameters
+    qmean_old=copy.deepcopy(self.qstart_vect) # Mean of previously sampled parameters
+    qmean=copy.deepcopy(self.qstart_vect) # Mean of current sampled parameters
+    Vold=copy.deepcopy(self.Vstart) # Covariance matrix of previously sampled parameters
+    Vnew=copy.deepcopy(self.Vstart) # Covariance matrix of current sampled parameters
+    SSqprev=self.SSqcalc(qparams) # Squared error of previously sampled parameters
+    iaccept=0 # Counter for accepted samples
+    
+    # Loop over number of desired samples
+    for isample in range(0,self.nsamples):
  
-            #q_new is randomly sampled from a normal distribution with mean being the last element of qparams!!!
-            q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
+        # Sample new parameters from a normal distribution with mean being the last element of qparams
+        q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
 
-            accept,SSqnew=self.acceptreject(q_new,SSqprev,self.std2[-1])
+        # Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
+        accept,SSqnew=self.acceptreject(q_new,SSqprev,self.std2[-1])
 
-            print(isample,accept)
-            print("Generated sample ---- ",np.asscalar(q_new))
+        # Print some diagnostic information
+        print(isample,accept)
+        print("Generated sample ---- ",np.asscalar(q_new))
 
-            if accept:
-                qparams=np.concatenate((qparams,q_new),axis=1)
-                SSqprev=copy.deepcopy(SSqnew)
-                iaccept=iaccept+1
-            else:
-                q_new=np.reshape(qparams[:,-1],(-1,1))
-                qparams=np.concatenate((qparams,q_new),axis=1)
+        # If the new sample is accepted, add it to the list of sampled parameters
+        if accept:
+            qparams=np.concatenate((qparams,q_new),axis=1)
+            SSqprev=copy.deepcopy(SSqnew)
+            iaccept=iaccept+1
+        else:
+            # If the new sample is rejected, add the previous sample to the list of sampled parameters
+            q_new=np.reshape(qparams[:,-1],(-1,1))
+            qparams=np.concatenate((qparams,q_new),axis=1)
 
-            # Update standard deviation!!!
-            aval=0.5*(self.n0+self.data.shape[1]);
-            bval=0.5*(self.n0*self.std2[-1]+SSqprev);
-            self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
+        # Update the estimate of the standard deviation
+        aval=0.5*(self.n0+self.data.shape[1]);
+        bval=0.5*(self.n0*self.std2[-1]+SSqprev);
+        self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
 
-            # this adaptation makes it adaptive metropolis!!!
-            if np.mod((isample+1),self.adapt_interval)==0:
-                try:
-                    Vnew=2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
-                    if qparams.shape[0]==1:
-                        Vnew=np.reshape(Vnew,(-1,1))
-                    R = np.linalg.cholesky(Vnew)
-                    Vold=copy.deepcopy(Vnew)
-                except:
-                    pass
+        # Update the covariance matrix if it is time to adapt it
+        if np.mod((isample+1),self.adapt_interval)==0:
+            try:
+                Vnew=2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
+                if qparams.shape[0]==1:
+                    Vnew=np.reshape(Vnew,(-1,1))
+                R = np.linalg.cholesky(Vnew)
+                Vold=copy.deepcopy(Vnew)
+            except:
+                pass
         
-        print("acceptance ratio:",iaccept/self.nsamples)
-        self.std2=np.asarray(self.std2)[self.nburn:]            
-        return qparams[:,self.nburn:]
-
+    # Print acceptance ratio
+    print("acceptance ratio:",iaccept/self.nsamples)
+    
+    # Return accepted samples
+    self.std2=np.asarray(self.std2)[self.nburn:] # Trim the estimate of the standard deviation to exclude burn-in samples
+    return qparams[:,self.nburn:]
 
     def acceptreject(self,q_new,SSqprev,std2):
    
