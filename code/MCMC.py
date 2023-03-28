@@ -195,27 +195,46 @@ def acceptreject(self, q_new, SSqprev, std2):
         # If rejected, return the boolean False and the sum of squares error of the previous proposal
         return accept, SSqprev
 
-            
-    def SSqcalc(self,q_new):
+"""
+The SSqcalc() function is a helper function that computes the sum of squares error of the proposed parameter values. 
+The function takes the proposed parameter values as input, 
+and returns a numpy array representing the sum of squares error. 
+The function first copies the original self.consts dictionary to consts_dq and updates 
+the values of the parameters to the proposed values. Then, depending on the problem type, 
+the function either calls the evaluate() method of the high fidelity model or the rom_evaluate() 
+method of the reduced order model to compute the response. 
+The computed response is then reshaped to a 1-dimensional numpy array and the squared error 
+is computed as the sum of squares of the difference between the computed response and the target data. 
+The function returns the squared error as a numpy array.
+"""            
+def SSqcalc(self, q_new):
+    """
+    Compute the sum of squares error of the proposed parameter values.
+    
+    Parameters:
+        q_new (numpy array): A numpy array representing the proposed values for the parameters.
+        
+    Returns:
+        numpy array: A numpy array representing the sum of squares error of the proposed parameter values.
+    """
+    flag = 0
+    for arg in self.qstart.keys(): 
+        consts_dq = copy.deepcopy(self.consts)
+        consts_dq[arg] = q_new[flag, ]
+        flag += 1
 
-        flag=0
-        for arg in self.qstart.keys(): 
-            consts_dq=copy.deepcopy(self.consts)
-            consts_dq[arg]=q_new[flag,]
-            flag=flag+1
-
-        if(self.problem_type=='full'): 
+    if self.problem_type == 'full': 
         # high fidelity model
-           t_,acc_,temp_=self.model.evaluate(consts_dq)
-        else: 
+        t_, acc_, temp_ = self.model.evaluate(consts_dq)
+    else: 
         # reduced order model
-           t_,acc_=self.model.rom_evaluate(consts_dq,self.lstm_model)
+        t_, acc_ = self.model.rom_evaluate(consts_dq, self.lstm_model)
 
-        acc = acc_[:,0] 
-        acc = acc.reshape(1,acc.shape[0])
-        SSq=np.sum((acc-self.data)**2,axis=1) # squared error
+    acc = acc_[:, 0] 
+    acc = acc.reshape(1, acc.shape[0])
+    SSq = np.sum((acc - self.data)**2, axis=1) # squared error
 
-        return SSq
+    return SSq
 
 
     def plot_dist(self, qparams, plot_title, dc):
