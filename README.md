@@ -19,7 +19,7 @@ Usage
 
 To use this script, navigate to the directory containing the script and run the following command:
 
-python dl_inference.py -epochs [num_epochs] -samples [num_samples] [--reduction] [--overlap] [--bayesian]
+    python dl_inference.py -epochs [num_epochs] -samples [num_samples] [--reduction] [--overlap] [--bayesian]
 
     num_epochs: Specify the number of epochs for training the neural network.
     num_samples: Specify the number of samples to use for inference.
