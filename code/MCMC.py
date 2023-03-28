@@ -89,152 +89,152 @@ class MCMC:
             self.qstart_limits[flag, 1] = self.qpriors[arg][2]
             flag = flag + 1
 
-def sample(self):
+    def sample(self):
+        """
+        Function for sampling using adaptive Metropolis algorithm
+
+        Return:
+            Q_MCMC: Accepted samples
+        """
+
+        # Initialize variables
+        qparams=copy.deepcopy(self.qstart_vect) # Array of sampled parameters
+        qmean_old=copy.deepcopy(self.qstart_vect) # Mean of previously sampled parameters
+        qmean=copy.deepcopy(self.qstart_vect) # Mean of current sampled parameters
+        Vold=copy.deepcopy(self.Vstart) # Covariance matrix of previously sampled parameters
+        Vnew=copy.deepcopy(self.Vstart) # Covariance matrix of current sampled parameters
+        SSqprev=self.SSqcalc(qparams) # Squared error of previously sampled parameters
+        iaccept=0 # Counter for accepted samples
+
+        # Loop over number of desired samples
+        for isample in range(0,self.nsamples):
+
+            # Sample new parameters from a normal distribution with mean being the last element of qparams
+            q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
+
+            # Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
+            accept,SSqnew=self.acceptreject(q_new,SSqprev,self.std2[-1])
+
+            # Print some diagnostic information
+            print(isample,accept)
+            print("Generated sample ---- ",np.asscalar(q_new))
+
+            # If the new sample is accepted, add it to the list of sampled parameters
+            if accept:
+                qparams=np.concatenate((qparams,q_new),axis=1)
+                SSqprev=copy.deepcopy(SSqnew)
+                iaccept=iaccept+1
+            else:
+                # If the new sample is rejected, add the previous sample to the list of sampled parameters
+                q_new=np.reshape(qparams[:,-1],(-1,1))
+                qparams=np.concatenate((qparams,q_new),axis=1)
+
+            # Update the estimate of the standard deviation
+            aval=0.5*(self.n0+self.data.shape[1]);
+            bval=0.5*(self.n0*self.std2[-1]+SSqprev);
+            self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
+
+            # Update the covariance matrix if it is time to adapt it
+            if np.mod((isample+1),self.adapt_interval)==0:
+                try:
+                    Vnew=2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
+                    if qparams.shape[0]==1:
+                        Vnew=np.reshape(Vnew,(-1,1))
+                    R = np.linalg.cholesky(Vnew)
+                    Vold=copy.deepcopy(Vnew)
+                except:
+                    pass
+
+        # Print acceptance ratio
+        print("acceptance ratio:",iaccept/self.nsamples)
+
+        # Return accepted samples
+        self.std2=np.asarray(self.std2)[self.nburn:] # Trim the estimate of the standard deviation to exclude burn-in samples
+        return qparams[:,self.nburn:]
+
     """
-    Function for sampling using adaptive Metropolis algorithm
-
-    Return:
-        Q_MCMC: Accepted samples
+    The acceptreject() function is a component of the Metropolis-Hastings algorithm, 
+    and implements the accept-reject step. Given a proposed new set of parameter values q_new, 
+    the function computes whether or not to accept these values as the new state of the Markov chain. 
+    If the new values are within the specified limits, 
+    the function computes the sum of squares error of the proposed state SSqnew, 
+    as well as the acceptance probability. 
+    If the acceptance probability is greater than a random number drawn from a uniform distribution between 0 and 1, 
+    then the proposal is accepted. 
+    The function returns a tuple containing a boolean indicating whether the proposal is accepted or rejected, 
+    and the sum of squares error of the proposal (either the previous or the new one).
     """
-    
-    # Initialize variables
-    qparams=copy.deepcopy(self.qstart_vect) # Array of sampled parameters
-    qmean_old=copy.deepcopy(self.qstart_vect) # Mean of previously sampled parameters
-    qmean=copy.deepcopy(self.qstart_vect) # Mean of current sampled parameters
-    Vold=copy.deepcopy(self.Vstart) # Covariance matrix of previously sampled parameters
-    Vnew=copy.deepcopy(self.Vstart) # Covariance matrix of current sampled parameters
-    SSqprev=self.SSqcalc(qparams) # Squared error of previously sampled parameters
-    iaccept=0 # Counter for accepted samples
-    
-    # Loop over number of desired samples
-    for isample in range(0,self.nsamples):
- 
-        # Sample new parameters from a normal distribution with mean being the last element of qparams
-        q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
+    def acceptreject(self, q_new, SSqprev, std2):
+        """
+        Implementation of the accept-reject step in Metropolis-Hastings algorithm.
 
-        # Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
-        accept,SSqnew=self.acceptreject(q_new,SSqprev,self.std2[-1])
+        Parameters:
+            q_new (numpy array): A numpy array representing the new proposal values for the parameters.
+            SSqprev (float):     A float representing the sum of squares error of the previous proposal.
+            std2 (float):        A float representing the variance of the distribution used to generate the proposal.
 
-        # Print some diagnostic information
-        print(isample,accept)
-        print("Generated sample ---- ",np.asscalar(q_new))
+        Returns:
+            tuple: A tuple containing a boolean indicating whether the proposal is accepted or rejected, and 
+                   the sum of squares error of the proposal (either the previous or the new one).
+        """
+        # Check if the proposal values are within the limits
+        accept = np.all(q_new[:, 0] > self.qstart_limits[:, 0]) and np.all(q_new[:, 0] < self.qstart_limits[:, 1])
 
-        # If the new sample is accepted, add it to the list of sampled parameters
         if accept:
-            qparams=np.concatenate((qparams,q_new),axis=1)
-            SSqprev=copy.deepcopy(SSqnew)
-            iaccept=iaccept+1
+            # Compute the sum of squares error of the new proposal
+            SSqnew = self.SSqcalc(q_new)
+            # Compute the acceptance probability
+            accept_prob = min(0, 0.5*(SSqprev - SSqnew) / std2)
+            # Check if the proposal is accepted based on the acceptance probability and a random number
+            accept = accept_prob > np.log(np.random.rand(1))[0]
+
+        if accept:
+            # If accepted, return the boolean True and the sum of squares error of the new proposal
+            return accept, SSqnew
         else:
-            # If the new sample is rejected, add the previous sample to the list of sampled parameters
-            q_new=np.reshape(qparams[:,-1],(-1,1))
-            qparams=np.concatenate((qparams,q_new),axis=1)
+            # If rejected, return the boolean False and the sum of squares error of the previous proposal
+            return accept, SSqprev
 
-        # Update the estimate of the standard deviation
-        aval=0.5*(self.n0+self.data.shape[1]);
-        bval=0.5*(self.n0*self.std2[-1]+SSqprev);
-        self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
-
-        # Update the covariance matrix if it is time to adapt it
-        if np.mod((isample+1),self.adapt_interval)==0:
-            try:
-                Vnew=2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
-                if qparams.shape[0]==1:
-                    Vnew=np.reshape(Vnew,(-1,1))
-                R = np.linalg.cholesky(Vnew)
-                Vold=copy.deepcopy(Vnew)
-            except:
-                pass
-        
-    # Print acceptance ratio
-    print("acceptance ratio:",iaccept/self.nsamples)
-    
-    # Return accepted samples
-    self.std2=np.asarray(self.std2)[self.nburn:] # Trim the estimate of the standard deviation to exclude burn-in samples
-    return qparams[:,self.nburn:]
-
-"""
-The acceptreject() function is a component of the Metropolis-Hastings algorithm, 
-and implements the accept-reject step. Given a proposed new set of parameter values q_new, 
-the function computes whether or not to accept these values as the new state of the Markov chain. 
-If the new values are within the specified limits, 
-the function computes the sum of squares error of the proposed state SSqnew, 
-as well as the acceptance probability. 
-If the acceptance probability is greater than a random number drawn from a uniform distribution between 0 and 1, 
-then the proposal is accepted. 
-The function returns a tuple containing a boolean indicating whether the proposal is accepted or rejected, 
-and the sum of squares error of the proposal (either the previous or the new one).
-"""
-def acceptreject(self, q_new, SSqprev, std2):
     """
-    Implementation of the accept-reject step in Metropolis-Hastings algorithm.
-    
-    Parameters:
-        q_new (numpy array): A numpy array representing the new proposal values for the parameters.
-        SSqprev (float):     A float representing the sum of squares error of the previous proposal.
-        std2 (float):        A float representing the variance of the distribution used to generate the proposal.
-        
-    Returns:
-        tuple: A tuple containing a boolean indicating whether the proposal is accepted or rejected, and 
-               the sum of squares error of the proposal (either the previous or the new one).
-    """
-    # Check if the proposal values are within the limits
-    accept = np.all(q_new[:, 0] > self.qstart_limits[:, 0]) and np.all(q_new[:, 0] < self.qstart_limits[:, 1])
-    
-    if accept:
-        # Compute the sum of squares error of the new proposal
-        SSqnew = self.SSqcalc(q_new)
-        # Compute the acceptance probability
-        accept_prob = min(0, 0.5*(SSqprev - SSqnew) / std2)
-        # Check if the proposal is accepted based on the acceptance probability and a random number
-        accept = accept_prob > np.log(np.random.rand(1))[0]
+    The SSqcalc() function is a helper function that computes the sum of squares error of the proposed parameter values. 
+    The function takes the proposed parameter values as input, 
+    and returns a numpy array representing the sum of squares error. 
+    The function first copies the original self.consts dictionary to consts_dq and updates 
+    the values of the parameters to the proposed values. Then, depending on the problem type, 
+    the function either calls the evaluate() method of the high fidelity model or the rom_evaluate() 
+    method of the reduced order model to compute the response. 
+    The computed response is then reshaped to a 1-dimensional numpy array and the squared error 
+    is computed as the sum of squares of the difference between the computed response and the target data. 
+    The function returns the squared error as a numpy array.
+    """            
+    def SSqcalc(self, q_new):
+        """
+        Compute the sum of squares error of the proposed parameter values.
 
-    if accept:
-        # If accepted, return the boolean True and the sum of squares error of the new proposal
-        return accept, SSqnew
-    else:
-        # If rejected, return the boolean False and the sum of squares error of the previous proposal
-        return accept, SSqprev
+        Parameters:
+            q_new (numpy array): A numpy array representing the proposed values for the parameters.
 
-"""
-The SSqcalc() function is a helper function that computes the sum of squares error of the proposed parameter values. 
-The function takes the proposed parameter values as input, 
-and returns a numpy array representing the sum of squares error. 
-The function first copies the original self.consts dictionary to consts_dq and updates 
-the values of the parameters to the proposed values. Then, depending on the problem type, 
-the function either calls the evaluate() method of the high fidelity model or the rom_evaluate() 
-method of the reduced order model to compute the response. 
-The computed response is then reshaped to a 1-dimensional numpy array and the squared error 
-is computed as the sum of squares of the difference between the computed response and the target data. 
-The function returns the squared error as a numpy array.
-"""            
-def SSqcalc(self, q_new):
-    """
-    Compute the sum of squares error of the proposed parameter values.
-    
-    Parameters:
-        q_new (numpy array): A numpy array representing the proposed values for the parameters.
-        
-    Returns:
-        numpy array: A numpy array representing the sum of squares error of the proposed parameter values.
-    """
-    flag = 0
-    for arg in self.qstart.keys(): 
-        consts_dq = copy.deepcopy(self.consts)
-        consts_dq[arg] = q_new[flag, ]
-        flag += 1
+        Returns:
+            numpy array: A numpy array representing the sum of squares error of the proposed parameter values.
+        """
+        flag = 0
+        for arg in self.qstart.keys(): 
+            consts_dq = copy.deepcopy(self.consts)
+            consts_dq[arg] = q_new[flag, ]
+            flag += 1
 
-    if self.problem_type == 'full': 
-        # high fidelity model
-        t_, acc_, temp_ = self.model.evaluate(consts_dq)
-    else: 
-        # reduced order model
-        t_, acc_ = self.model.rom_evaluate(consts_dq, self.lstm_model)
+        if self.problem_type == 'full': 
+            # high fidelity model
+            t_, acc_, temp_ = self.model.evaluate(consts_dq)
+        else: 
+            # reduced order model
+            t_, acc_ = self.model.rom_evaluate(consts_dq, self.lstm_model)
 
-    acc = acc_[:, 0] 
-    acc = acc.reshape(1, acc.shape[0])
-    SSq = np.sum((acc - self.data)**2, axis=1) # squared error
+        acc = acc_[:, 0] 
+        acc = acc.reshape(1, acc.shape[0])
+        SSq = np.sum((acc - self.data)**2, axis=1) # squared error
 
-    return SSq
+        return SSq
 
 
     def plot_dist(self, qparams, plot_title, dc):
