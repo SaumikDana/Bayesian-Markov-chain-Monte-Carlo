@@ -31,7 +31,7 @@ Example
 
 To solve an RSF problem with 100 epochs and 100 samples, with data reduction and overlap techniques applied, run the following command:
 
-python dl_inference.py -epochs 100 -samples 100 --reduction --overlap
+    python dl_inference.py -epochs 100 -samples 100 --reduction --overlap
 Output
 
 The script generates visualizations of the solved problem using the matplotlib.pyplot module. The visualizations are displayed using plt.show() and closed using plt.close('all').
