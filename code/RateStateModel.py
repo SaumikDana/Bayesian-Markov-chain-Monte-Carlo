@@ -67,40 +67,42 @@ class RateStateModel:
         #y[2] is velocity
 
         # effective spring stiffness
-        kprime = 1e-2*10/self.consts["Dc"]
+        kprime = 1e-2 * 10 / self.consts["Dc"]
 
         # loading
         a1 = 20
         a2 = 10
-        V_l = self.consts["V_ref"]*(1+exp(-t/a1)*sin(a2*t))
+        V_l = self.consts["V_ref"] * (1 + exp(-t/a1) * sin(a2*t))
 
+        # initialize the array of derivatives
         n = len(y)
-        dydt = np.zeros((n,1))
+        dydt = np.zeros((n, 1))
 
         # compute v
         temp_ = self.consts["V_ref"] * y[1] / self.consts["Dc"]
-        temp = 1/self.consts["a"]*(y[0] - self.consts["mu_ref"] - self.consts["b"] * log(temp_))
+        temp = 1 / self.consts["a"] * (y[0] - self.consts["mu_ref"] - self.consts["b"] * log(temp_))
         v = self.consts["V_ref"] * exp(temp)
 
         # time derivative of theta
         dydt[1] = 1. - v * y[1] / self.consts["Dc"]
 
         # double derivative of theta
-        ddtheta = - dydt[1]*v/ self.consts["Dc"]
+        ddtheta = - dydt[1] * v / self.consts["Dc"]
 
         # time derivative of mu
-        dydt[0] = kprime*V_l - kprime*v
+        dydt[0] = kprime * V_l - kprime * v
 
         # time derivative of velocity
-        dydt[2] = v/self.consts["a"]*(dydt[0] - self.consts["b"]/y[1]*dydt[1])
+        dydt[2] = v / self.consts["a"] * (dydt[0] - self.consts["b"] / y[1] * dydt[1])
 
+        # add radiation damping term if specified
         if self.consts["RadiationDamping"]:
-            # radiation damping term
-            dydt[0] = dydt[0] - self.consts["k1"]*dydt[2]
-            dydt[2] = v/self.consts["a"]*(dydt[0] - self.consts["b"]/y[1]*dydt[1])
+            # time derivative of mu with radiation damping
+            dydt[0] = dydt[0] - self.consts["k1"] * dydt[2]
+            # time derivative of velocity with radiation damping
+            dydt[2] = v / self.consts["a"] * (dydt[0] - self.consts["b"] / y[1] * dydt[1])
 
         return dydt
-
 
     def evaluate(self,params):
 
