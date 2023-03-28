@@ -10,7 +10,7 @@ Dependencies
     matplotlib
     argparse
 
-*Installation
+### Installation
 
     Clone the repository.
     Install the required packages by running: pip install -r requirements.txt
