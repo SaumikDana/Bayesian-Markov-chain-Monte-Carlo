@@ -45,18 +45,21 @@ class rsf:
 
    def solve(self,args):
 
+       # Generate the time series for the RSF model
        self.time_series() 
 
        if self.args.reduction:
-       # LSTM encoder-decoder!!!
-         self.build_lstm()
+          # Use LSTM encoder-decoder for dimensionality reduction
+          self.build_lstm()
 
        if self.args.bayesian:
-       # bayesian!!!
+          # Use Bayesian inference to estimate the critical slip distance
           if self.args.reduction:
+             # Perform RSF inference with LSTM encoder-decoder
              self.rsf_inference()      
           else:
-             self.rsf_inference_no_rom()      
+             # Perform RSF inference without dimensionality reduction
+             self.rsf_inference_no_rom()
 
 
    def time_series(self):
