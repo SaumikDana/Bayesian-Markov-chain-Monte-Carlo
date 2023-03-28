@@ -173,35 +173,38 @@ class RateStateModel:
         for arg in params.keys():
             self.consts[arg]=params[arg]
 
-        num_steps = int(np.floor((self.consts["t_final"]-self.consts["t_start"])/self.consts["delta_t"]))
+        # Calculate the number of steps to take
+        num_steps = int(np.floor((self.consts["t_final"] - self.consts["t_start"]) / self.consts["delta_t"]))
         window = self.consts["window"]
-    
+
         # Create arrays to store trajectory
-        t = np.zeros((num_steps,2)) 
-        acc = np.zeros((num_steps,2)) 
-    
-        t[0,0] = self.consts["t_start"]
-    
+        t = np.zeros((num_steps, 2))
+        acc = np.zeros((num_steps, 2))
+
+        t[0, 0] = self.consts["t_start"]
+
+        # Calculate the time array
         k = 1
         while k < num_steps:
-            t[k,0] = t[k-1,0] + self.consts["delta_t"]
+            t[k, 0] = t[k-1, 0] + self.consts["delta_t"]
             k += 1
-    
-        t[:,1] = self.consts["Dc"]
-        num_steps_ = int(num_steps/window) 
-        train_plt = np.zeros((window,2)) 
-     
+
+        t[:, 1] = self.consts["Dc"]
+        num_steps_ = int(num_steps / window)
+        train_plt = np.zeros((window, 2))
+
+        # Predict acceleration using the LSTM model
         for ii in range(num_steps_):
-    
-            start = ii*window
+            start = ii * window
             end = start + window
-    
-            train_plt[0:window,0] = t[start:end,0]
-            train_plt[0:window,1] = t[start:end,1]
-            Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
-            acc[start:end,0] = Y_train_pred[:, 0]
-            acc[start:end,1] = Y_train_pred[:, 0]
-        
+
+            train_plt[0:window, 0] = t[start:end, 0]
+            train_plt[0:window, 1] = t[start:end, 1]
+            Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len=window)
+            acc[start:end, 0] = Y_train_pred[:, 0]
+            acc[start:end, 1] = Y_train_pred[:, 0]
+
+        # Return the time and acceleration arrays
         return t, acc
 
    
