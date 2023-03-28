@@ -1,5 +1,41 @@
 # Deep learning and Bayesian inference
 
+## dl_inference.py
+
+This is a Python script for performing deep learning inference for a geophysical problem of type RSF. The script uses command line arguments to specify the number of epochs, number of samples, and other options such as reduction, overlap, and Bayesian inference.
+Dependencies
+
+    rsf
+    numpy
+    matplotlib
+    argparse
+
+Installation
+
+    Clone the repository.
+    Install the required packages by running: pip install -r requirements.txt
+
+Usage
+
+To use this script, navigate to the directory containing the script and run the following command:
+
+python dl_inference.py -epochs [num_epochs] -samples [num_samples] [--reduction] [--overlap] [--bayesian]
+
+    num_epochs: Specify the number of epochs for training the neural network.
+    num_samples: Specify the number of samples to use for inference.
+    --reduction: Optional argument to use data reduction technique for solving the problem.
+    --overlap: Optional argument to use overlap technique for solving the problem.
+    --bayesian: Optional argument to use Bayesian inference for solving the problem.
+
+Example
+
+To solve an RSF problem with 100 epochs and 100 samples, with data reduction and overlap techniques applied, run the following command:
+
+python dl_inference.py -epochs 100 -samples 100 --reduction --overlap
+Output
+
+The script generates visualizations of the solved problem using the matplotlib.pyplot module. The visualizations are displayed using plt.show() and closed using plt.close('all').
+
 ## MCMC.py
 
 This code is a Python implementation of the adaptive Metropolis algorithm for Markov Chain Monte Carlo (MCMC) sampling. The purpose of this code is to sample the posterior distribution of a model's parameters given some observed data. The code is structured as a class called "MCMC" with four methods:
