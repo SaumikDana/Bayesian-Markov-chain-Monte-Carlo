@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 
-
 if __name__ == '__main__':
 
     #Usage: python dl_inference.py -epochs 100 -samples 100 --bayesian
