@@ -198,44 +198,49 @@ class rsf:
           MCMCobj1.plot_dist(qparams1,'full',dc)
 
 
-   def rsf_inference(self):
+def rsf_inference(self):
+    # load reduced order model!!!
+    model_lstm = load_object(self.lstm_file)  # Load a saved LSTM model
 
-       # load reduced order model!!!
-       model_lstm = load_object(self.lstm_file)
+    # load data!!!
+    acc_appended_noise = load_object(self.data_file)  # Load a saved data file
 
-       # load data!!!
-       acc_appended_noise = load_object(self.data_file)
+    num_p = self.num_p  # Get the number of parameters
+    p_ = self.p_  # Get the parameter values
+    num_tsteps = self.num_tsteps  # Get the number of time steps
+    model = self.model  # Get the physics-based model
 
-       num_p = self.num_p
-       p_ = self.p_
-       num_tsteps = self.num_tsteps
-       model = self.model
-   
-       for ii in range(0,num_p):
-   
-           if ii == 2 or ii == 11 or ii == 13 or ii == 15 or ii == 16 or ii == 17:
-              # noisy data!!!
-              acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
-              acc = acc.reshape(1, num_tsteps)
-        
-              dc = p_[ii]
-              print('--- dc is %s ---' % dc)
-   
-              qstart={"Dc":100} # initial guess
-              qpriors={"Dc":["Uniform",0.1, 1000]}
-   
-              nsamples = int(sys.argv[2])
-              nburn = nsamples/2
-              
-              problem_type = 'full'
-              MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-              qparams1=MCMCobj1.sample() # run the Bayesian/MCMC algorithm
-              MCMCobj1.plot_dist(qparams1,'full',dc)
-   
-              problem_type = 'rom'
-              MCMCobj2=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-              qparams2=MCMCobj2.sample() # run the Bayesian/MCMC algorithm
-              MCMCobj2.plot_dist(qparams2,'reduced order',dc)
-   
+    for ii in range(0,num_p):
+        # Check if the current parameter index is in a list of indices
+        if ii == 2 or ii == 11 or ii == 13 or ii == 15 or ii == 16 or ii == 17:
+            # Get the accelerometer data for the current parameter index
+            acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
+            acc = acc.reshape(1, num_tsteps)
+
+            dc = p_[ii]  # Get the current parameter value
+            print('--- dc is %s ---' % dc)
+
+            qstart={"Dc":100}  # Define the initial guess for the parameter values
+            qpriors={"Dc":["Uniform",0.1, 1000]}  # Define the prior distribution for the parameter values
+
+            nsamples = int(sys.argv[2])  # Get the number of MCMC samples
+            nburn = nsamples/2  # Define the number of burn-in samples
+
+            problem_type = 'full'
+            # Create an MCMC object for the full physics-based model and run the algorithm
+            MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+            qparams1=MCMCobj1.sample()
+
+            # Plot the posterior distribution of the parameter values for the full physics-based model
+            MCMCobj1.plot_dist(qparams1,'full',dc)
+
+            problem_type = 'rom'
+            # Create an MCMC object for the reduced-order model and run the algorithm
+            MCMCobj2=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+            qparams2=MCMCobj2.sample()
+
+            # Plot the posterior distribution of the parameter values for the reduced-order model
+            MCMCobj2.plot_dist(qparams2,'reduced order',dc)
+
    
    
