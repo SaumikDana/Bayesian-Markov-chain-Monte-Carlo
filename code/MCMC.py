@@ -152,19 +152,36 @@ def sample(self):
     self.std2=np.asarray(self.std2)[self.nburn:] # Trim the estimate of the standard deviation to exclude burn-in samples
     return qparams[:,self.nburn:]
 
-    def acceptreject(self,q_new,SSqprev,std2):
-   
-        accept=np.all(q_new[:,0]>self.qstart_limits[:,0]) and np.all(q_new[:,0]<self.qstart_limits[:,1])
-       
-        if accept:
-            SSqnew=self.SSqcalc(q_new)
-            #if r is greater than a number randomly sampled between 0 and 1  
-            accept=(min(0,0.5*(SSqprev-SSqnew)/std2)>np.log(np.random.rand(1))[0]) 
+def acceptreject(self, q_new, SSqprev, std2):
+    """
+    Implementation of the accept-reject step in Metropolis-Hastings algorithm.
+    
+    Parameters:
+        q_new (numpy array): A numpy array representing the new proposal values for the parameters.
+        SSqprev (float):     A float representing the sum of squares error of the previous proposal.
+        std2 (float):        A float representing the variance of the distribution used to generate the proposal.
+        
+    Returns:
+        tuple: A tuple containing a boolean indicating whether the proposal is accepted or rejected, and 
+               the sum of squares error of the proposal (either the previous or the new one).
+    """
+    # Check if the proposal values are within the limits
+    accept = np.all(q_new[:, 0] > self.qstart_limits[:, 0]) and np.all(q_new[:, 0] < self.qstart_limits[:, 1])
+    
+    if accept:
+        # Compute the sum of squares error of the new proposal
+        SSqnew = self.SSqcalc(q_new)
+        # Compute the acceptance probability
+        accept_prob = min(0, 0.5*(SSqprev - SSqnew) / std2)
+        # Check if the proposal is accepted based on the acceptance probability and a random number
+        accept = accept_prob > np.log(np.random.rand(1))[0]
 
-        if accept:
-            return accept,SSqnew
-        else:
-            return accept,SSqprev
+    if accept:
+        # If accepted, return the boolean True and the sum of squares error of the new proposal
+        return accept, SSqnew
+    else:
+        # If rejected, return the boolean False and the sum of squares error of the previous proposal
+        return accept, SSqprev
 
             
     def SSqcalc(self,q_new):
