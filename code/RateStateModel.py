@@ -109,15 +109,21 @@ class RateStateModel:
         for arg in params.keys():
             self.consts[arg]=params[arg]
         
-        r = integrate.ode(self.friction).set_integrator('vode', order=5,max_step=0.001,method='bdf',atol=1e-10,rtol=1e-6)
-        num_steps = int(np.floor((self.consts["t_final"]-self.consts["t_start"])/self.consts["delta_t"]))
+        # Set up the ODE solver
+        r = integrate.ode(self.friction).set_integrator('vode', order=5, max_step=0.001, method='bdf', atol=1e-10, rtol=1e-6)
 
-        theta_t_zero = self.consts["Dc"]/self.consts["V_ref"]
+        # Calculate the number of steps to take
+        num_steps = int(np.floor((self.consts["t_final"] - self.consts["t_start"]) / self.consts["delta_t"]))
+
+        # Calculate the initial values for theta, mu, and velocity
+        theta_t_zero = self.consts["Dc"] / self.consts["V_ref"]
         v = self.consts["V_ref"]
+
+        # Set the initial conditions for the ODE solver
         r.set_initial_value([self.consts["mu_t_zero"], theta_t_zero, self.consts["V_ref"]], self.consts["t_start"])
 
         # Create arrays to store trajectory
-        t,mu,theta,velocity,acc = np.zeros((num_steps,1)),np.zeros((num_steps,1)),np.zeros((num_steps,1)),np.zeros((num_steps,1)),np.zeros((num_steps,1))
+        t, mu, theta, velocity, acc = np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1))
         t[0] = self.consts["t_start"]
         mu[0] = self.consts["mu_ref"]
         theta[0] = theta_t_zero
@@ -127,35 +133,39 @@ class RateStateModel:
         # Integrate the ODE(s) across each delta_t timestep
         k = 1
         while r.successful() and k < num_steps:
-            #integrate.ode.set_f_params(r,velocity,k)
             r.integrate(r.t + self.consts["delta_t"])
             # Store the results to plot later
             t[k] = r.t
             mu[k] = r.y[0]
             theta[k] = r.y[1]
             velocity[k] = r.y[2]
-            acc[k] = (velocity[k]-velocity[k-1])/self.consts["delta_t"]
+            acc[k] = (velocity[k] - velocity[k-1]) / self.consts["delta_t"]
             k += 1
 
-        acc_noise = acc+1.0*np.abs(acc)*np.random.randn(acc.shape[0],acc.shape[1]) #synthetic data
+        # Add some noise to the acceleration data to simulate real-world noise
+        acc_noise = acc + 1.0 * np.abs(acc) * np.random.randn(acc.shape[0], acc.shape[1])
 
-        t_,acc_,acc_noise_ = np.zeros((num_steps,2)),np.zeros((num_steps,2)),np.zeros((num_steps,2))
-        t_[:,0] = t[:,0]
-        t_[:,1] = self.consts["Dc"]
+        # Create arrays to store data for plotting
+        t_, acc_, acc_noise_ = np.zeros((num_steps, 2)), np.zeros((num_steps, 2)), np.zeros((num_steps, 2))
+        t_[:, 0] = t[:, 0]
+        t_[:, 1] = self.consts["Dc"]
 
-        acc_noise_[:,0] = acc_noise[:,0]
-        acc_noise_[:,1] = acc_noise[:,0]
+        acc_noise_[:, 0] = acc_noise[:, 0]
+        acc_noise_[:, 1] = acc_noise[:, 0]
 
-        acc_[:,0] = acc[:,0]
-        acc_[:,1] = acc[:,0]
+        acc_[:, 0] = acc[:, 0]
+        acc_[:, 1] = acc[:, 0]
 
-        del(t,mu,theta,velocity,acc,acc_noise)
- 
+        # Clean up
+        del(t, mu, theta, velocity, acc, acc_noise)
+
+        # Generate plots if desired
         if self.plotfigs:
-            self.generateplots(t,mu,theta,velocity,acc)
-            self.plotfigs = False # only once!!!
-        # Make some plots
-        return t_,acc_,acc_noise_
+            self.generateplots(t_, acc_, acc_noise_)
+            self.plotfigs = False # Only generate plots once per evaluation
+
+        # Return the data for plotting and analysis
+        return t_, acc_, acc_noise_
 
 
     def rom_evaluate(self,params,lstm_model):
