@@ -1,5 +1,7 @@
 ## Deep learning and Bayesian inference
 
+# MCMC.py
+
 This code is a Python implementation of the adaptive Metropolis algorithm for Markov Chain Monte Carlo (MCMC) sampling. The purpose of this code is to sample the posterior distribution of a model's parameters given some observed data. The code is structured as a class called "MCMC" with four methods:
 
     init: Initializes the sampling process with the necessary parameters and constructs the initial covariance matrix.
