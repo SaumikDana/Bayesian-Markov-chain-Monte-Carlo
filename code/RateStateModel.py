@@ -210,21 +210,26 @@ class RateStateModel:
    
     def generateplots(self,t,mu,theta,velocity,acc):
  
+        # Plot the smooth acceleration data
         plt.figure()
-        plt.title('$d_c$='+str(self.consts["Dc"])+' $\mu m$' + ' RSF solution')
+        plt.title('$d_c$=' + str(self.consts["Dc"]) + ' $\mu m$' + ' RSF solution')
         plt.plot(t, acc, 'b', linewidth=1.0)
-        plt.xlim(self.consts["t_start"]-2.0, self.consts["t_final"])
+        plt.xlim(self.consts["t_start"] - 2.0, self.consts["t_final"])
         plt.xlabel('Time (sec)')
         plt.ylabel('Acceleration $(\mu m/s^2)$')
         plt.grid('on')
         plt.savefig("./plots/smooth.png")
 
+        # Plot the noisy acceleration data
         plt.figure()
-        plt.title('$d_c$='+str(self.consts["Dc"])+' $\mu m$' + ' Noise added')
-        acc_noise=acc+1.0*np.abs(acc)*np.random.randn(acc.shape[0],acc.shape[1]) #synthetic data
+        plt.title('$d_c$=' + str(self.consts["Dc"]) + ' $\mu m$' + ' Noise added')
+        acc_noise = acc + 1.0 * np.abs(acc) * np.random.randn(acc.shape[0], acc.shape[1]) # Create synthetic noisy data
         plt.plot(t, acc_noise, 'b', linewidth=1.0)
-        plt.xlim(self.consts["t_start"]-2.0, self.consts["t_final"])
+        plt.xlim(self.consts["t_start"] - 2.0, self.consts["t_final"])
         plt.xlabel('Time (sec)')
         plt.ylabel('Acceleration $(\mu m/s^2)$')
         plt.grid('on')
         plt.savefig("./plots/noisy_1.png")
+        
+        
+        
