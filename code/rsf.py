@@ -99,20 +99,27 @@ class rsf:
 
       
    def build_lstm(self):
-    
-       # build rom!!!
-       t_ = self.t_appended.reshape(-1,self.num_features); var_ = self.acc_appended.reshape(-1,self.num_features)
+       # Prepare the training data for the LSTM model
+       t_ = self.t_appended.reshape(-1,self.num_features)
+       var_ = self.acc_appended.reshape(-1,self.num_features)
        num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, var_, self.window, self.stride, self.num_features) 
        T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
-       hidden_size = self.window; batch_size = 1; n_epochs = int(sys.argv[1]); num_layers = 1 
+
+       # Define the parameters for the LSTM model
+       hidden_size = self.window
+       batch_size = 1
+       n_epochs = int(sys.argv[1])
+       num_layers = 1 
        input_tensor = T_train
+
+       # Build the LSTM model and train it
        model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], hidden_size, num_layers, False)
        loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, self.window, batch_size)
-   
-       # pickle reduced order model!!!
+
+       # Save the trained LSTM model to a file
        save_object(model_lstm,self.lstm_file) 
-   
-       # plot!!!
+
+       # Plot the results of the trained LSTM model
        self.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, self.stride, self.window, 'Training', 'Reconstruction', num_samples_train, self.num_p, self.p_, self.num_tsteps)
 
    
