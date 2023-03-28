@@ -123,50 +123,62 @@ class rsf:
        self.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, self.stride, self.window, 'Training', 'Reconstruction', num_samples_train, self.num_p, self.p_, self.num_tsteps)
 
    
-   def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
-     '''
-     plot examples of the lstm encoder-decoder evaluated on the training/test data
-     
-     '''
-     Y_return = np.zeros([int(num_samples*window)])     
-     count_dc = 0
-     for dc in dc_:
-   
-         X = np.zeros([int(num_samples*window/num_p)]) 
-         Y = np.zeros([int(num_samples*window/num_p)])     
-         T = np.zeros([int(num_samples*window/num_p)])     
-   
-         num_samples_per_dc = int(num_samples/num_p) 
-   
-         for ii in range(num_samples_per_dc):
-   
-             start = ii*stride
-             end = start + window
-   
-             train_plt = X_[:, count_dc*num_samples_per_dc+ii, :]
-             Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
-   
-             X[start:end] = Y_[:, count_dc*num_samples_per_dc+ii, 0]
-             Y[start:end] = Y_train_pred[:, 0]
-             T[start:end] = T_[:, count_dc*num_samples_per_dc+ii, 0]
-             Y_return[count_dc*num_tsteps+start:count_dc*num_tsteps+end] = Y_train_pred[:, 0]
-   
-         plt.rcParams.update({'font.size': 16})
-         plt.figure()
-         plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
-         plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
-         plt.xlabel('$Time (sec)$')
-         plt.ylabel('$a (\mu m/s^2)$')
-         plt.legend(frameon=False)
-         plt.suptitle('%s data set for dc=%s $\mu m$' % (dataset_type,dc), x = 0.445, y = 1.)
-         plt.tight_layout()
-         plt.savefig('plots/%s_%s.png' % (dc,dataset_type))
-   
-         count_dc += 1
-   
-         del X,Y,T
-   
-   
+def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
+    """
+    In summary, this code takes the trained LSTM model and some input data 
+    and generates predicted output signals for each value of a parameter dc. 
+    It then plots the target and predicted output signals for each dc value. 
+    The stride and window parameters are used to determine the length and spacing of the windows 
+    used to generate the input and output signals, and num_samples and num_p are used 
+    to determine the number of training samples and the number of dc values. 
+    Finally, dataset_type and objective are used to label the plot and num_tsteps 
+    is used to determine the length of the predicted output signal array. 
+    The del statement is used to free up memory by deleting the input and output signal arrays after they are no longer needed.
+    """
+      
+    # Initialize the reconstructed signal array
+    Y_return = np.zeros([int(num_samples*window)])     
+
+    count_dc = 0
+    for dc in dc_:
+        # Initialize the arrays for the target, input, and output signals
+        X = np.zeros([int(num_samples*window/num_p)]) 
+        Y = np.zeros([int(num_samples*window/num_p)])     
+        T = np.zeros([int(num_samples*window/num_p)])     
+
+        num_samples_per_dc = int(num_samples/num_p) 
+
+        # Iterate through the samples and generate the predicted output signal for the current DC value
+        for ii in range(num_samples_per_dc):
+            start = ii*stride
+            end = start + window
+
+            train_plt = X_[:, count_dc*num_samples_per_dc+ii, :]
+            Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
+
+            X[start:end] = Y_[:, count_dc*num_samples_per_dc+ii, 0]
+            Y[start:end] = Y_train_pred[:, 0]
+            T[start:end] = T_[:, count_dc*num_samples_per_dc+ii, 0]
+            Y_return[count_dc*num_tsteps+start:count_dc*num_tsteps+end] = Y_train_pred[:, 0]
+
+        # Plot the target and predicted output signals
+        plt.rcParams.update({'font.size': 16})
+        plt.figure()
+        plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
+        plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
+        plt.xlabel('$Time (sec)$')
+        plt.ylabel('$a (\mu m/s^2)$')
+        plt.legend(frameon=False)
+        plt.suptitle('%s data set for dc=%s $\mu m$' % (dataset_type,dc), x = 0.445, y = 1.)
+        plt.tight_layout()
+        plt.savefig('plots/%s_%s.png' % (dc,dataset_type))
+
+        count_dc += 1
+
+        # Free up memory by deleting the arrays
+        del X,Y,T
+
+         
    def rsf_inference_no_rom(self):
 
        # load reduced order model!!!
