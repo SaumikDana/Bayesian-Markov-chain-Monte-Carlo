@@ -175,24 +175,28 @@ class rsf:
   
        for ii in range(0,num_p):
   
-          # noisy data!!!
+          # extract noisy data for current value of Dc
           acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
           acc = acc.reshape(1, num_tsteps)
        
           dc = p_[ii]
           print('--- dc is %s ---' % dc)
   
-          qstart={"Dc":100} # initial guess
-          qpriors={"Dc":["Uniform",0.1, 1000]}
+          qstart={"Dc":100} # set initial guess for Dc parameter
+          qpriors={"Dc":["Uniform",0.1, 1000]} # set priors for Dc parameter
   
-          nsamples = int(sys.argv[2])
-          nburn = nsamples/2
+          nsamples = int(sys.argv[2]) # number of samples to take during MCMC algorithm
+          nburn = nsamples/2 # number of samples to discard during burn-in period
           
-          problem_type = 'full'
+          problem_type = 'full' # set type of problem being solved (full problem without ROM)
+          
+          # run Bayesian/MCMC algorithm
           MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-          qparams1=MCMCobj1.sample() # run the Bayesian/MCMC algorithm
+          qparams1=MCMCobj1.sample() 
+          
+          # plot posterior distribution
           MCMCobj1.plot_dist(qparams1,'full',dc)
-  
+
 
    def rsf_inference(self):
 
