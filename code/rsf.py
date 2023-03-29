@@ -6,7 +6,7 @@ import generate_dataset
 import lstm_encoder_decoder
 from MCMC import MCMC
 import sys
-import os
+import torch
 import matplotlib.pyplot as plt
 
 
@@ -16,250 +16,265 @@ class rsf:
    '''
    def __init__(self,args):
 
-       # Define the range of values for the critical slip distance
-       self.num_p = 1
-       start_dc = 1.0
-       end_dc = 1000.0
-       self.p_ = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_p)
+      # Define the range of values for the critical slip distance
+      self.num_p = 1
+      start_dc = 1.0
+      end_dc = 1000.0
+      self.p_ = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_p)
 
-       # Define the time range and number of time steps for the forward model
-       t_start = 0.0
-       t_end = 50.0
-       self.num_tsteps = 500
+      # Define the time range and number of time steps for the forward model
+      t_start = 0.0
+      t_end = 50.0
+      self.num_tsteps = 500
 
-       # Define the window size and stride for generating the training data
-       self.window = 25 # make sure num_tsteps is exact multiple of window!!!
-       self.stride = 25
-       self.num_features = 2
+      # Define the window size and stride for generating the training data
+      self.window = 25 # make sure num_tsteps is exact multiple of window!!!
+      self.stride = 25
+      self.num_features = 2
 
-       # Create an instance of the RateStateModel class
-       self.model = RateStateModel(t_start, t_end, num_tsteps = self.num_tsteps, window = self.window) # forward model
+      # Create an instance of the RateStateModel class
+      self.model = RateStateModel(t_start, t_end, num_tsteps = self.num_tsteps, window = self.window) # forward model
 
-       # Store the input arguments
-       self.args = args
+      # Store the input arguments
+      self.args = args
 
-       # Define file names for saving and loading data and LSTM model
-       self.lstm_file = 'model_lstm.pickle'
-       self.data_file = 'data.pickle'
+      # Define file names for saving and loading data and LSTM model
+      self.lstm_file = 'model_lstm.pickle'
+      self.data_file = 'data.pickle'
 
+      return
+   
+   def solve(self):
 
-   def solve(self,args):
+      # Generate the time series for the RSF model
+      self.time_series() 
 
-       # Generate the time series for the RSF model
-       self.time_series() 
+      if self.args.reduction:
+         # Use LSTM encoder-decoder for dimensionality reduction
+         self.build_lstm()
 
-       if self.args.reduction:
-          # Use LSTM encoder-decoder for dimensionality reduction
-          self.build_lstm()
+      if self.args.bayesian:
+         # Use Bayesian inference to estimate the critical slip distance
+         if self.args.reduction:
+            # Perform RSF inference with LSTM encoder-decoder
+            self.rsf_inference()      
+         else:
+            # Perform RSF inference without dimensionality reduction
+            self.rsf_inference_no_rom()
 
-       if self.args.bayesian:
-          # Use Bayesian inference to estimate the critical slip distance
-          if self.args.reduction:
-             # Perform RSF inference with LSTM encoder-decoder
-             self.rsf_inference()      
-          else:
-             # Perform RSF inference without dimensionality reduction
-             self.rsf_inference_no_rom()
-
-
+      return
+   
    def time_series(self):
 
-       # Extract relevant variables
-       num_p = self.num_p
-       p_ = self.p_
-       num_tsteps = self.num_tsteps
-       num_features = self.num_features
-       model = self.model
+      # Extract relevant variables
+      num_p = self.num_p
+      p_ = self.p_
+      num_tsteps = self.num_tsteps
+      num_features = self.num_features
+      model = self.model
 
-       # Create arrays to store the time and acceleration data for all values of dc
-       t_appended =  np.zeros((num_p*num_tsteps,num_features))
-       acc_appended =  np.zeros((num_p*num_tsteps,num_features))
-       acc_appended_noise = np.zeros((num_p*num_tsteps,num_features))
-       
-       count_dc = 0
-       for dc in p_:
-          # Evaluate the model for the current value of dc
-          model.set_dc(dc)
-          t, acc, acc_noise = model.evaluate(model.consts) # noisy data
-          t_ = t.reshape(-1,num_features); acc_ = acc.reshape(-1,num_features)
-
-          # Append the time and acceleration data to the corresponding arrays
-          start_ = count_dc*num_tsteps; end_ = start_ + num_tsteps
-          t_appended[start_:end_,0] = t[:,0]; t_appended[start_:end_,1] = dc
-          acc_appended[start_:end_,0] = acc[:,0]; acc_appended[start_:end_,1] = acc[:,1]
-          acc_appended_noise[start_:end_,0] = acc_noise[:,0]; acc_appended_noise[start_:end_,1] = acc_noise[:,1]
-          count_dc += 1
-  
-       # Store the time and acceleration data as attributes of the class
-       self.t_appended = t_appended
-       self.acc_appended = acc_appended
- 
-       # Save the data using pickle
-       save_object(acc_appended_noise,self.data_file)
-
+      # Create arrays to store the time and acceleration data for all values of dc
+      t_appended =  np.zeros((num_p*num_tsteps,num_features))
+      acc_appended =  np.zeros((num_p*num_tsteps,num_features))
+      acc_appended_noise = np.zeros((num_p*num_tsteps,num_features))
       
+      count_dc = 0
+      for dc in p_:
+         # Evaluate the model for the current value of dc
+         model.set_dc(dc)
+         t, acc, acc_noise = model.evaluate(model.consts) # noisy data
+         t_ = t.reshape(-1,num_features); acc_ = acc.reshape(-1,num_features)
+
+         # Append the time and acceleration data to the corresponding arrays
+         start_ = count_dc*num_tsteps; end_ = start_ + num_tsteps
+         t_appended[start_:end_,0] = t[:,0]; t_appended[start_:end_,1] = dc
+         acc_appended[start_:end_,0] = acc[:,0]; acc_appended[start_:end_,1] = acc[:,1]
+         acc_appended_noise[start_:end_,0] = acc_noise[:,0]; acc_appended_noise[start_:end_,1] = acc_noise[:,1]
+         count_dc += 1
+
+      # Store the time and acceleration data as attributes of the class
+      self.t_appended = t_appended
+      self.acc_appended = acc_appended
+
+      # Save the data using pickle
+      save_object(acc_appended_noise,self.data_file)
+
+      return
+         
    def build_lstm(self):
-       # Prepare the training data for the LSTM model
-       t_ = self.t_appended.reshape(-1,self.num_features)
-       var_ = self.acc_appended.reshape(-1,self.num_features)
-       num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(t_, var_, self.window, self.stride, self.num_features) 
-       T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
+      # Prepare the training data for the LSTM model
+      t_ = self.t_appended.reshape(-1,self.num_features)
+      var_ = self.acc_appended.reshape(-1,self.num_features)
+      num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(
+         t_, var_, self.window, self.stride, self.num_features) 
+      T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
 
-       # Define the parameters for the LSTM model
-       hidden_size = self.window
-       batch_size = 1
-       n_epochs = int(sys.argv[1])
-       num_layers = 1 
-       input_tensor = T_train
+      # Define the parameters for the LSTM model
+      hidden_size = self.window
+      batch_size = 1
+      n_epochs = int(sys.argv[1])
+      num_layers = 1 
+      input_tensor = T_train
 
-       # Build the LSTM model and train it
-       model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], hidden_size, num_layers, False)
-       loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, self.window, batch_size)
+      # Build the LSTM model and train it
+      model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], hidden_size, num_layers, False)
+      loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, self.window, batch_size)
 
-       # Save the trained LSTM model to a file
-       save_object(model_lstm,self.lstm_file) 
+      # Save the trained LSTM model to a file
+      save_object(model_lstm,self.lstm_file) 
 
-       # Plot the results of the trained LSTM model
-       self.plot_results(model_lstm, Ttrain, Ttrain, Ytrain, self.stride, self.window, 'Training', 'Reconstruction', num_samples_train, self.num_p, self.p_, self.num_tsteps)
+      # Plot the results of the trained LSTM model
+      self.plot_results(
+         model_lstm, Ttrain, Ttrain, Ytrain, 
+         self.stride, self.window, 
+         'Training', 'Reconstruction', 
+         num_samples_train, self.num_p, self.p_, self.num_tsteps)
 
-   
-def plot_results(self,lstm_model, T_, X_, Y_, stride, window, dataset_type, objective, num_samples, num_p, p_, num_tsteps):
-    """
-    In summary, this code takes the trained LSTM model and some input data 
-    and generates predicted output signals for each value of a parameter dc. 
-    It then plots the target and predicted output signals for each dc value. 
-    The stride and window parameters are used to determine the length and spacing of the windows 
-    used to generate the input and output signals, and num_samples and num_p are used 
-    to determine the number of training samples and the number of dc values. 
-    Finally, dataset_type and objective are used to label the plot and num_tsteps 
-    is used to determine the length of the predicted output signal array. 
-    The del statement is used to free up memory by deleting the input and output signal arrays after they are no longer needed.
-    """
+      return
       
-    # Initialize the reconstructed signal array
-    Y_return = np.zeros([int(num_samples*window)])     
+   def plot_results(
+      self,lstm_model, T_, X_, Y_, 
+      stride, window, dataset_type, 
+      objective, num_samples, num_p, p_, num_tsteps):
+      """
+      In summary, this code takes the trained LSTM model and some input data 
+      and generates predicted output signals for each value of a parameter dc. 
+      It then plots the target and predicted output signals for each dc value. 
+      The stride and window parameters are used to determine the length and spacing of the windows 
+      used to generate the input and output signals, and num_samples and num_p are used 
+      to determine the number of training samples and the number of dc values. 
+      Finally, dataset_type and objective are used to label the plot and num_tsteps 
+      is used to determine the length of the predicted output signal array. 
+      The del statement is used to free up memory by deleting the input and output signal arrays after they are no longer needed.
+      """
+         
+      # Initialize the reconstructed signal array
+      Y_return = np.zeros([int(num_samples*window)])     
 
-    count_dc = 0
-    for dc in dc_:
-        # Initialize the arrays for the target, input, and output signals
-        X = np.zeros([int(num_samples*window/num_p)]) 
-        Y = np.zeros([int(num_samples*window/num_p)])     
-        T = np.zeros([int(num_samples*window/num_p)])     
+      count_dc = 0
+      for dc in dc_:
+         # Initialize the arrays for the target, input, and output signals
+         X = np.zeros([int(num_samples*window/num_p)]) 
+         Y = np.zeros([int(num_samples*window/num_p)])     
+         T = np.zeros([int(num_samples*window/num_p)])     
 
-        num_samples_per_dc = int(num_samples/num_p) 
+         num_samples_per_dc = int(num_samples/num_p) 
 
-        # Iterate through the samples and generate the predicted output signal for the current DC value
-        for ii in range(num_samples_per_dc):
-            start = ii*stride
-            end = start + window
+         # Iterate through the samples and generate the predicted output signal for the current DC value
+         for ii in range(num_samples_per_dc):
+               start = ii*stride
+               end = start + window
 
-            train_plt = X_[:, count_dc*num_samples_per_dc+ii, :]
-            Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
+               train_plt = X_[:, count_dc*num_samples_per_dc+ii, :]
+               Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
 
-            X[start:end] = Y_[:, count_dc*num_samples_per_dc+ii, 0]
-            Y[start:end] = Y_train_pred[:, 0]
-            T[start:end] = T_[:, count_dc*num_samples_per_dc+ii, 0]
-            Y_return[count_dc*num_tsteps+start:count_dc*num_tsteps+end] = Y_train_pred[:, 0]
+               X[start:end] = Y_[:, count_dc*num_samples_per_dc+ii, 0]
+               Y[start:end] = Y_train_pred[:, 0]
+               T[start:end] = T_[:, count_dc*num_samples_per_dc+ii, 0]
+               Y_return[count_dc*num_tsteps+start:count_dc*num_tsteps+end] = Y_train_pred[:, 0]
 
-        # Plot the target and predicted output signals
-        plt.rcParams.update({'font.size': 16})
-        plt.figure()
-        plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
-        plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
-        plt.xlabel('$Time (sec)$')
-        plt.ylabel('$a (\mu m/s^2)$')
-        plt.legend(frameon=False)
-        plt.suptitle('%s data set for dc=%s $\mu m$' % (dataset_type,dc), x = 0.445, y = 1.)
-        plt.tight_layout()
-        plt.savefig('plots/%s_%s.png' % (dc,dataset_type))
+         # Plot the target and predicted output signals
+         plt.rcParams.update({'font.size': 16})
+         plt.figure()
+         plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
+         plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)
+         plt.xlabel('$Time (sec)$')
+         plt.ylabel('$a (\mu m/s^2)$')
+         plt.legend(frameon=False)
+         plt.suptitle('%s data set for dc=%s $\mu m$' % (dataset_type,dc), x = 0.445, y = 1.)
+         plt.tight_layout()
+         plt.savefig('plots/%s_%s.png' % (dc,dataset_type))
 
-        count_dc += 1
+         count_dc += 1
 
-        # Free up memory by deleting the arrays
-        del X,Y,T
+         # Free up memory by deleting the arrays
+         del X,Y,T
 
+      return
          
    def rsf_inference_no_rom(self):
 
-       # load reduced order model!!!
-       model_lstm = load_object(self.lstm_file)
+      # load reduced order model!!!
+      model_lstm = load_object(self.lstm_file)
 
-       # load data!!!
-       acc_appended_noise = load_object(self.data_file)
+      # load data!!!
+      acc_appended_noise = load_object(self.data_file)
 
-       num_p = self.num_p
-       p_ = self.p_
-       num_tsteps = self.num_tsteps
-       model = self.model
-  
-       for ii in range(0,num_p):
-  
-          # extract noisy data for current value of Dc
-          acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
-          acc = acc.reshape(1, num_tsteps)
-       
-          dc = p_[ii]
-          print('--- dc is %s ---' % dc)
-  
-          qstart={"Dc":100} # set initial guess for Dc parameter
-          qpriors={"Dc":["Uniform",0.1, 1000]} # set priors for Dc parameter
-  
-          nsamples = int(sys.argv[2]) # number of samples to take during MCMC algorithm
-          nburn = nsamples/2 # number of samples to discard during burn-in period
-          
-          problem_type = 'full' # set type of problem being solved (full problem without ROM)
-          
-          # run Bayesian/MCMC algorithm
-          MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-          qparams1=MCMCobj1.sample() 
-          
-          # plot posterior distribution
-          MCMCobj1.plot_dist(qparams1,'full',dc)
+      num_p = self.num_p
+      p_ = self.p_
+      num_tsteps = self.num_tsteps
+      model = self.model
 
+      for ii in range(0,num_p):
 
-def rsf_inference(self):
-    # load reduced order model!!!
-    model_lstm = load_object(self.lstm_file)  # Load a saved LSTM model
+         # extract noisy data for current value of Dc
+         acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
+         acc = acc.reshape(1, num_tsteps)
+      
+         dc = p_[ii]
+         print('--- dc is %s ---' % dc)
 
-    # load data!!!
-    acc_appended_noise = load_object(self.data_file)  # Load a saved data file
+         qstart={"Dc":100} # set initial guess for Dc parameter
+         qpriors={"Dc":["Uniform",0.1, 1000]} # set priors for Dc parameter
 
-    num_p = self.num_p  # Get the number of parameters
-    p_ = self.p_  # Get the parameter values
-    num_tsteps = self.num_tsteps  # Get the number of time steps
-    model = self.model  # Get the physics-based model
+         nsamples = int(sys.argv[2]) # number of samples to take during MCMC algorithm
+         nburn = nsamples/2 # number of samples to discard during burn-in period
+         
+         problem_type = 'full' # set type of problem being solved (full problem without ROM)
+         
+         # run Bayesian/MCMC algorithm
+         MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+         qparams1=MCMCobj1.sample() 
+         
+         # plot posterior distribution
+         MCMCobj1.plot_dist(qparams1,'full',dc)
 
-    for ii in range(0,num_p):
-        # Check if the current parameter index is in a list of indices
-        if ii == 2 or ii == 11 or ii == 13 or ii == 15 or ii == 16 or ii == 17:
-            # Get the accelerometer data for the current parameter index
-            acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
-            acc = acc.reshape(1, num_tsteps)
+      return
+   
+   def rsf_inference(self):
+      # load reduced order model!!!
+      model_lstm = load_object(self.lstm_file)  # Load a saved LSTM model
 
-            dc = p_[ii]  # Get the current parameter value
-            print('--- dc is %s ---' % dc)
+      # load data!!!
+      acc_appended_noise = load_object(self.data_file)  # Load a saved data file
 
-            qstart={"Dc":100}  # Define the initial guess for the parameter values
-            qpriors={"Dc":["Uniform",0.1, 1000]}  # Define the prior distribution for the parameter values
+      num_p = self.num_p  # Get the number of parameters
+      p_ = self.p_  # Get the parameter values
+      num_tsteps = self.num_tsteps  # Get the number of time steps
+      model = self.model  # Get the physics-based model
 
-            nsamples = int(sys.argv[2])  # Get the number of MCMC samples
-            nburn = nsamples/2  # Define the number of burn-in samples
+      for ii in range(0,num_p):
+         # Check if the current parameter index is in a list of indices
+         if ii == 2 or ii == 11 or ii == 13 or ii == 15 or ii == 16 or ii == 17:
+               # Get the accelerometer data for the current parameter index
+               acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
+               acc = acc.reshape(1, num_tsteps)
 
-            problem_type = 'full'
-            # Create an MCMC object for the full physics-based model and run the algorithm
-            MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-            qparams1=MCMCobj1.sample()
+               dc = p_[ii]  # Get the current parameter value
+               print('--- dc is %s ---' % dc)
 
-            # Plot the posterior distribution of the parameter values for the full physics-based model
-            MCMCobj1.plot_dist(qparams1,'full',dc)
+               qstart={"Dc":100}  # Define the initial guess for the parameter values
+               qpriors={"Dc":["Uniform",0.1, 1000]}  # Define the prior distribution for the parameter values
 
-            problem_type = 'rom'
-            # Create an MCMC object for the reduced-order model and run the algorithm
-            MCMCobj2=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-            qparams2=MCMCobj2.sample()
+               nsamples = int(sys.argv[2])  # Get the number of MCMC samples
+               nburn = nsamples/2  # Define the number of burn-in samples
 
-            # Plot the posterior distribution of the parameter values for the reduced-order model
-            MCMCobj2.plot_dist(qparams2,'reduced order',dc)
+               problem_type = 'full'
+               # Create an MCMC object for the full physics-based model and run the algorithm
+               MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+               qparams1=MCMCobj1.sample()
 
+               # Plot the posterior distribution of the parameter values for the full physics-based model
+               MCMCobj1.plot_dist(qparams1,'full',dc)
+
+               problem_type = 'rom'
+               # Create an MCMC object for the reduced-order model and run the algorithm
+               MCMCobj2=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
+               qparams2=MCMCobj2.sample()
+
+               # Plot the posterior distribution of the parameter values for the reduced-order model
+               MCMCobj2.plot_dist(qparams2,'reduced order',dc)
+
+      return
    
    

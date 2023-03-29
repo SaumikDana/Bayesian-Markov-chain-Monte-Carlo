@@ -11,7 +11,10 @@ class MCMC:
     """
     Class for MCMC sampling
     """
-    def __init__(self, model, qpriors, nsamples, nburn, data, problem_type, lstm_model, qstart=None, adapt_interval=100, verbose=True):
+    def __init__(
+        self, model, qpriors, nsamples, nburn, 
+        data, problem_type, lstm_model, 
+        qstart=None, adapt_interval=100, verbose=True):
         """
         Initialize the sampling process
         """

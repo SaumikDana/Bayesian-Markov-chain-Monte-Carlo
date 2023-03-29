@@ -3,7 +3,7 @@ import numpy as np
 from scipy import integrate
 import matplotlib.pyplot as plt
 from math import exp,log,pi,sin,cos
-#import torch
+import torch
 
 class RateStateModel:
     """Class for rate and state model"""
@@ -105,6 +105,26 @@ class RateStateModel:
         return dydt
 
     def evaluate(self,params):
+        """
+        This is a Python code that defines a method called evaluate inside a class. 
+        The method takes a dictionary params as input and returns three arrays: 
+        t_, acc_, and acc_noise_.
+
+        The method first updates some constants based on the values in the params dictionary. 
+        Then, it sets up an ODE solver using the scipy.integrate.ode function. 
+        It calculates the number of steps to take based on the time range and time step size 
+        specified in the params dictionary.
+
+        The initial conditions for the ODE solver are also calculated based on the params dictionary. 
+        The solver is integrated across each time step, 
+        and the results are stored in arrays for plotting later. 
+        Some noise is added to the acceleration data to simulate real-world noise.
+
+        If the plotfigs attribute of the class is True, 
+        the method generates plots using the generateplots method 
+        and sets the plotfigs attribute to False. 
+        Finally, the method returns the arrays t_, acc_, and acc_noise_ for further analysis.
+        """
 
         for arg in params.keys():
             self.consts[arg]=params[arg]
@@ -162,7 +182,7 @@ class RateStateModel:
         # Generate plots if desired
         if self.plotfigs:
             self.generateplots(t_, acc_, acc_noise_)
-            self.plotfigs = False # Only generate plots once per evaluation
+            # self.plotfigs = False # Only generate plots once per evaluation
 
         # Return the data for plotting and analysis
         return t_, acc_, acc_noise_
@@ -208,7 +228,7 @@ class RateStateModel:
         return t, acc
 
    
-    def generateplots(self,t,mu,theta,velocity,acc):
+    def generateplots(self,t,acc,acc_noise):
  
         # Plot the smooth acceleration data
         plt.figure()
@@ -218,18 +238,15 @@ class RateStateModel:
         plt.xlabel('Time (sec)')
         plt.ylabel('Acceleration $(\mu m/s^2)$')
         plt.grid('on')
-        plt.savefig("./plots/smooth.png")
 
         # Plot the noisy acceleration data
         plt.figure()
         plt.title('$d_c$=' + str(self.consts["Dc"]) + ' $\mu m$' + ' Noise added')
-        acc_noise = acc + 1.0 * np.abs(acc) * np.random.randn(acc.shape[0], acc.shape[1]) # Create synthetic noisy data
         plt.plot(t, acc_noise, 'b', linewidth=1.0)
         plt.xlim(self.consts["t_start"] - 2.0, self.consts["t_final"])
         plt.xlabel('Time (sec)')
         plt.ylabel('Acceleration $(\mu m/s^2)$')
         plt.grid('on')
-        plt.savefig("./plots/noisy_1.png")
         
         
         

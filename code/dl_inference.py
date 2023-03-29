@@ -1,4 +1,4 @@
-from rsf import rsf
+from rsf import *
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
@@ -19,6 +19,7 @@ if __name__ == '__main__':
     problem = rsf(args)
     
     # Solve the problem
+    problem.model.plotfigs = True
     problem.solve()
 
     # Close it out
