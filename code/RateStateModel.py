@@ -11,7 +11,7 @@ class RateStateModel:
     def __init__(
         self, 
         number_time_steps=500, start_time=0.0, end_time=50.0,
-        plotfigs=False, plotname="test.png"):
+        plotfigs=True, plotname="test.png"):
 
         # Define model constants
         self.a = 0.011
@@ -23,6 +23,7 @@ class RateStateModel:
         # Define time range
         self.t_start = start_time
         self.t_final = end_time
+        self.num_tsteps = number_time_steps
         self.delta_t = (end_time - start_time) / number_time_steps
 
         # Define initial conditions
@@ -184,16 +185,17 @@ class RateStateModel:
         return t, acc
    
     def generateplots(self,t,acc,acc_noise):
- 
-        # Plots
-        plt.figure()
-        plt.title('$d_c$=' + str(self.Dc) + ' $\mu m$' + ' RSF solution')
-        plt.plot(t, acc, '--', linewidth=1.0,label='True')
-        plt.plot(t, acc_noise, linewidth=1.0,label='Noisy')
-        plt.xlim(self.t_start - 2.0, self.t_final)
-        plt.xlabel('Time (sec)')
-        plt.ylabel('Acceleration $(\mu m/s^2)$')
-        plt.grid('on')
-        plt.legend()        
+
+        if self.plotfigs:
+            # Plots
+            plt.figure()
+            plt.title('$d_c$=' + str(self.Dc) + ' $\mu m$' + ' RSF solution')
+            plt.plot(t, acc, '--', linewidth=1.0,label='True')
+            plt.plot(t, acc_noise, linewidth=1.0,label='Noisy')
+            plt.xlim(self.t_start - 2.0, self.t_final)
+            plt.xlabel('Time (sec)')
+            plt.ylabel('Acceleration $(\mu m/s^2)$')
+            plt.grid('on')
+            plt.legend()        
         
-        
+        return        

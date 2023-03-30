@@ -31,24 +31,25 @@ class rsf:
       # Define file names for saving and loading data and LSTM model
       self.lstm_file = 'model_lstm.pickle'
       self.data_file = 'data.pickle'
+      self.num_features = 2
 
       return
    
    def solve(self):
 
-      # Generate the time series for the RSF model
-      self.time_series() 
+      if not self.bayesian:
+         return
 
-      if self.bayesian:
-         # Use Bayesian inference to estimate the critical slip distance
-         if self.reduction:
-            # Use LSTM encoder-decoder for dimensionality reduction
-            self.build_lstm()
-            # Perform RSF inference with LSTM encoder-decoder
-            self.rsf_inference()      
-         else:
-            # Perform RSF inference without dimensionality reduction
-            self.rsf_inference_no_rom()
+      # Use Bayesian inference to estimate the critical slip distance
+
+      if self.reduction:
+         # Use LSTM encoder-decoder for dimensionality reduction
+         self.build_lstm()
+         # Perform RSF inference with LSTM encoder-decoder
+         self.rsf_inference()      
+      else:
+         # Perform RSF inference without dimensionality reduction
+         self.rsf_inference_no_rom()
 
       return
    
@@ -57,9 +58,11 @@ class rsf:
       # Extract relevant variables
       num_p = self.num_p
       p_ = self.p_
-      num_tsteps = self.num_tsteps
       num_features = self.num_features
-      model = self.model
+
+      # rate state model
+      model = RateStateModel()
+      num_tsteps = model.num_tsteps
 
       # Create arrays to store the time and acceleration data for all values of dc
       t_appended =  np.zeros((num_p*num_tsteps,num_features))
@@ -70,11 +73,9 @@ class rsf:
       for dc in p_:
          # Evaluate the model for the current value of dc
          model.set_dc(dc)
-         t, acc, acc_noise = model.evaluate(model.consts) # noisy data
+         t, acc, acc_noise = model.evaluate() # noisy data
          # Generate plots if desired
-         if self.plotfigs:
-               self.model.generateplots(t_, acc_, acc_noise)      
-         t_ = t.reshape(-1,num_features); acc_ = acc.reshape(-1,num_features)
+         model.generateplots(t[:,0], acc[:,0], acc_noise[:,0])      
 
          # Append the time and acceleration data to the corresponding arrays
          start_ = count_dc*num_tsteps; end_ = start_ + num_tsteps
