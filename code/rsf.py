@@ -16,8 +16,7 @@ class rsf:
    '''
    def __init__(
       self, bayesian=False, reduction=False,
-      number_slip_values=1, lowest_slip_value=1.0, largest_slip_value=1000.0,
-      number_time_steps=500, start_time=0.0, end_time=50.0):
+      number_slip_values=1, lowest_slip_value=1.0, largest_slip_value=1000.0):
 
       # flags for problem type
       self.bayesian = bayesian
@@ -28,22 +27,6 @@ class rsf:
       start_dc = lowest_slip_value
       end_dc = largest_slip_value
       self.p_ = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_p)
-
-      # Define the time range and number of time steps for the forward model
-      t_start = start_time
-      t_end = end_time
-      self.num_tsteps = number_time_steps
-
-      # Define the window size and stride for generating the training data
-      self.window = self.num_tsteps/20 
-      # make sure window is exact divisor of num_timesteps
-      self.stride = self.window
-      self.num_features = 2
-
-      # Create an instance of the RateStateModel class
-      self.model = RateStateModel(
-         t_start, t_end, 
-         num_tsteps = self.num_tsteps, window = self.window) # forward model
 
       # Define file names for saving and loading data and LSTM model
       self.lstm_file = 'model_lstm.pickle'
@@ -88,6 +71,9 @@ class rsf:
          # Evaluate the model for the current value of dc
          model.set_dc(dc)
          t, acc, acc_noise = model.evaluate(model.consts) # noisy data
+         # Generate plots if desired
+         if self.plotfigs:
+               self.model.generateplots(t_, acc_, acc_noise)      
          t_ = t.reshape(-1,num_features); acc_ = acc.reshape(-1,num_features)
 
          # Append the time and acceleration data to the corresponding arrays

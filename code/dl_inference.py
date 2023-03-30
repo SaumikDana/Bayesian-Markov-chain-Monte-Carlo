@@ -6,6 +6,9 @@ if __name__ == '__main__':
     # rsf problem constructor
     problem = rsf(number_slip_values=5)
     
+    # forward model    
+    problem.model = RateStateModel() 
+    
     # Solve the problem
     problem.model.plotfigs = True
     problem.solve()

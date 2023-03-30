@@ -2,150 +2,114 @@ from scipy.misc import derivative
 import numpy as np
 from scipy import integrate
 import matplotlib.pyplot as plt
-from math import exp,log,pi,sin,cos
+from math import exp, log, pi, sin, cos
 import torch
 
 class RateStateModel:
     """Class for rate and state model"""
 
-    def __init__(self,t_start,t_end,num_tsteps,window,plotfigs=False,plotname="test.png"):
-        """
-        Initialize the RateStateModel object.
-
-        Args:
-        t_start (float): Starting time for the simulation.
-        t_end (float): End time for the simulation.
-        num_tsteps (int): Number of time steps for the simulation.
-        window (float): Time window used for calculating the sliding velocity.
-        plotfigs (bool): If True, plot figures during the simulation.
-        plotname (str): Name of the plot file.
-
-        Returns:
-        None
-        """
+    def __init__(
+        self, 
+        number_time_steps=500, start_time=0.0, end_time=50.0,
+        plotfigs=False, plotname="test.png"):
 
         # Define model constants
-        consts={}
-        consts["a"]=0.011;  consts["b"]=0.014;   consts["mu_ref"]=0.6
-        consts["V_ref"]= 1;   consts["k1"]= 1e-7
+        self.a = 0.011
+        self.b = 0.014
+        self.mu_ref = 0.6
+        self.V_ref = 1
+        self.k1 = 1e-7
 
         # Define time range
-        consts["t_start"]=t_start;  consts["t_final"]=t_end; 
-        consts["delta_t"]=(t_end-t_start)/num_tsteps
+        self.t_start = start_time
+        self.t_final = end_time
+        self.delta_t = (end_time - start_time) / number_time_steps
 
         # Define initial conditions
-        consts["mu_t_zero"] = 0.6;  consts["V_ref"] = 1.0
+        self.mu_t_zero = 0.6
+        self.V_ref = 1.0
 
         # Add additional model constants
-        consts["mu_ref"] = 0.6
-        consts["RadiationDamping"]=True  
-        consts["window"]=window 
+        self.RadiationDamping = True
+        self.window = number_time_steps / 20
+        self.Dc = None
 
-        self.consts=consts
-        self.plotfigs=plotfigs
-        self.plotname=plotname
+        self.plotfigs = plotfigs
+        self.plotname = plotname
 
+        return
 
-    def set_dc(self,dc):
-        """
-        Set the characteristic slip distance of the model.
+    def set_dc(self, dc):
 
-        Args:
-        dc (float): Characteristic slip distance.
+        self.Dc = dc
 
-        Returns:
-        None
-        """
-        self.consts["Dc"] = dc
-
-
-    def friction(self,t,y):
+        return
+    
+    def friction(self, t, y):
 
         # Just to help readability
-        #y[0] is mu (friction)
-        #y[1] is theta
-        #y[2] is velocity
+        # y[0] is mu (friction)
+        # y[1] is theta
+        # y[2] is velocity
 
         # effective spring stiffness
-        kprime = 1e-2 * 10 / self.consts["Dc"]
+        kprime = 1e-2 * 10 / self.Dc
 
         # loading
         a1 = 20
         a2 = 10
-        V_l = self.consts["V_ref"] * (1 + exp(-t/a1) * sin(a2*t))
+        V_l = self.V_ref * (1 + exp(-t/a1) * sin(a2*t))
 
         # initialize the array of derivatives
         n = len(y)
         dydt = np.zeros((n, 1))
 
         # compute v
-        temp_ = self.consts["V_ref"] * y[1] / self.consts["Dc"]
-        temp = 1 / self.consts["a"] * (y[0] - self.consts["mu_ref"] - self.consts["b"] * log(temp_))
-        v = self.consts["V_ref"] * exp(temp)
+        temp_ = self.V_ref * y[1] / self.Dc
+        temp = 1 / self.a * (y[0] - self.mu_ref - self.b * log(temp_))
+        v = self.V_ref * exp(temp)
 
         # time derivative of theta
-        dydt[1] = 1. - v * y[1] / self.consts["Dc"]
+        dydt[1] = 1. - v * y[1] / self.Dc
 
         # double derivative of theta
-        ddtheta = - dydt[1] * v / self.consts["Dc"]
+        ddtheta = - dydt[1] * v / self.Dc
 
         # time derivative of mu
         dydt[0] = kprime * V_l - kprime * v
 
         # time derivative of velocity
-        dydt[2] = v / self.consts["a"] * (dydt[0] - self.consts["b"] / y[1] * dydt[1])
+        dydt[2] = v / self.a * (dydt[0] - self.b / y[1] * dydt[1])
 
         # add radiation damping term if specified
-        if self.consts["RadiationDamping"]:
+        if self.RadiationDamping:
             # time derivative of mu with radiation damping
-            dydt[0] = dydt[0] - self.consts["k1"] * dydt[2]
+            dydt[0] = dydt[0] - self.k1 * dydt[2]
             # time derivative of velocity with radiation damping
-            dydt[2] = v / self.consts["a"] * (dydt[0] - self.consts["b"] / y[1] * dydt[1])
+            dydt[2] = v / self.a * (dydt[0] - self.b / y[1] * dydt[1])
 
         return dydt
 
-    def evaluate(self,params):
-        """
-        This is a Python code that defines a method called evaluate inside a class. 
-        The method takes a dictionary params as input and returns three arrays: 
-        t_, acc_, and acc_noise_.
-
-        The method first updates some constants based on the values in the params dictionary. 
-        Then, it sets up an ODE solver using the scipy.integrate.ode function. 
-        It calculates the number of steps to take based on the time range and time step size 
-        specified in the params dictionary.
-
-        The initial conditions for the ODE solver are also calculated based on the params dictionary. 
-        The solver is integrated across each time step, 
-        and the results are stored in arrays for plotting later. 
-        Some noise is added to the acceleration data to simulate real-world noise.
-
-        If the plotfigs attribute of the class is True, 
-        the method generates plots using the generateplots method 
-        and sets the plotfigs attribute to False. 
-        Finally, the method returns the arrays t_, acc_, and acc_noise_ for further analysis.
-        """
-
-        for arg in params.keys():
-            self.consts[arg]=params[arg]
+    def evaluate(self):
         
         # Set up the ODE solver
-        r = integrate.ode(self.friction).set_integrator('vode', order=5, max_step=0.001, method='bdf', atol=1e-10, rtol=1e-6)
+        r = integrate.ode(self.friction).set_integrator(
+            'vode', order=5, max_step=0.001, method='bdf', atol=1e-10, rtol=1e-6)
 
         # Calculate the number of steps to take
-        num_steps = int(np.floor((self.consts["t_final"] - self.consts["t_start"]) / self.consts["delta_t"]))
+        num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))
 
         # Calculate the initial values for theta, mu, and velocity
-        theta_t_zero = self.consts["Dc"] / self.consts["V_ref"]
-        v = self.consts["V_ref"]
+        theta_t_zero = self.Dc / self.V_ref
+        v = self.V_ref
 
         # Set the initial conditions for the ODE solver
-        r.set_initial_value([self.consts["mu_t_zero"], theta_t_zero, self.consts["V_ref"]], self.consts["t_start"])
+        r.set_initial_value([self.mu_t_zero, theta_t_zero, self.V_ref], self.t_start)
 
         # Create arrays to store trajectory
         t, mu, theta, velocity, acc = np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1))
-        t[0] = self.consts["t_start"]
-        mu[0] = self.consts["mu_ref"]
+        t[0] = self.t_start
+        mu[0] = self.mu_ref
         theta[0] = theta_t_zero
         velocity[0] = v
         acc[0] = 0
@@ -153,13 +117,13 @@ class RateStateModel:
         # Integrate the ODE(s) across each delta_t timestep
         k = 1
         while r.successful() and k < num_steps:
-            r.integrate(r.t + self.consts["delta_t"])
+            r.integrate(r.t + self.delta_t)
             # Store the results to plot later
             t[k] = r.t
             mu[k] = r.y[0]
             theta[k] = r.y[1]
             velocity[k] = r.y[2]
-            acc[k] = (velocity[k] - velocity[k-1]) / self.consts["delta_t"]
+            acc[k] = (velocity[k] - velocity[k-1]) / self.delta_t
             k += 1
 
         # Add some noise to the acceleration data to simulate real-world noise
@@ -168,7 +132,7 @@ class RateStateModel:
         # Create arrays to store data for plotting
         t_, acc_, acc_noise_ = np.zeros((num_steps, 2)), np.zeros((num_steps, 2)), np.zeros((num_steps, 2))
         t_[:, 0] = t[:, 0]
-        t_[:, 1] = self.consts["Dc"]
+        t_[:, 1] = self.Dc
 
         acc_noise_[:, 0] = acc_noise[:, 0]
         acc_noise_[:, 1] = acc_noise[:, 0]
@@ -179,37 +143,28 @@ class RateStateModel:
         # Clean up
         del(t, mu, theta, velocity, acc, acc_noise)
 
-        # Generate plots if desired
-        if self.plotfigs:
-            self.generateplots(t_, acc_, acc_noise_)
-            # self.plotfigs = False # Only generate plots once per evaluation
-
         # Return the data for plotting and analysis
         return t_, acc_, acc_noise_
 
-
-    def rom_evaluate(self,params,lstm_model):
+    def rom_evaluate(self,lstm_model):
          
-        for arg in params.keys():
-            self.consts[arg]=params[arg]
-
         # Calculate the number of steps to take
-        num_steps = int(np.floor((self.consts["t_final"] - self.consts["t_start"]) / self.consts["delta_t"]))
-        window = self.consts["window"]
+        num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))
+        window = self.window
 
         # Create arrays to store trajectory
         t = np.zeros((num_steps, 2))
         acc = np.zeros((num_steps, 2))
 
-        t[0, 0] = self.consts["t_start"]
+        t[0, 0] = self.t_start
 
         # Calculate the time array
         k = 1
         while k < num_steps:
-            t[k, 0] = t[k-1, 0] + self.consts["delta_t"]
+            t[k, 0] = t[k-1, 0] + self.delta_t
             k += 1
 
-        t[:, 1] = self.consts["Dc"]
+        t[:, 1] = self.Dc
         num_steps_ = int(num_steps / window)
         train_plt = np.zeros((window, 2))
 
@@ -220,33 +175,25 @@ class RateStateModel:
 
             train_plt[0:window, 0] = t[start:end, 0]
             train_plt[0:window, 1] = t[start:end, 1]
-            Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len=window)
+            Y_train_pred = lstm_model.predict(
+                torch.from_numpy(train_plt).type(torch.Tensor), target_len=window)
             acc[start:end, 0] = Y_train_pred[:, 0]
             acc[start:end, 1] = Y_train_pred[:, 0]
 
         # Return the time and acceleration arrays
         return t, acc
-
    
     def generateplots(self,t,acc,acc_noise):
  
-        # Plot the smooth acceleration data
+        # Plots
         plt.figure()
-        plt.title('$d_c$=' + str(self.consts["Dc"]) + ' $\mu m$' + ' RSF solution')
-        plt.plot(t, acc, 'b', linewidth=1.0)
-        plt.xlim(self.consts["t_start"] - 2.0, self.consts["t_final"])
+        plt.title('$d_c$=' + str(self.Dc) + ' $\mu m$' + ' RSF solution')
+        plt.plot(t, acc, '--', linewidth=1.0,label='True')
+        plt.plot(t, acc_noise, linewidth=1.0,label='Noisy')
+        plt.xlim(self.t_start - 2.0, self.t_final)
         plt.xlabel('Time (sec)')
         plt.ylabel('Acceleration $(\mu m/s^2)$')
         plt.grid('on')
-
-        # Plot the noisy acceleration data
-        plt.figure()
-        plt.title('$d_c$=' + str(self.consts["Dc"]) + ' $\mu m$' + ' Noise added')
-        plt.plot(t, acc_noise, 'b', linewidth=1.0)
-        plt.xlim(self.consts["t_start"] - 2.0, self.consts["t_final"])
-        plt.xlabel('Time (sec)')
-        plt.ylabel('Acceleration $(\mu m/s^2)$')
-        plt.grid('on')
-        
+        plt.legend()        
         
         
