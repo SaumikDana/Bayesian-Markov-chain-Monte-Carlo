@@ -14,29 +14,36 @@ class rsf:
    '''
    Driver class for RSF model
    '''
-   def __init__(self,args):
+   def __init__(
+      self, bayesian=False, reduction=False,
+      number_slip_values=1, lowest_slip_value=1.0, largest_slip_value=1000.0,
+      number_time_steps=500, start_time=0.0, end_time=50.0):
 
+      # flags for problem type
+      self.bayesian = bayesian
+      self.reduction = reduction
+      
       # Define the range of values for the critical slip distance
-      self.num_p = 1
-      start_dc = 1.0
-      end_dc = 1000.0
+      self.num_p = number_slip_values
+      start_dc = lowest_slip_value
+      end_dc = largest_slip_value
       self.p_ = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_p)
 
       # Define the time range and number of time steps for the forward model
-      t_start = 0.0
-      t_end = 50.0
-      self.num_tsteps = 500
+      t_start = start_time
+      t_end = end_time
+      self.num_tsteps = number_time_steps
 
       # Define the window size and stride for generating the training data
-      self.window = 25 # make sure num_tsteps is exact multiple of window!!!
-      self.stride = 25
+      self.window = self.num_tsteps/20 
+      # make sure window is exact divisor of num_timesteps
+      self.stride = self.window
       self.num_features = 2
 
       # Create an instance of the RateStateModel class
-      self.model = RateStateModel(t_start, t_end, num_tsteps = self.num_tsteps, window = self.window) # forward model
-
-      # Store the input arguments
-      self.args = args
+      self.model = RateStateModel(
+         t_start, t_end, 
+         num_tsteps = self.num_tsteps, window = self.window) # forward model
 
       # Define file names for saving and loading data and LSTM model
       self.lstm_file = 'model_lstm.pickle'
@@ -49,13 +56,11 @@ class rsf:
       # Generate the time series for the RSF model
       self.time_series() 
 
-      if self.args.reduction:
-         # Use LSTM encoder-decoder for dimensionality reduction
-         self.build_lstm()
-
-      if self.args.bayesian:
+      if self.bayesian:
          # Use Bayesian inference to estimate the critical slip distance
-         if self.args.reduction:
+         if self.reduction:
+            # Use LSTM encoder-decoder for dimensionality reduction
+            self.build_lstm()
             # Perform RSF inference with LSTM encoder-decoder
             self.rsf_inference()      
          else:
