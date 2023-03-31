@@ -12,36 +12,30 @@ class MCMC:
     Class for MCMC sampling
     """
     def __init__(
-        self, model, qpriors, nsamples, nburn, 
-        data, problem_type, lstm_model, 
-        qstart=None, adapt_interval=100, verbose=True):
-        """
-        Initialize the sampling process
-        """
+        self, model, data, qpriors, qstart, 
+        nsamples=100, problem_type='full', lstm_model={}, 
+        adapt_interval=100, verbose=True
+        ):
+
         self.model = model
         self.qstart = qstart
         self.qpriors = qpriors
-        self.nsamples = nsamples
-        self.nburn = nburn
+        self.nsamples = nsamples # number of samples to take during MCMC algorithm
+        self.nburn = nsamples/2 # number of samples to discard during burn-in period
         self.verbose = verbose
         self.adapt_interval = adapt_interval
         self.data = data
         self.lstm_model = lstm_model
         self.problem_type = problem_type
-        self.consts = model.consts
         self.n0 = 0.01
-
-        # Set the initial guess using the qstart dictionary
-        for arg in self.qstart.keys():
-            self.consts[arg] = qstart[arg]
 
         # Evaluate the model based on the problem type (full or reduced order model)
         if self.problem_type == 'full':
             # High fidelity model
-            t_, acc_, temp_ = self.model.evaluate(self.consts)
+            t_, acc_, temp_ = self.model.evaluate()
         else:
             # Reduced order model
-            t_, acc_ = self.model.rom_evaluate(self.consts, lstm_model)
+            t_, acc_ = self.model.rom_evaluate(lstm_model)
 
         # Construct the initial covariance matrix
         acc = acc_[:, 0]
@@ -49,20 +43,17 @@ class MCMC:
         self.std2 = [np.sum((acc - self.data) ** 2, axis=1)[0] / (acc.shape[1] - len(self.qpriors.keys()))]
         X = []
 
-        # Iterate through the qpriors keys to construct the initial covariance matrix
-        for arg in self.qpriors.keys():
-            consts_dq = copy.deepcopy(self.consts)
-            consts_dq[arg] = consts_dq[arg] * (1 + 1e-6)
+        # Construct the initial covariance matrix
+        self.model.Dc = (1+1e-6)*self.model.Dc
+        # Evaluate the model based on the problem type (full or reduced order model)
+        if self.problem_type == 'full':  # High fidelity model
+            t_, acc_dq_, temp_ = self.model.evaluate()
+        else:  # Reduced order model
+            t_, acc_dq_ = self.model.rom_evaluate(lstm_model)
 
-            # Evaluate the model based on the problem type (full or reduced order model)
-            if self.problem_type == 'full':  # High fidelity model
-                t_, acc_dq_, temp_ = self.model.evaluate(consts_dq)
-            else:  # Reduced order model
-                t_, acc_dq_ = self.model.rom_evaluate(consts_dq, lstm_model)
-
-            acc_dq = acc_dq_[:, 0]
-            acc_dq = acc_dq.reshape(1, acc_dq.shape[0])
-            X.append((acc_dq[0, :] - acc[0, :]) / (consts_dq[arg] * 1e-6))
+        acc_dq = acc_dq_[:, 0]
+        acc_dq = acc_dq.reshape(1, acc_dq.shape[0])
+        X.append((acc_dq[0, :] - acc[0, :]) / (self.model.Dc * 1e-6))
 
         # Compute the inverse of the product of the transpose of X and X
         X = np.asarray(X).T
@@ -120,8 +111,8 @@ class MCMC:
                 qparams=np.concatenate((qparams,q_new),axis=1)
 
             # Update the estimate of the standard deviation
-            aval=0.5*(self.n0+self.data.shape[1]);
-            bval=0.5*(self.n0*self.std2[-1]+SSqprev);
+            aval=0.5*(self.n0+self.data.shape[1])
+            bval=0.5*(self.n0*self.std2[-1]+SSqprev)
             self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
 
             # Update the covariance matrix if it is time to adapt it

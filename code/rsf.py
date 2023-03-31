@@ -60,6 +60,7 @@ class rsf:
 
       # rate state model
       model = RateStateModel()
+      self.model = model
       num_tsteps = model.num_tsteps
 
       # Create arrays to store the time and acceleration data for all values of dc
@@ -189,8 +190,8 @@ class rsf:
 
       num_p = self.num_p
       p_ = self.p_
-      num_tsteps = self.num_tsteps
       model = self.model
+      num_tsteps = model.num_tsteps
 
       for ii in range(0,num_p):
 
@@ -203,20 +204,13 @@ class rsf:
 
          qstart={"Dc":100} # set initial guess for Dc parameter
          qpriors={"Dc":["Uniform",0.1, 1000]} # set priors for Dc parameter
-
-         nsamples = int(sys.argv[2]) # number of samples to take during MCMC algorithm
-         nburn = nsamples/2 # number of samples to discard during burn-in period
                   
          # run Bayesian/MCMC algorithm
-         MCMCobj = MCMC(
-            model,qpriors=qpriors,nsamples=nsamples,
-            nburn=nburn,data=acc,problem_type='full',lstm_model=model_lstm,
-            qstart=qstart,adapt_interval=10,
-            verbose=True)
-         qparams1=MCMCobj.sample() 
+         MCMCobj = MCMC(model,acc,qpriors,qstart,adapt_interval=10)
+         qparams = MCMCobj.sample() 
          
          # plot posterior distribution
-         MCMCobj.plot_dist(qparams1,'full',dc)
+         MCMCobj.plot_dist(qparams,'full',dc)
 
       return
    

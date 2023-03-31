@@ -10,7 +10,7 @@ if __name__ == '__main__':
     problem.time_series() 
 
     # flags for problem type
-    bayesian = False # Use Bayesian inference to estimate the critical slip distance
+    bayesian = True # Use Bayesian inference to estimate the critical slip distance
     reduction = False # Use ROM
 
     if not bayesian:
