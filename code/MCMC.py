@@ -11,62 +11,52 @@ class MCMC:
     """
     Class for MCMC sampling
     """
-    def __init__(
-        self, model, data, qpriors, qstart, nsamples=100, problem_type='full', 
+    def __init__(self, model, data, qpriors, qstart, nsamples=100, problem_type='full', 
         lstm_model={}, adapt_interval=100, verbose=True):
 
-        self.model = model
-        self.qstart = qstart
-        self.qpriors = qpriors
-        self.nsamples = nsamples # number of samples to take during MCMC algorithm
-        self.nburn = int(nsamples/2) # number of samples to discard during burn-in period
-        self.verbose = verbose
-        self.adapt_interval = adapt_interval
-        self.data = data
-        self.lstm_model = lstm_model
-        self.problem_type = problem_type
-        self.n0 = 0.01
+        self.model             = model
+        self.qstart            = qstart
+        self.qpriors           = qpriors
+        self.nsamples          = nsamples # number of samples to take during MCMC algorithm
+        self.nburn             = int(nsamples/2) # number of samples to discard during burn-in period
+        self.verbose           = verbose
+        self.adapt_interval    = adapt_interval
+        self.data              = data
+        self.lstm_model        = lstm_model
+        self.problem_type      = problem_type
+        self.n0                = 0.01
 
-        # Evaluate the model based on the problem type (full or reduced order model)
+        # Construct the initial covariance matrix
         if self.problem_type == 'full':
-            # High fidelity model
-            t_, acc_, temp_ = self.model.evaluate()
+            _, acc_, _         = self.model.evaluate()
         else:
-            # Reduced order model
-            t_, acc_ = self.model.rom_evaluate(lstm_model)
+            _, acc_            = self.model.rom_evaluate(lstm_model)
+        acc                    = acc_[:, 0]
+        acc                    = acc.reshape(1, acc.shape[0])
+        denom                  = acc.shape[1] 
+        denom                 -= len(self.qpriors)
+        num                    = np.sum((acc - self.data) ** 2, axis=1)
+        self.Vstart            = num.item()/denom
 
-        # Construct the initial covariance matrix
-        acc = acc_[:, 0]
-        acc = acc.reshape(1, acc.shape[0])
-        self.std2 = [np.sum((acc - self.data) ** 2, axis=1)[0] / (acc.shape[1] - len(self.qpriors.keys()))]
-        X = []
-
-        # Construct the initial covariance matrix
-        self.model.Dc = (1+1e-6)*self.model.Dc
-        # Evaluate the model based on the problem type (full or reduced order model)
-        if self.problem_type == 'full':  # High fidelity model
-            t_, acc_dq_, temp_ = self.model.evaluate()
-        else:  # Reduced order model
-            t_, acc_dq_ = self.model.rom_evaluate(lstm_model)
-
-        acc_dq = acc_dq_[:, 0]
-        acc_dq = acc_dq.reshape(1, acc_dq.shape[0])
+        self.model.Dc         *= (1+1e-6)
+        if self.problem_type == 'full':
+            _, acc_dq_, _      = self.model.evaluate()
+        else:
+            _, acc_dq_         = self.model.rom_evaluate(lstm_model)
+        acc_dq                 = acc_dq_[:, 0]
+        acc_dq                 = acc_dq.reshape(1, acc_dq.shape[0])
+        X                      = []
         X.append((acc_dq[0, :] - acc[0, :]) / (self.model.Dc * 1e-6))
-
-        # Compute the inverse of the product of the transpose of X and X
-        X = np.asarray(X).T
-        X = np.linalg.inv(np.dot(X.T, X))
-        self.Vstart = self.std2[0] * X  # Construct the initial covariance matrix
+        X                      = np.asarray(X).T
+        X                      = np.linalg.inv(np.dot(X.T, X))
+        self.Vstart           *= X  
 
         # Set up the initial qstart vector and qstart limits
-        self.qstart_vect = np.zeros((len(self.qstart), 1))
-        self.qstart_limits = np.zeros((len(self.qstart), 2))
-        flag = 0
-        for arg in self.qstart.keys():
-            self.qstart_vect[flag, 0] = self.qstart[arg]
-            self.qstart_limits[flag, 0] = self.qpriors[arg][1]
-            self.qstart_limits[flag, 1] = self.qpriors[arg][2]
-            flag = flag + 1
+        self.qstart_vect       = np.zeros((1, 1))
+        self.qstart_limits     = np.zeros((1, 2))
+        self.qstart_vect[0, 0] = self.qstart
+        self.qstart_limits[0, 0] = self.qpriors[1]
+        self.qstart_limits[0, 1] = self.qpriors[2]
             
         return
 
@@ -175,18 +165,14 @@ class MCMC:
         Returns:
             numpy array: A numpy array representing the sum of squares error of the proposed parameter values.
         """
-        self.model.Dc = q_new[0,]
-
+        self.model.Dc  = q_new[0,]
         if self.problem_type == 'full': 
-            # high fidelity model
-            t_, acc_, temp_ = self.model.evaluate()
+            _, acc_, _ = self.model.evaluate() # high fidelity model
         else: 
-            # reduced order model
-            t_, acc_ = self.model.rom_evaluate(self.lstm_model)
-
-        acc = acc_[:, 0] 
-        acc = acc.reshape(1, acc.shape[0])
-        SSq = np.sum((acc - self.data)**2, axis=1) # squared error
+            _, acc_    = self.model.rom_evaluate(self.lstm_model) # reduced order model
+        acc            = acc_[:, 0] 
+        acc            = acc.reshape(1, acc.shape[0])
+        SSq            = np.sum((acc - self.data)**2, axis=1) # squared error
 
         return SSq
 

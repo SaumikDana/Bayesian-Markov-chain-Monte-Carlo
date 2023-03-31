@@ -17,10 +17,10 @@ class rsf:
    def __init__(self, number_slip_values=1, lowest_slip_value=1.0, largest_slip_value=1000.0):
       
       # Define the range of values for the critical slip distance
-      self.num_p = number_slip_values
+      self.num_dc = number_slip_values
       start_dc = lowest_slip_value
       end_dc = largest_slip_value
-      self.dc_list = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_p)
+      self.dc_list = np.logspace(math.log10(start_dc),math.log10(end_dc),self.num_dc)
 
       # Define file names for saving and loading data and LSTM model
       self.lstm_file = 'model_lstm.pickle'
@@ -35,9 +35,9 @@ class rsf:
       self.model = RateStateModel()
 
       # Create arrays to store the time and acceleration data for all values of dc
-      t_appended = np.zeros((self.num_p*self.model.num_tsteps,self.num_features))
-      acc_appended = np.zeros((self.num_p*self.model.num_tsteps,self.num_features))
-      acc_appended_noise = np.zeros((self.num_p*self.model.num_tsteps,self.num_features))
+      t_appended = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
+      acc_appended = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
+      acc_appended_noise = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
       
       count_dc = 0
       for dc in self.dc_list:
@@ -96,7 +96,7 @@ class rsf:
          model_lstm, Ttrain, Ttrain, Ytrain, 
          self.stride, self.window, 
          'Training', 'Reconstruction', 
-         num_samples_train, self.num_p, self.dc_list, self.num_tsteps)
+         num_samples_train, self.num_dc, self.dc_list, self.num_tsteps)
 
       return
       
@@ -149,29 +149,23 @@ class rsf:
 
       return
          
-   def rsf_inference_no_rom(self):
+   def rsf_inference_no_rom(self,nsamples):
 
       # Load data
       acc_appended_noise = load_object(self.data_file)
 
-      for j in range(self.num_p):
-         start = j*self.model.num_tsteps
-         end = start + self.model.num_tsteps
-         acc = acc_appended_noise[start:end,0]
-         acc = acc.reshape(1, self.model.num_tsteps)
-      
-         dc = self.dc_list[j]
-         print('--- dc is %s ---' % dc)
-
-         qstart={"Dc":100} # set initial guess for Dc parameter
-         qpriors={"Dc":["Uniform",0.1, 1000]} # set priors for Dc parameter
-                  
-         # run Bayesian/MCMC algorithm
-         MCMCobj = MCMC(self.model,acc,qpriors,qstart,adapt_interval=10)
-         qparams = MCMCobj.sample() 
-         
-         # plot posterior distribution
-         MCMCobj.plot_dist(qparams,dc)
+      for j in range(self.num_dc):
+         start   = j*self.model.num_tsteps
+         end     = start + self.model.num_tsteps
+         data    = acc_appended_noise[start:end,0]
+         data    = data.reshape(1, self.model.num_tsteps)
+         dc      = self.dc_list[j]
+         print(f'--- d_c is {dc}')
+         qstart  = 100 # set initial guess for Dc parameter
+         qpriors = ["Uniform",0.1, 1000] # set priors for Dc parameter
+         MCMCobj = MCMC(self.model,data,qpriors,qstart,adapt_interval=10,nsamples=nsamples)
+         qparams = MCMCobj.sample() # run Bayesian/MCMC algorithm
+         MCMCobj.plot_dist(qparams,dc) # plot posterior distribution
 
       return
    
@@ -182,7 +176,7 @@ class rsf:
       # load data!!!
       acc_appended_noise = load_object(self.data_file)  # Load a saved data file
 
-      num_p = self.num_p  # Get the number of parameters
+      num_p = self.num_dc  # Get the number of parameters
       p_ = self.dc_list  # Get the parameter values
       num_tsteps = self.num_tsteps  # Get the number of time steps
       model = self.model  # Get the physics-based model
