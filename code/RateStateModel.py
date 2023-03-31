@@ -8,10 +8,7 @@ import torch
 class RateStateModel:
     """Class for rate and state model"""
 
-    def __init__(
-        self, 
-        number_time_steps=500, start_time=0.0, end_time=50.0,
-        plotfigs=True, plotname="test.png"):
+    def __init__(self, number_time_steps=500, start_time=0.0, end_time=50.0):
 
         # Define model constants
         self.a = 0.011
@@ -34,9 +31,6 @@ class RateStateModel:
         self.RadiationDamping = True
         self.window = number_time_steps / 20
         self.Dc = None
-
-        self.plotfigs = plotfigs
-        self.plotname = plotname
 
         return
 
@@ -183,19 +177,3 @@ class RateStateModel:
 
         # Return the time and acceleration arrays
         return t, acc
-   
-    def generateplots(self,t,acc,acc_noise):
-
-        if self.plotfigs:
-            # Plots
-            plt.figure()
-            plt.title('$d_c$=' + str(self.Dc) + ' $\mu m$' + ' RSF solution')
-            plt.plot(t, acc, '--', linewidth=1.0,label='True')
-            plt.plot(t, acc_noise, linewidth=1.0,label='Noisy')
-            plt.xlim(self.t_start - 2.0, self.t_final)
-            plt.xlabel('Time (sec)')
-            plt.ylabel('Acceleration $(\mu m/s^2)$')
-            plt.grid('on')
-            plt.legend()        
-        
-        return        

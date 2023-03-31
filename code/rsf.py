@@ -74,7 +74,7 @@ class rsf:
          model.set_dc(dc)
          t, acc, acc_noise = model.evaluate() # noisy data
          # Generate plots if desired
-         model.generateplots(t[:,0], acc[:,0], acc_noise[:,0])      
+         self.generateplots(t[:,0], acc[:,0], acc_noise[:,0])      
 
          # Append the time and acceleration data to the corresponding arrays
          start_ = count_dc*num_tsteps; end_ = start_ + num_tsteps
@@ -259,5 +259,21 @@ class rsf:
                MCMCobj2.plot_dist(qparams2,'reduced order',dc)
 
       return
+   
+   def generateplots(self,t,acc,acc_noise):
+
+      if self.plotfigs:
+         # Plots
+         plt.figure()
+         plt.title('$d_c$=' + str(self.model.Dc) + ' $\mu m$' + ' RSF solution')
+         plt.plot(t, acc, '--', linewidth=1.0,label='True')
+         plt.plot(t, acc_noise, linewidth=1.0,label='Noisy')
+         plt.xlim(self.model.t_start - 2.0, self.model.t_final)
+         plt.xlabel('Time (sec)')
+         plt.ylabel('Acceleration $(\mu m/s^2)$')
+         plt.grid('on')
+         plt.legend()        
+      
+      return        
    
    

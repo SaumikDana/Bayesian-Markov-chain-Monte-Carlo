@@ -7,10 +7,11 @@ if __name__ == '__main__':
     problem = rsf(number_slip_values=5)
     
     # Generate the time series for the RSF model
+    problem.plotfigs = True
     problem.time_series() 
 
     # flags for problem type
-    bayesian = True # Use Bayesian inference to estimate the critical slip distance
+    bayesian = False # Use Bayesian inference to estimate the critical slip distance
     reduction = False # Use ROM
 
     if not bayesian:
