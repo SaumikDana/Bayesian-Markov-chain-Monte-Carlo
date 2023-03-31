@@ -15,12 +15,10 @@ class rsf:
    Driver class for RSF model
    '''
    def __init__(
-      self, bayesian=False, reduction=False,
-      number_slip_values=1, lowest_slip_value=1.0, largest_slip_value=1000.0):
-
-      # flags for problem type
-      self.bayesian = bayesian
-      self.reduction = reduction
+      self, 
+      number_slip_values=1, 
+      lowest_slip_value=1.0, 
+      largest_slip_value=1000.0):
       
       # Define the range of values for the critical slip distance
       self.num_p = number_slip_values
@@ -186,10 +184,7 @@ class rsf:
          
    def rsf_inference_no_rom(self):
 
-      # load reduced order model!!!
-      model_lstm = load_object(self.lstm_file)
-
-      # load data!!!
+      # Load data
       acc_appended_noise = load_object(self.data_file)
 
       num_p = self.num_p
@@ -211,15 +206,17 @@ class rsf:
 
          nsamples = int(sys.argv[2]) # number of samples to take during MCMC algorithm
          nburn = nsamples/2 # number of samples to discard during burn-in period
-         
-         problem_type = 'full' # set type of problem being solved (full problem without ROM)
-         
+                  
          # run Bayesian/MCMC algorithm
-         MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-         qparams1=MCMCobj1.sample() 
+         MCMCobj = MCMC(
+            model,qpriors=qpriors,nsamples=nsamples,
+            nburn=nburn,data=acc,problem_type='full',lstm_model=model_lstm,
+            qstart=qstart,adapt_interval=10,
+            verbose=True)
+         qparams1=MCMCobj.sample() 
          
          # plot posterior distribution
-         MCMCobj1.plot_dist(qparams1,'full',dc)
+         MCMCobj.plot_dist(qparams1,'full',dc)
 
       return
    
