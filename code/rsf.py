@@ -149,15 +149,14 @@ class rsf:
 
       return
          
-   def rsf_inference_no_rom(self,nsamples):
+   def inference_full(self,nsamples):
 
       # Load data
-      acc_appended_noise = load_object(self.data_file)
-
+      noisy_acc  = load_object(self.data_file)
       for j in range(self.num_dc):
          start   = j*self.model.num_tsteps
          end     = start + self.model.num_tsteps
-         data    = acc_appended_noise[start:end,0]
+         data    = noisy_acc[start:end,0]
          data    = data.reshape(1, self.model.num_tsteps)
          dc      = self.dc_list[j]
          print(f'--- d_c is {dc}')

@@ -21,7 +21,7 @@ if __name__ == '__main__':
         problem.rsf_inference()      
     elif bayesian and not reduction:
         # Perform RSF inference without dimensionality reduction
-        problem.rsf_inference_no_rom(nsamples=200)
+        problem.inference_full(nsamples=200)
 
     # Close it out
     plt.show()

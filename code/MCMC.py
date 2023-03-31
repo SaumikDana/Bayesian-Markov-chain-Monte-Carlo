@@ -1,8 +1,6 @@
-from matplotlib.pyplot import flag
 import numpy as np
 import copy
 from scipy.stats import gamma 
-import sys
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 
@@ -36,7 +34,7 @@ class MCMC:
         denom                  = acc.shape[1] 
         denom                 -= len(self.qpriors)
         num                    = np.sum((acc - self.data) ** 2, axis=1)
-        self.Vstart            = num.item()/denom
+        self.std2              = [num.item()/denom]
 
         self.model.Dc         *= (1+1e-6) # perturb the dc
         if self.problem_type == 'full':
@@ -49,7 +47,7 @@ class MCMC:
         X.append((acc_dq[0, :] - acc[0, :])/(self.model.Dc * 1e-6))
         X                      = np.asarray(X).T
         X                      = np.linalg.inv(np.dot(X.T, X))
-        self.Vstart           *= X  
+        self.Vstart            = self.std2[-1] * X  
 
         # Set up the initial qstart vector and qstart limits
         self.qstart_vect       = np.zeros((1, 1))
