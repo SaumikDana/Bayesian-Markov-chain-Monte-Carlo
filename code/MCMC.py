@@ -38,7 +38,7 @@ class MCMC:
         num                    = np.sum((acc - self.data) ** 2, axis=1)
         self.Vstart            = num.item()/denom
 
-        self.model.Dc         *= (1+1e-6)
+        self.model.Dc         *= (1+1e-6) # perturb the dc
         if self.problem_type == 'full':
             _, acc_dq_, _      = self.model.evaluate()
         else:
@@ -46,7 +46,7 @@ class MCMC:
         acc_dq                 = acc_dq_[:, 0]
         acc_dq                 = acc_dq.reshape(1, acc_dq.shape[0])
         X                      = []
-        X.append((acc_dq[0, :] - acc[0, :]) / (self.model.Dc * 1e-6))
+        X.append((acc_dq[0, :] - acc[0, :])/(self.model.Dc * 1e-6))
         X                      = np.asarray(X).T
         X                      = np.linalg.inv(np.dot(X.T, X))
         self.Vstart           *= X  
@@ -69,22 +69,20 @@ class MCMC:
         """
 
         # Initialize variables
-        qparams=copy.deepcopy(self.qstart_vect) # Array of sampled parameters
-        qmean_old=copy.deepcopy(self.qstart_vect) # Mean of previously sampled parameters
-        qmean=copy.deepcopy(self.qstart_vect) # Mean of current sampled parameters
-        Vold=copy.deepcopy(self.Vstart) # Covariance matrix of previously sampled parameters
-        Vnew=copy.deepcopy(self.Vstart) # Covariance matrix of current sampled parameters
-        SSqprev=self.SSqcalc(qparams) # Squared error of previously sampled parameters
-        iaccept=0 # Counter for accepted samples
+        qparams           = copy.deepcopy(self.qstart_vect) # Array of sampled parameters
+        Vold              = copy.deepcopy(self.Vstart) # Covariance matrix of previously sampled parameters
+        Vnew              = copy.deepcopy(self.Vstart) # Covariance matrix of current sampled parameters
+        SSqprev           = self.SSqcalc(qparams) # Squared error of previously sampled parameters
+        iaccept           = 0 # Counter for accepted samples
 
         # Loop over number of desired samples
         for isample in range(0,self.nsamples):
 
             # Sample new parameters from a normal distribution with mean being the last element of qparams
-            q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
+            q_new         = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
 
             # Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
-            accept,SSqnew=self.acceptreject(q_new,SSqprev,self.std2[-1])
+            accept,SSqnew = self.acceptreject(q_new,SSqprev,self.std2[-1])
 
             # Print some diagnostic information
             print(isample,accept)
@@ -92,27 +90,27 @@ class MCMC:
 
             # If the new sample is accepted, add it to the list of sampled parameters
             if accept:
-                qparams=np.concatenate((qparams,q_new),axis=1)
-                SSqprev=copy.deepcopy(SSqnew)
-                iaccept=iaccept+1
+                qparams   = np.concatenate((qparams,q_new),axis=1)
+                SSqprev   = copy.deepcopy(SSqnew)
+                iaccept  += 1
             else:
                 # If the new sample is rejected, add the previous sample to the list of sampled parameters
-                q_new=np.reshape(qparams[:,-1],(-1,1))
-                qparams=np.concatenate((qparams,q_new),axis=1)
+                q_new     = np.reshape(qparams[:,-1],(-1,1))
+                qparams   = np.concatenate((qparams,q_new),axis=1)
 
             # Update the estimate of the standard deviation
-            aval=0.5*(self.n0+self.data.shape[1])
-            bval=0.5*(self.n0*self.std2[-1]+SSqprev)
+            aval          = 0.5*(self.n0+self.data.shape[1])
+            bval          = 0.5*(self.n0*self.std2[-1]+SSqprev)
             self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
 
             # Update the covariance matrix if it is time to adapt it
             if np.mod((isample+1),self.adapt_interval)==0:
                 try:
-                    Vnew=2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
+                    Vnew     = 2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
                     if qparams.shape[0]==1:
-                        Vnew=np.reshape(Vnew,(-1,1))
+                        Vnew = np.reshape(Vnew,(-1,1))
                     R = np.linalg.cholesky(Vnew)
-                    Vold=copy.deepcopy(Vnew)
+                    Vold = copy.deepcopy(Vnew)
                 except:
                     pass
 
