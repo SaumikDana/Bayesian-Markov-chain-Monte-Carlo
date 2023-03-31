@@ -14,11 +14,7 @@ class rsf:
    '''
    Driver class for RSF model
    '''
-   def __init__(
-      self, 
-      number_slip_values=1, 
-      lowest_slip_value=1.0, 
-      largest_slip_value=1000.0):
+   def __init__(self, number_slip_values=1, lowest_slip_value=1.0, largest_slip_value=1000.0):
       
       # Define the range of values for the critical slip distance
       self.num_p = number_slip_values
@@ -30,24 +26,6 @@ class rsf:
       self.lstm_file = 'model_lstm.pickle'
       self.data_file = 'data.pickle'
       self.num_features = 2
-
-      return
-   
-   def solve(self):
-
-      if not self.bayesian:
-         return
-
-      # Use Bayesian inference to estimate the critical slip distance
-
-      if self.reduction:
-         # Use LSTM encoder-decoder for dimensionality reduction
-         self.build_lstm()
-         # Perform RSF inference with LSTM encoder-decoder
-         self.rsf_inference()      
-      else:
-         # Perform RSF inference without dimensionality reduction
-         self.rsf_inference_no_rom()
 
       return
    
@@ -108,8 +86,10 @@ class rsf:
       input_tensor = T_train
 
       # Build the LSTM model and train it
-      model_lstm = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], hidden_size, num_layers, False)
-      loss = model_lstm.train_model(input_tensor, Y_train, n_epochs, self.window, batch_size)
+      model_lstm = lstm_encoder_decoder.lstm_seq2seq(
+         input_tensor.shape[2], hidden_size, num_layers, False)
+      loss = model_lstm.train_model(
+         input_tensor, Y_train, n_epochs, self.window, batch_size)
 
       # Save the trained LSTM model to a file
       save_object(model_lstm,self.lstm_file) 
@@ -127,23 +107,12 @@ class rsf:
       self,lstm_model, T_, X_, Y_, 
       stride, window, dataset_type, 
       objective, num_samples, num_p, p_, num_tsteps):
-      """
-      In summary, this code takes the trained LSTM model and some input data 
-      and generates predicted output signals for each value of a parameter dc. 
-      It then plots the target and predicted output signals for each dc value. 
-      The stride and window parameters are used to determine the length and spacing of the windows 
-      used to generate the input and output signals, and num_samples and num_p are used 
-      to determine the number of training samples and the number of dc values. 
-      Finally, dataset_type and objective are used to label the plot and num_tsteps 
-      is used to determine the length of the predicted output signal array. 
-      The del statement is used to free up memory by deleting the input and output signal arrays after they are no longer needed.
-      """
          
       # Initialize the reconstructed signal array
       Y_return = np.zeros([int(num_samples*window)])     
 
       count_dc = 0
-      for dc in dc_:
+      for dc in p_:
          # Initialize the arrays for the target, input, and output signals
          X = np.zeros([int(num_samples*window/num_p)]) 
          Y = np.zeros([int(num_samples*window/num_p)])     
@@ -193,7 +162,7 @@ class rsf:
       model = self.model
       num_tsteps = model.num_tsteps
 
-      for ii in range(0,num_p):
+      for ii in range(num_p):
 
          # extract noisy data for current value of Dc
          acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
@@ -210,7 +179,7 @@ class rsf:
          qparams = MCMCobj.sample() 
          
          # plot posterior distribution
-         MCMCobj.plot_dist(qparams,'full',dc)
+         MCMCobj.plot_dist(qparams,dc)
 
       return
    

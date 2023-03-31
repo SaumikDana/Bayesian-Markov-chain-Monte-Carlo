@@ -13,15 +13,13 @@ class MCMC:
     """
     def __init__(
         self, model, data, qpriors, qstart, 
-        nsamples=100, problem_type='full', lstm_model={}, 
-        adapt_interval=100, verbose=True
-        ):
+        nsamples=100, problem_type='full', lstm_model={}, adapt_interval=100, verbose=True):
 
         self.model = model
         self.qstart = qstart
         self.qpriors = qpriors
         self.nsamples = nsamples # number of samples to take during MCMC algorithm
-        self.nburn = nsamples/2 # number of samples to discard during burn-in period
+        self.nburn = int(nsamples/2) # number of samples to discard during burn-in period
         self.verbose = verbose
         self.adapt_interval = adapt_interval
         self.data = data
@@ -130,21 +128,10 @@ class MCMC:
         print("acceptance ratio:",iaccept/self.nsamples)
 
         # Return accepted samples
-        self.std2=np.asarray(self.std2)[self.nburn:] # Trim the estimate of the standard deviation to exclude burn-in samples
+        self.std2 = np.asarray(self.std2)
+        self.std2 = self.std2[self.nburn:] # Trim the estimate of the standard deviation to exclude burn-in samples
         return qparams[:,self.nburn:]
 
-    """
-    The acceptreject() function is a component of the Metropolis-Hastings algorithm, 
-    and implements the accept-reject step. Given a proposed new set of parameter values q_new, 
-    the function computes whether or not to accept these values as the new state of the Markov chain. 
-    If the new values are within the specified limits, 
-    the function computes the sum of squares error of the proposed state SSqnew, 
-    as well as the acceptance probability. 
-    If the acceptance probability is greater than a random number drawn from a uniform distribution between 0 and 1, 
-    then the proposal is accepted. 
-    The function returns a tuple containing a boolean indicating whether the proposal is accepted or rejected, 
-    and the sum of squares error of the proposal (either the previous or the new one).
-    """
     def acceptreject(self, q_new, SSqprev, std2):
         """
         Implementation of the accept-reject step in Metropolis-Hastings algorithm.
@@ -176,18 +163,6 @@ class MCMC:
             # If rejected, return the boolean False and the sum of squares error of the previous proposal
             return accept, SSqprev
 
-    """
-    The SSqcalc() function is a helper function that computes the sum of squares error of the proposed parameter values. 
-    The function takes the proposed parameter values as input, 
-    and returns a numpy array representing the sum of squares error. 
-    The function first copies the original self.consts dictionary to consts_dq and updates 
-    the values of the parameters to the proposed values. Then, depending on the problem type, 
-    the function either calls the evaluate() method of the high fidelity model or the rom_evaluate() 
-    method of the reduced order model to compute the response. 
-    The computed response is then reshaped to a 1-dimensional numpy array and the squared error 
-    is computed as the sum of squares of the difference between the computed response and the target data. 
-    The function returns the squared error as a numpy array.
-    """            
     def SSqcalc(self, q_new):
         """
         Compute the sum of squares error of the proposed parameter values.
@@ -198,18 +173,14 @@ class MCMC:
         Returns:
             numpy array: A numpy array representing the sum of squares error of the proposed parameter values.
         """
-        flag = 0
-        for arg in self.qstart.keys(): 
-            consts_dq = copy.deepcopy(self.consts)
-            consts_dq[arg] = q_new[flag, ]
-            flag += 1
+        self.model.Dc = q_new[0,]
 
         if self.problem_type == 'full': 
             # high fidelity model
-            t_, acc_, temp_ = self.model.evaluate(consts_dq)
+            t_, acc_, temp_ = self.model.evaluate()
         else: 
             # reduced order model
-            t_, acc_ = self.model.rom_evaluate(consts_dq, self.lstm_model)
+            t_, acc_ = self.model.rom_evaluate(self.lstm_model)
 
         acc = acc_[:, 0] 
         acc = acc.reshape(1, acc.shape[0])
@@ -217,8 +188,7 @@ class MCMC:
 
         return SSq
 
-
-    def plot_dist(self, qparams, plot_title, dc):
+    def plot_dist(self, qparams, dc):
         # Set up the plot layout with 1 row and 2 columns, and adjust the width ratios and space between subplots
         n_rows = 1
         n_columns = 2
@@ -245,13 +215,6 @@ class MCMC:
         # Plot the probability density function as a blue line in the second subplot
         ax[1].plot(kde.pdf(x), x, 'b-')
 
-        # Find the maximum value of the probability density function
-        max_val = x[kde.pdf(x).argmax()]
-
-        # Plot the maximum value as a red dot and annotate it with the value
-        ax[1].plot(kde.pdf(x)[kde.pdf(x).argmax()], max_val, 'ro')
-        ax[1].annotate(str(round(max_val, 2)), xy=(0.90 * kde.pdf(x)[kde.pdf(x).argmax()], max_val), size=14)
-
         # Fill the area under the probability density function with a light blue color
         ax[1].fill_betweenx(x, kde.pdf(x), np.zeros(x.shape), alpha=0.3)
 
@@ -269,9 +232,4 @@ class MCMC:
         ax[1].get_xaxis().set_visible(True)
         ax[1].get_xaxis().set_ticks([])
 
-        # Create an output directory for the plots if it doesn't already exist
-        output_path = Path('plots')
-        output_path.mkdir(parents=True, exist_ok=True)
-
-        # Save the figure to the output directory with the specified file name
-        fig.savefig(output_path / f'burn_{plot_title}_{dc}_{sys.argv[2]}_.png')
+        return 
