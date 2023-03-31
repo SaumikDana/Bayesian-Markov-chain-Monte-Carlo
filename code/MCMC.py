@@ -12,8 +12,8 @@ class MCMC:
     Class for MCMC sampling
     """
     def __init__(
-        self, model, data, qpriors, qstart, 
-        nsamples=100, problem_type='full', lstm_model={}, adapt_interval=100, verbose=True):
+        self, model, data, qpriors, qstart, nsamples=100, problem_type='full', 
+        lstm_model={}, adapt_interval=100, verbose=True):
 
         self.model = model
         self.qstart = qstart
@@ -67,6 +67,8 @@ class MCMC:
             self.qstart_limits[flag, 0] = self.qpriors[arg][1]
             self.qstart_limits[flag, 1] = self.qpriors[arg][2]
             flag = flag + 1
+            
+        return
 
     def sample(self):
         """
