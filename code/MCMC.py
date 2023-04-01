@@ -26,26 +26,17 @@ class MCMC:
 
         # Construct the initial covariance matrix
         if self.problem_type == 'full':
-            _, acc_, _         = self.model.evaluate()
+            acc_               = self.model.evaluate()[1]
+            self.model.Dc     *= (1+1e-6) # perturb the dc
+            acc_dq_            = self.model.evaluate()[1]
         else:
-            _, acc_            = self.model.rom_evaluate(lstm_model)
-        acc                    = acc_[:, 0]
-        acc                    = acc.reshape(1, acc.shape[0])
-        denom                  = acc.shape[1] 
-        denom                 -= len(self.qpriors)
-        num                    = np.sum((acc - self.data) ** 2, axis=1)
-        self.std2              = [num.item()/denom]
-
-        self.model.Dc         *= (1+1e-6) # perturb the dc
-        if self.problem_type == 'full':
-            _, acc_dq_, _      = self.model.evaluate()
-        else:
-            _, acc_dq_         = self.model.rom_evaluate(lstm_model)
-        acc_dq                 = acc_dq_[:, 0]
-        acc_dq                 = acc_dq.reshape(1, acc_dq.shape[0])
-        X                      = []
-        X.append((acc_dq[0, :] - acc[0, :])/(self.model.Dc * 1e-6))
-        X                      = np.asarray(X).T
+            acc_               = self.model.rom_evaluate(lstm_model)[1]
+            self.model.Dc     *= (1+1e-6) # perturb the dc
+            acc_dq_            = self.model.rom_evaluate(lstm_model)[1]
+        acc                    = acc_[:, 0].reshape(1, -1)
+        self.std2              = [np.sum((acc - self.data) ** 2, axis=1).item()/(acc.shape[1] - len(self.qpriors))]
+        acc_dq                 = acc_dq_[:, 0].reshape(1, -1)
+        X                      = ((acc_dq - acc) / (self.model.Dc * 1e-6)).T
         X                      = np.linalg.inv(np.dot(X.T, X))
         self.Vstart            = self.std2[-1] * X  
 
