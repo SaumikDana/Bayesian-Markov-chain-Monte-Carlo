@@ -34,12 +34,6 @@ class RateStateModel:
 
         return
 
-    def set_dc(self, dc):
-
-        self.Dc = dc
-
-        return
-    
     def friction(self, t, y):
 
         # Just to help readability
@@ -85,7 +79,15 @@ class RateStateModel:
 
         return dydt
 
-    def evaluate(self):
+    def evaluate(self, problem_type='full', lstm_model={}):
+        # call either full model evaluation or reduced order model evaluation
+
+        if problem_type == 'full':
+            return self.full_evaluate()
+        else:
+            return self.rom_evaluate(lstm_model)
+        
+    def full_evaluate(self):
         
         # Set up the ODE solver
         r = integrate.ode(self.friction).set_integrator(

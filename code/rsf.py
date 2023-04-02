@@ -42,7 +42,7 @@ class rsf:
       count_dc = 0
       for dc in self.dc_list:
          # Evaluate the model for the current value of dc
-         self.model.set_dc(dc)
+         self.model.Dc = dc
          t, acc, acc_noise = self.model.evaluate() # noisy data
          # Generate plots if desired
          self.generateplots(t[:,0], acc[:,0], acc_noise[:,0])      

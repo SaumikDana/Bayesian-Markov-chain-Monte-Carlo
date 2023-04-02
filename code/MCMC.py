@@ -9,8 +9,10 @@ class MCMC:
     """
     Class for MCMC sampling
     """
-    def __init__(self, model, data, qpriors, qstart, nsamples=100, problem_type='full', 
-        lstm_model={}, adapt_interval=100, verbose=True):
+    def __init__(self, model, data, qpriors, qstart, 
+        nsamples=100, problem_type='full', 
+        lstm_model={}, adapt_interval=100, 
+        verbose=True):
 
         self.model             = model
         self.qstart            = qstart
@@ -25,14 +27,9 @@ class MCMC:
         self.n0                = 0.01
 
         # Construct the initial covariance matrix
-        if self.problem_type == 'full':
-            acc_               = self.model.evaluate()[1]
-            self.model.Dc     *= (1+1e-6) # perturb the dc
-            acc_dq_            = self.model.evaluate()[1]
-        else:
-            acc_               = self.model.rom_evaluate(lstm_model)[1]
-            self.model.Dc     *= (1+1e-6) # perturb the dc
-            acc_dq_            = self.model.rom_evaluate(lstm_model)[1]
+        acc_                   = self.model.evaluate(problem_type,lstm_model)[1]
+        self.model.Dc         *= (1+1e-6) # perturb the dc
+        acc_dq_                = self.model.evaluate()[1]
         acc                    = acc_[:, 0].reshape(1, -1)
         self.std2              = [np.sum((acc - self.data) ** 2, axis=1).item()/(acc.shape[1] - len(self.qpriors))]
         acc_dq                 = acc_dq_[:, 0].reshape(1, -1)
@@ -65,18 +62,14 @@ class MCMC:
         iaccept           = 0 # Counter for accepted samples
 
         # Loop over number of desired samples
-        for isample in range(0,self.nsamples):
-
+        for isample in range(self.nsamples):
             # Sample new parameters from a normal distribution with mean being the last element of qparams
             q_new         = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
-
             # Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
             accept,SSqnew = self.acceptreject(q_new,SSqprev,self.std2[-1])
-
             # Print some diagnostic information
             print(isample,accept)
             print("Generated sample ---- ",np.asscalar(q_new))
-
             # If the new sample is accepted, add it to the list of sampled parameters
             if accept:
                 qparams   = np.concatenate((qparams,q_new),axis=1)
@@ -93,7 +86,7 @@ class MCMC:
             self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
 
             # Update the covariance matrix if it is time to adapt it
-            if np.mod((isample+1),self.adapt_interval)==0:
+            if (isample+1) % self.adapt_interval == 0:
                 try:
                     Vnew     = 2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
                     if qparams.shape[0]==1:
@@ -108,7 +101,8 @@ class MCMC:
 
         # Return accepted samples
         self.std2 = np.asarray(self.std2)
-        self.std2 = self.std2[self.nburn:] # Trim the estimate of the standard deviation to exclude burn-in samples
+        self.std2 = self.std2[self.nburn:] 
+        # Trim the estimate of the standard deviation to exclude burn-in samples
         return qparams[:,self.nburn:]
 
     def acceptreject(self, q_new, SSqprev, std2):
@@ -152,14 +146,10 @@ class MCMC:
         Returns:
             numpy array: A numpy array representing the sum of squares error of the proposed parameter values.
         """
-        self.model.Dc  = q_new[0,]
-        if self.problem_type == 'full': 
-            _, acc_, _ = self.model.evaluate() # high fidelity model
-        else: 
-            _, acc_    = self.model.rom_evaluate(self.lstm_model) # reduced order model
-        acc            = acc_[:, 0] 
-        acc            = acc.reshape(1, acc.shape[0])
-        SSq            = np.sum((acc - self.data)**2, axis=1) # squared error
+        self.model.Dc = q_new[0,]
+        acc_          = self.model.evaluate(self.problem_type,self.lstm_model)[1] 
+        acc           = acc_[:, 0].reshape(1, -1)
+        SSq           = np.sum((acc - self.data)**2, axis=1) # squared error
 
         return SSq
 
