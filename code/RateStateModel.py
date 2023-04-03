@@ -40,42 +40,43 @@ class RateStateModel:
         # y[0] is mu (friction)
         # y[1] is theta
         # y[2] is velocity
+        
+        V_ref = self.V_ref
+        a = self.a
+        b = self.b
+        dc = self.Dc
 
         # effective spring stiffness
-        kprime = 1e-2 * 10 / self.Dc
+        kprime = 1e-2 * 10 / dc
 
         # loading
         a1 = 20
         a2 = 10
-        V_l = self.V_ref * (1 + exp(-t/a1) * sin(a2*t))
+        V_l = V_ref * (1 + exp(-t/a1) * sin(a2*t))
 
         # initialize the array of derivatives
         n = len(y)
         dydt = np.zeros((n, 1))
 
         # compute v
-        temp_ = self.V_ref * y[1] / self.Dc
-        temp = 1 / self.a * (y[0] - self.mu_ref - self.b * log(temp_))
-        v = self.V_ref * exp(temp)
+        temp = 1 / a * (y[0] - self.mu_ref - b * log(V_ref * y[1] / dc))
+        v = V_ref * exp(temp)
 
         # time derivative of theta
-        dydt[1] = 1. - v * y[1] / self.Dc
-
-        # double derivative of theta
-        ddtheta = - dydt[1] * v / self.Dc
+        dydt[1] = 1. - v * y[1] / dc
 
         # time derivative of mu
         dydt[0] = kprime * V_l - kprime * v
 
         # time derivative of velocity
-        dydt[2] = v / self.a * (dydt[0] - self.b / y[1] * dydt[1])
+        dydt[2] = v / a * (dydt[0] - b / y[1] * dydt[1])
 
         # add radiation damping term if specified
         if self.RadiationDamping:
             # time derivative of mu with radiation damping
             dydt[0] = dydt[0] - self.k1 * dydt[2]
             # time derivative of velocity with radiation damping
-            dydt[2] = v / self.a * (dydt[0] - self.b / y[1] * dydt[1])
+            dydt[2] = v / a * (dydt[0] - b / y[1] * dydt[1])
 
         return dydt
 
