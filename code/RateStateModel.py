@@ -90,27 +90,22 @@ class RateStateModel:
         
     def full_evaluate(self):
         
-        # Set up the ODE solver
-        r = integrate.ode(self.friction).set_integrator(
-            'vode', order=5, max_step=0.001, method='bdf', atol=1e-10, rtol=1e-6)
-
         # Calculate the number of steps to take
         num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))
-
-        # Calculate the initial values for theta, mu, and velocity
-        theta_t_zero = self.Dc / self.V_ref
-        v = self.V_ref
-
-        # Set the initial conditions for the ODE solver
-        r.set_initial_value([self.mu_t_zero, theta_t_zero, self.V_ref], self.t_start)
 
         # Create arrays to store trajectory
         t, mu, theta, velocity, acc = np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1))
         t[0] = self.t_start
         mu[0] = self.mu_ref
-        theta[0] = theta_t_zero
-        velocity[0] = v
+        theta[0] = self.Dc / self.V_ref
+        velocity[0] = self.V_ref
         acc[0] = 0
+
+        # Set up the ODE solver
+        r = integrate.ode(self.friction).set_integrator('dop853', rtol=1e-6, atol=1e-10)
+
+        # Set the initial conditions for the ODE solver
+        r.set_initial_value([self.mu_t_zero, theta[0], velocity[0]], t[0])
 
         # Integrate the ODE(s) across each delta_t timestep
         k = 1

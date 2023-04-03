@@ -160,7 +160,7 @@ class rsf:
          data    = data.reshape(1, self.model.num_tsteps)
          dc      = self.dc_list[j]
          print(f'--- d_c is {dc}')
-         qstart  = 100 # set initial guess for Dc parameter
+         qstart  = 0.1 # set initial guess for Dc parameter
          qpriors = ["Uniform",0.1, 1000] # set priors for Dc parameter
          MCMCobj = MCMC(self.model,data,qpriors,qstart,adapt_interval=10,nsamples=nsamples)
          qparams = MCMCobj.sample() # run Bayesian/MCMC algorithm
