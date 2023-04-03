@@ -153,18 +153,27 @@ class rsf:
 
       # Load data
       noisy_acc  = load_object(self.data_file)
+
+      # Loop over each duty cycle and perform Bayesian inference
       for j in range(self.num_dc):
-         start   = j*self.model.num_tsteps
-         end     = start + self.model.num_tsteps
-         data    = noisy_acc[start:end,0]
-         data    = data.reshape(1, self.model.num_tsteps)
-         dc      = self.dc_list[j]
+         # Extract the data for this duty cycle and reshape it to a 1D array
+         data = noisy_acc[j*self.model.num_tsteps:j*self.model.num_tsteps+self.model.num_tsteps,0]
+         data = data.reshape(1, self.model.num_tsteps)
+         
+         # Extract the duty cycle and print a message
+         dc = self.dc_list[j]
          print(f'--- d_c is {dc}')
-         qstart  = 0.1 # set initial guess for Dc parameter
-         qpriors = ["Uniform",0.1, 1000] # set priors for Dc parameter
+         
+         # Set up the prior and initial guess for the Dc parameter
+         qstart = 0.1
+         qpriors = ["Uniform",0.1, 1000]
+         
+         # Run the MCMC algorithm to estimate the posterior distribution of the model parameters
          MCMCobj = MCMC(self.model,data,qpriors,qstart,adapt_interval=10,nsamples=nsamples)
-         qparams = MCMCobj.sample() # run Bayesian/MCMC algorithm
-         MCMCobj.plot_dist(qparams,dc) # plot posterior distribution
+         qparams = MCMCobj.sample()
+         
+         # Plot the posterior distribution of the model parameters
+         MCMCobj.plot_dist(qparams,dc)
 
       return
    
