@@ -164,7 +164,7 @@ class lstm_seq2seq(nn.Module):
 
                 # shuffled list!!!
                 b_ = range(n_batches)
-                random.shuffle(b_)
+                # random.shuffle(b_)
 
                 for b in b_:
                     # select data 

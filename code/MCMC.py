@@ -9,7 +9,8 @@ class MCMC:
     """
     Class for MCMC sampling
     """
-    def __init__(self, model, data, qpriors, qstart, 
+    def __init__(
+        self, model, data, qpriors, qstart, 
         nsamples=100, problem_type='full', 
         lstm_model={}, adapt_interval=100, 
         verbose=True):

@@ -6,9 +6,12 @@ from math import exp, log, pi, sin, cos
 import torch
 
 class RateStateModel:
-    """Class for rate and state model"""
+    """ 
+    Class for rate and state model 
+    """
 
-    def __init__(self, number_time_steps=500, start_time=0.0, end_time=50.0):
+    def __init__(
+        self, number_time_steps=500, start_time=0.0, end_time=50.0, epochs=100):
 
         # Define model constants
         self.a = 0.011
@@ -29,7 +32,9 @@ class RateStateModel:
 
         # Add additional model constants
         self.RadiationDamping = True
-        self.window = number_time_steps / 20
+        self.window = int(number_time_steps / 20)
+        self.stride = int(self.window/2)
+        self.epochs = epochs
         self.Dc = None
 
         return

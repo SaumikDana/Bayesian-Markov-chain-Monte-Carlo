@@ -11,15 +11,14 @@ if __name__ == '__main__':
     problem.time_series() 
 
     # flags for problem type
-    bayesian = True # Use Bayesian inference to estimate the critical slip distance
-    reduction = False # Use ROM
+    reduction = True # Use ROM
 
-    if bayesian and reduction:
+    if reduction:
         # Use LSTM encoder-decoder for dimensionality reduction
         problem.build_lstm()
         # Perform RSF inference with LSTM encoder-decoder
-        problem.rsf_inference()      
-    elif bayesian and not reduction:
+        problem.rsf_inference(nsamples=500)      
+    else:
         # Perform RSF inference without dimensionality reduction
         problem.inference_full(nsamples=500)
 

@@ -68,25 +68,28 @@ class rsf:
       return
          
    def build_lstm(self):
-      # Prepare the training data for the LSTM model
-      t_ = self.t_appended.reshape(-1,self.num_features)
-      var_ = self.acc_appended.reshape(-1,self.num_features)
-      num_samples_train, Ttrain, Ytrain = generate_dataset.windowed_dataset(
-         t_, var_, self.window, self.stride, self.num_features) 
+      """ 
+      Prepare the training data for the LSTM model
+      """
+      t_               = self.t_appended.reshape(-1,self.num_features)
+      var_             = self.acc_appended.reshape(-1,self.num_features)
+      num_samples_train, Ttrain, Ytrain \
+                       = generate_dataset.windowed_dataset(
+            t_, var_, self.model.window, self.model.stride, self.num_features) 
       T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
 
       # Define the parameters for the LSTM model
-      hidden_size = self.window
-      batch_size = 1
-      n_epochs = int(sys.argv[1])
-      num_layers = 1 
-      input_tensor = T_train
+      hidden_size      = self.model.window
+      batch_size       = 1
+      n_epochs         = self.model.epochs
+      num_layers       = 1 
+      input_tensor     = T_train
 
       # Build the LSTM model and train it
-      model_lstm = lstm_encoder_decoder.lstm_seq2seq(
+      model_lstm       = lstm_encoder_decoder.lstm_seq2seq(
          input_tensor.shape[2], hidden_size, num_layers, False)
-      loss = model_lstm.train_model(
-         input_tensor, Y_train, n_epochs, self.window, batch_size)
+      loss             = model_lstm.train_model(
+         input_tensor, Y_train, n_epochs, self.model.window, batch_size)
 
       # Save the trained LSTM model to a file
       save_object(model_lstm,self.lstm_file) 
@@ -94,9 +97,9 @@ class rsf:
       # Plot the results of the trained LSTM model
       self.plot_results(
          model_lstm, Ttrain, Ttrain, Ytrain, 
-         self.stride, self.window, 
+         self.model.stride, self.model.window, 
          'Training', 'Reconstruction', 
-         num_samples_train, self.num_dc, self.dc_list, self.num_tsteps)
+         num_samples_train, self.num_dc, self.dc_list, self.model.num_tsteps)
 
       return
       
@@ -140,7 +143,6 @@ class rsf:
          plt.legend(frameon=False)
          plt.suptitle('%s data set for dc=%s $\mu m$' % (dataset_type,dc), x = 0.445, y = 1.)
          plt.tight_layout()
-         plt.savefig('plots/%s_%s.png' % (dc,dataset_type))
 
          count_dc += 1
 
@@ -177,7 +179,7 @@ class rsf:
 
       return
    
-   def rsf_inference(self):
+   def rsf_inference(self,nsamples):
       # load reduced order model!!!
       model_lstm = load_object(self.lstm_file)  # Load a saved LSTM model
 
@@ -186,7 +188,7 @@ class rsf:
 
       num_p = self.num_dc  # Get the number of parameters
       p_ = self.dc_list  # Get the parameter values
-      num_tsteps = self.num_tsteps  # Get the number of time steps
+      num_tsteps = self.model.num_tsteps  # Get the number of time steps
       model = self.model  # Get the physics-based model
 
       for ii in range(0,num_p):
@@ -202,7 +204,6 @@ class rsf:
                qstart={"Dc":100}  # Define the initial guess for the parameter values
                qpriors={"Dc":["Uniform",0.1, 1000]}  # Define the prior distribution for the parameter values
 
-               nsamples = int(sys.argv[2])  # Get the number of MCMC samples
                nburn = nsamples/2  # Define the number of burn-in samples
 
                problem_type = 'full'

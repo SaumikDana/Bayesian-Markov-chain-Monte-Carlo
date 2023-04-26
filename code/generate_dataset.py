@@ -10,8 +10,6 @@ We will consider a noisy sinusoidal curve
 from RateStateModel import RateStateModel # RSF model
 import numpy as np
 import torch
-import math
-import random
 
 def synthetic_data(dc = 1.0):
     
@@ -55,7 +53,7 @@ def train_test_split(t, y, num_):
   
   '''
 
-  count1 = 0; count2 = 0;
+  count1 = 0; count2 = 0
   for indx in range(0, y.shape[0]):
       if indx % num_: # if the remainder on division by num_ is not zero
          count1 += 1
@@ -64,7 +62,7 @@ def train_test_split(t, y, num_):
   
   t_train,y_train,t_test,y_test = np.zeros((count1,2)),np.zeros((count1,2)),np.zeros((count2,2)),np.zeros((count2,2))
 
-  count1 = 0; count2 = 0;
+  count1 = 0; count2 = 0
   for indx in range(0, y.shape[0]):
       if indx % num_: # if the remainder on division by num_ is not zero
          t_train[count1,0] = t[indx,0]
@@ -95,20 +93,16 @@ def windowed_dataset(t, y, window, stride, num_features = 1):
     :                         (i.e., [input/output window size # examples, # features])
     '''
  
-    L = y.shape[0]
-    num_samples = (L - window) // stride + 1
-#    num_samples = int(math.ceil(L/stride))
-
-    Y = np.zeros([window, num_samples, num_features])     
-    T = np.zeros([window, num_samples, num_features])     
+    L                           = y.shape[0]
+    num_samples                 = (L - window) // stride + 1
+    Y                           = np.zeros([window, num_samples, num_features])     
+    T                           = np.zeros([window, num_samples, num_features])     
    
     for ff in np.arange(num_features):
         for ii in np.arange(num_samples):
-            start_x = stride * ii
-            end_x = start_x + window
-
-            index = range(start_x,end_x)
-
+            start_x             = stride * ii
+            end_x               = start_x + window
+            index               = range(start_x,end_x)
             Y[0:window, ii, ff] = y[index, ff] 
             T[0:window, ii, ff] = t[index, ff]
 
