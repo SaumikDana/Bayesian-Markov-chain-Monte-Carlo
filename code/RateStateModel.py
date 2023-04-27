@@ -85,13 +85,13 @@ class RateStateModel:
 
         return dydt
 
-    def evaluate(self, problem_type='full', lstm_model={}):
+    def evaluate(self, lstm_model={}):
         # call either full model evaluation or reduced order model evaluation
 
-        if problem_type == 'full':
-            return self.full_evaluate()
-        else:
+        if lstm_model:
             return self.rom_evaluate(lstm_model)
+        else:
+            return self.full_evaluate()
         
     def full_evaluate(self):
         

@@ -157,10 +157,6 @@ class lstm_seq2seq(nn.Module):
             for it in tr:
                 
                 batch_loss = 0.
-                batch_loss_tf = 0.
-                batch_loss_no_tf = 0.
-                num_tf = 0
-                num_no_tf = 0
 
                 # shuffled list!!!
                 b_ = range(n_batches)

@@ -10,10 +10,8 @@ class MCMC:
     Class for MCMC sampling
     """
     def __init__(
-        self, model, data, qpriors, qstart, 
-        nsamples=100, problem_type='full', 
-        lstm_model={}, adapt_interval=100, 
-        verbose=True):
+        self, model, data, qpriors, qstart, nsamples=100, 
+        lstm_model={}, adapt_interval=10, verbose=True):
 
         self.model = model
         self.qstart = qstart
@@ -24,11 +22,10 @@ class MCMC:
         self.adapt_interval = adapt_interval
         self.data = data
         self.lstm_model = lstm_model
-        self.problem_type = problem_type
         self.n0 = 0.01
 
         # Evaluate the model with the original dc value
-        acc_ = self.model.evaluate(problem_type, lstm_model)[1]
+        acc_ = self.model.evaluate(lstm_model)[1]
         # Perturb the dc value
         self.model.Dc *= (1 + 1e-6)
         # Evaluate the model with the perturbed dc value
@@ -126,7 +123,7 @@ class MCMC:
         # Update the Dc parameter of the model with the new proposal
         self.model.Dc = q_new[0,]
         # Evaluate the model's performance on the problem type and LSTM model
-        acc = self.model.evaluate(self.problem_type, self.lstm_model)[1]
+        acc = self.model.evaluate(self.lstm_model)[1]
         # Compute the sum of squares error between the model's accuracy and the data
         SSq = np.sum((acc[:, 0].reshape(1, -1) - self.data)**2, axis=1, keepdims=True)
 

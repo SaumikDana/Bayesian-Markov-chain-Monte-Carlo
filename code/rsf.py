@@ -2,10 +2,8 @@ from RateStateModel import RateStateModel
 import numpy as np
 import math
 from save_load import save_object, load_object
-import generate_dataset
 import lstm_encoder_decoder
 from MCMC import MCMC
-import sys
 import torch
 import matplotlib.pyplot as plt
 
@@ -74,9 +72,12 @@ class rsf:
       t_               = self.t_appended.reshape(-1,self.num_features)
       var_             = self.acc_appended.reshape(-1,self.num_features)
       num_samples_train, Ttrain, Ytrain \
-                       = generate_dataset.windowed_dataset(
-            t_, var_, self.model.window, self.model.stride, self.num_features) 
-      T_train, Y_train = generate_dataset.numpy_to_torch(Ttrain, Ytrain)
+                       = self.windowed_dataset(t_, var_, 
+                                               self.model.window, 
+                                               self.model.stride, 
+                                               self.num_features)
+      T_train          = torch.from_numpy(Ttrain).type(torch.Tensor)
+      Y_train          = torch.from_numpy(Ytrain).type(torch.Tensor)
 
       # Define the parameters for the LSTM model
       hidden_size      = self.model.window
@@ -86,10 +87,14 @@ class rsf:
       input_tensor     = T_train
 
       # Build the LSTM model and train it
-      model_lstm       = lstm_encoder_decoder.lstm_seq2seq(
-         input_tensor.shape[2], hidden_size, num_layers, False)
-      loss             = model_lstm.train_model(
-         input_tensor, Y_train, n_epochs, self.model.window, batch_size)
+      model_lstm       = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], 
+                                                           hidden_size, 
+                                                           num_layers, False)
+      loss             = model_lstm.train_model(input_tensor, 
+                                                Y_train, 
+                                                n_epochs, 
+                                                self.model.window, 
+                                                batch_size)
 
       # Save the trained LSTM model to a file
       save_object(model_lstm,self.lstm_file) 
@@ -102,32 +107,56 @@ class rsf:
          num_samples_train, self.num_dc, self.dc_list, self.model.num_tsteps)
 
       return
+
+   def windowed_dataset(self, t, y, window, stride, num_features = 1):
+      '''
+      create a windowed dataset
       
+      : param y:                time series feature (array)
+      : param input_window:     number of y samples to give model 
+      : param output_window:    number of future y samples to predict  
+      : param stride:            spacing between windows   
+      : param num_features:     number of features (i.e., 1 for us, but we could have multiple features)
+      : return X, Y:            arrays with correct dimensions for LSTM
+      :                         (i.e., [input/output window size # examples, # features])
+      '''
+   
+      L                           = y.shape[0]
+      num_samples                 = (L - window) // stride + 1
+      Y                           = np.zeros([window, num_samples, num_features])     
+      T                           = np.zeros([window, num_samples, num_features])     
+      
+      for ff in np.arange(num_features):
+         for ii in np.arange(num_samples):
+               start_x             = stride * ii
+               end_x               = start_x + window
+               index               = range(start_x,end_x)
+               Y[0:window, ii, ff] = y[index, ff] 
+               T[0:window, ii, ff] = t[index, ff]
+
+      return num_samples, T, Y
+            
    def plot_results(
       self,lstm_model, T_, X_, Y_, 
       stride, window, dataset_type, 
       objective, num_samples, num_p, p_, num_tsteps):
          
       # Initialize the reconstructed signal array
-      Y_return = np.zeros([int(num_samples*window)])     
-
-      count_dc = 0
+      Y_return              = np.zeros([int(num_samples*window)])     
+      count_dc              = 0
       for dc in p_:
          # Initialize the arrays for the target, input, and output signals
-         X = np.zeros([int(num_samples*window/num_p)]) 
-         Y = np.zeros([int(num_samples*window/num_p)])     
-         T = np.zeros([int(num_samples*window/num_p)])     
-
+         X                  = np.zeros([int(num_samples*window/num_p)]) 
+         Y                  = np.zeros([int(num_samples*window/num_p)])     
+         T                  = np.zeros([int(num_samples*window/num_p)])     
          num_samples_per_dc = int(num_samples/num_p) 
 
          # Iterate through the samples and generate the predicted output signal for the current DC value
          for ii in range(num_samples_per_dc):
-               start = ii*stride
-               end = start + window
-
-               train_plt = X_[:, count_dc*num_samples_per_dc+ii, :]
+               start        = ii*stride
+               end          = start + window
+               train_plt    = X_[:, count_dc*num_samples_per_dc+ii, :]
                Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
-
                X[start:end] = Y_[:, count_dc*num_samples_per_dc+ii, 0]
                Y[start:end] = Y_train_pred[:, 0]
                T[start:end] = T_[:, count_dc*num_samples_per_dc+ii, 0]
@@ -180,10 +209,8 @@ class rsf:
       return
    
    def rsf_inference(self,nsamples):
-      # load reduced order model!!!
-      model_lstm = load_object(self.lstm_file)  # Load a saved LSTM model
 
-      # load data!!!
+      model_lstm = load_object(self.lstm_file)  # Load a saved LSTM model
       acc_appended_noise = load_object(self.data_file)  # Load a saved data file
 
       num_p = self.num_dc  # Get the number of parameters
@@ -201,26 +228,23 @@ class rsf:
                dc = p_[ii]  # Get the current parameter value
                print('--- dc is %s ---' % dc)
 
-               qstart={"Dc":100}  # Define the initial guess for the parameter values
-               qpriors={"Dc":["Uniform",0.1, 1000]}  # Define the prior distribution for the parameter values
+               # Set up the prior and initial guess for the Dc parameter
+               qstart = 0.1
+               qpriors = ["Uniform",0.1, 1000]
+               
+               # Run the MCMC algorithm to estimate the posterior distribution of the model parameters
+               MCMCobj = MCMC(self.model,acc,qpriors,qstart,nsamples=nsamples)
+               qparams = MCMCobj.sample()
+               
+               # Plot the posterior distribution of the model parameters
+               MCMCobj.plot_dist(qparams,dc)
 
-               nburn = nsamples/2  # Define the number of burn-in samples
-
-               problem_type = 'full'
-               # Create an MCMC object for the full physics-based model and run the algorithm
-               MCMCobj1=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-               qparams1=MCMCobj1.sample()
-
-               # Plot the posterior distribution of the parameter values for the full physics-based model
-               MCMCobj1.plot_dist(qparams1,'full',dc)
-
-               problem_type = 'rom'
                # Create an MCMC object for the reduced-order model and run the algorithm
-               MCMCobj2=MCMC(model,qpriors=qpriors,nsamples=nsamples,nburn=nburn,data=acc,problem_type=problem_type,lstm_model=model_lstm,qstart=qstart,adapt_interval=10,verbose=True)
-               qparams2=MCMCobj2.sample()
+               MCMCobj = MCMC(self.model,acc,qpriors,qstart,lstm_model=model_lstm,nsamples=nsamples)
+               qparams = MCMCobj.sample()
 
                # Plot the posterior distribution of the parameter values for the reduced-order model
-               MCMCobj2.plot_dist(qparams2,'reduced order',dc)
+               MCMCobj.plot_dist(qparams,dc)
 
       return
    
