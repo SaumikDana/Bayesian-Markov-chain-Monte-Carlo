@@ -7,38 +7,8 @@ We will consider a noisy sinusoidal curve
 
 '''
 
-from RateStateModel import RateStateModel # RSF model
 import numpy as np
 import torch
-
-def synthetic_data(dc = 1.0):
-    
-    '''
-    create synthetic time series dataset
-    : param Nt:       number of time steps 
-    : param tf:       final time
-    : return t, y:    time, feature arrays
-    '''
-    ### RSF Model ###
-    consts={}
-    consts["a"]=0.011;  consts["b"]=0.014;   consts["mu_ref"]=0.6
-    consts["V_ref"]= 1;   consts["k1"]= 1e-7
-    # Time range
-    consts["t_start"]=0.0;  consts["t_final"]=50.0; consts["delta_t"]=5e-2
-    # Initial conditions
-    consts["mu_t_zero"] = 0.6;  consts["V_ref"] = 1.0
-
-    consts["Dc"] = dc
-
-    consts["mu_ref"] = 0.6
-    consts["RadiationDamping"]=True    
-    model=RateStateModel(consts,False) # forward model
-
-    t_,acc = model.evaluate(consts) # true data
-    acc_noise = acc+1.0*np.abs(acc)*np.random.randn(acc.shape[0],acc.shape[1]) #synthetic data
-    ### RSF Model ###
-
-    return t_.T.flatten(), acc.T.flatten(), acc_noise.T.flatten()
 
 def train_test_split(t, y, num_):
   '''
