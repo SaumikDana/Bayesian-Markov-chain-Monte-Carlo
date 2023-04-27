@@ -12,7 +12,11 @@ class rsf:
    '''
    Driver class for RSF model
    '''
-   def __init__(self, number_slip_values=1, lowest_slip_value=1.0, largest_slip_value=1000.0):
+   def __init__(
+      self, 
+      number_slip_values=1, 
+      lowest_slip_value=1.0, 
+      largest_slip_value=1000.0):
       
       # Define the range of values for the critical slip distance
       self.num_dc = number_slip_values
@@ -163,7 +167,7 @@ class rsf:
                Y_return[count_dc*num_tsteps+start:count_dc*num_tsteps+end] = Y_train_pred[:, 0]
 
          # Plot the target and predicted output signals
-         plt.rcParams.update({'font.size': 16})
+         plt.rcParams.update({'font.size': 10})
          plt.figure()
          plt.plot(T, X, '-', color = (0.2, 0.42, 0.72), linewidth = 1.0, markersize = 1.0, label = 'Target')
          plt.plot(T, Y, '-', color = (0.76, 0.01, 0.01), linewidth = 1.0, markersize = 1.0, label = '%s' % objective)

@@ -139,7 +139,7 @@ class MCMC:
         fig, ax = plt.subplots(n_rows, n_columns, gridspec_kw=gridspec)
 
         # Set the main plot title with the specified dc value
-        fig.suptitle(f'$d_c={dc}\,\mu m$', fontsize=14)
+        fig.suptitle(f'$d_c={dc}\,\mu m$', fontsize=10)
 
         # Plot the MCMC samples as a blue line in the first subplot
         ax[0].plot(qparams[0, :], 'b-', linewidth=1.0)
@@ -163,7 +163,7 @@ class MCMC:
         ax[1].set_xlim(0, None)
 
         # Set labels and axis limits for the first subplot
-        ax[0].set_ylabel('$d_c$', fontsize=14)
+        ax[0].set_ylabel('$d_c$', fontsize=10)
         ax[0].set_xlim(0, qparams.shape[1])
         ax[0].set_xlabel('Sample number')
 

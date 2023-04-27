@@ -11,7 +11,11 @@ class RateStateModel:
     """
 
     def __init__(
-        self, number_time_steps=500, start_time=0.0, end_time=50.0, epochs=100):
+        self, 
+        number_time_steps=500, 
+        start_time=0.0, 
+        end_time=50.0, 
+        epochs=20):
 
         # Define model constants
         self.a = 0.011
@@ -33,7 +37,7 @@ class RateStateModel:
         # Add additional model constants
         self.RadiationDamping = True
         self.window = int(number_time_steps / 20)
-        self.stride = int(self.window/2)
+        self.stride = int(self.window/5)
         self.epochs = epochs
         self.Dc = None
 
