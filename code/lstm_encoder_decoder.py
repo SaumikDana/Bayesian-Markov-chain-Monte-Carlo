@@ -2,10 +2,7 @@
 
 import numpy as np
 import random
-import os, errno
-import sys
 from tqdm import trange
-from sklearn import utils
 
 import torch
 import torch.nn as nn
@@ -141,7 +138,6 @@ class lstm_seq2seq(nn.Module):
         # training information
         training_prediction = 'mixed_teacher_forcing'
         teacher_forcing_ratio = 0.6
-        learning_rate = 0.01
         dynamic_tf = True
    
         # initialize array of losses 
@@ -177,7 +173,7 @@ class lstm_seq2seq(nn.Module):
                     optimizer.zero_grad()
 
                     # encoder outputs
-                    encoder_output, encoder_hidden = self.encoder(input_batch)
+                    _, encoder_hidden = self.encoder(input_batch)
 
                     # decoder with teacher forcing
                     decoder_input = input_batch[-1, :, :]   
@@ -251,7 +247,7 @@ class lstm_seq2seq(nn.Module):
 
         # encode input_tensor
         input_tensor = input_tensor.unsqueeze(1)     
-        encoder_output, encoder_hidden = self.encoder(input_tensor)
+        _, encoder_hidden = self.encoder(input_tensor)
 
         # initialize tensor for predictions
         outputs = torch.zeros(target_len, input_tensor.shape[2])
