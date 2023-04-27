@@ -223,32 +223,30 @@ class rsf:
       model = self.model  # Get the physics-based model
 
       for ii in range(0,num_p):
-         # Check if the current parameter index is in a list of indices
-         if ii == 2 or ii == 11 or ii == 13 or ii == 15 or ii == 16 or ii == 17:
-               # Get the accelerometer data for the current parameter index
-               acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
-               acc = acc.reshape(1, num_tsteps)
+            # Get the accelerometer data for the current parameter index
+            acc = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
+            acc = acc.reshape(1, num_tsteps)
 
-               dc = p_[ii]  # Get the current parameter value
-               print('--- dc is %s ---' % dc)
+            dc = p_[ii]  # Get the current parameter value
+            print('--- dc is %s ---' % dc)
 
-               # Set up the prior and initial guess for the Dc parameter
-               qstart = 0.1
-               qpriors = ["Uniform",0.1, 1000]
-               
-               # Run the MCMC algorithm to estimate the posterior distribution of the model parameters
-               MCMCobj = MCMC(self.model,acc,qpriors,qstart,nsamples=nsamples)
-               qparams = MCMCobj.sample()
-               
-               # Plot the posterior distribution of the model parameters
-               MCMCobj.plot_dist(qparams,dc)
+            # Set up the prior and initial guess for the Dc parameter
+            qstart = 0.1
+            qpriors = ["Uniform",0.1, 1000]
+            
+            # Run the MCMC algorithm to estimate the posterior distribution of the model parameters
+            MCMCobj = MCMC(self.model,acc,qpriors,qstart,nsamples=nsamples)
+            qparams = MCMCobj.sample()
+            
+            # Plot the posterior distribution of the model parameters
+            MCMCobj.plot_dist(qparams,dc)
 
-               # Create an MCMC object for the reduced-order model and run the algorithm
-               MCMCobj = MCMC(self.model,acc,qpriors,qstart,lstm_model=model_lstm,nsamples=nsamples)
-               qparams = MCMCobj.sample()
+            # Create an MCMC object for the reduced-order model and run the algorithm
+            MCMCobj = MCMC(self.model,acc,qpriors,qstart,lstm_model=model_lstm,nsamples=nsamples)
+            qparams = MCMCobj.sample()
 
-               # Plot the posterior distribution of the parameter values for the reduced-order model
-               MCMCobj.plot_dist(qparams,dc)
+            # Plot the posterior distribution of the parameter values for the reduced-order model
+            MCMCobj.plot_dist(qparams,dc)
 
       return
    
