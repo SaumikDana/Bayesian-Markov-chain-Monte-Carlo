@@ -22,11 +22,16 @@ class rsf:
       start_dc          = lowest_slip_value
       end_dc            = largest_slip_value
       self.dc_list      = np.linspace(start_dc,end_dc,self.num_dc)
+      self.qstart       = start_dc/10.
+      self.qpriors      = ["Uniform",0.,end_dc]
 
       # Define file names for saving and loading data and LSTM model
       self.lstm_file    = 'model_lstm.pickle'
       self.data_file    = 'data.pickle'
       self.num_features = 2
+      self.plotfigs     = False
+      # Generate the time series for the RSF model
+      self.time_series()
 
       return
    
@@ -193,14 +198,10 @@ class rsf:
          # Extract the data for this duty cycle and reshape it to a 1D array
          data    = noisy_acc[j*self.model.num_tsteps:j*self.model.num_tsteps+self.model.num_tsteps,0]
          data    = data.reshape(1, self.model.num_tsteps)
-         # Extract the duty cycle and print a message
          dc      = self.dc_list[j]
          print(f'--- d_c is {dc}')
-         # Set up the prior and initial guess for the Dc parameter
-         qstart  = 0.1
-         qpriors = ["Uniform",0.1, 1000]
          # Run the MCMC algorithm to estimate the posterior distribution of the model parameters
-         MCMCobj = MCMC(self.model,data,qpriors,qstart,adapt_interval=10,nsamples=nsamples)
+         MCMCobj = MCMC(self.model,data,self.qpriors,self.qstart,adapt_interval=10,nsamples=nsamples)
          qparams = MCMCobj.sample()       
          # Plot the posterior distribution of the model parameters
          MCMCobj.plot_dist(qparams,dc)
@@ -220,16 +221,13 @@ class rsf:
             acc          = acc.reshape(1, num_tsteps)
             dc           = p_[ii]  # Get the current parameter value
             print('--- dc is %s ---' % dc)
-            # Set up the prior and initial guess for the Dc parameter
-            qstart       = 0.1
-            qpriors      = ["Uniform",0.1, 1000]
             # Run the MCMC algorithm to estimate the posterior distribution of the model parameters
-            MCMCobj      = MCMC(self.model,acc,qpriors,qstart,nsamples=nsamples)
+            MCMCobj      = MCMC(self.model,acc,self.qpriors,self.qstart,nsamples=nsamples)
             qparams      = MCMCobj.sample()
             # Plot the posterior distribution of the model parameters
             MCMCobj.plot_dist(qparams,dc)
             # Create an MCMC object for the reduced-order model and run the algorithm
-            MCMCobj      = MCMC(self.model,acc,qpriors,qstart,lstm_model=model_lstm,nsamples=nsamples)
+            MCMCobj      = MCMC(self.model,acc,self.qpriors,self.qstart,lstm_model=model_lstm,nsamples=nsamples)
             qparams      = MCMCobj.sample()
             # Plot the posterior distribution of the parameter values for the reduced-order model
             MCMCobj.plot_dist(qparams,dc)
