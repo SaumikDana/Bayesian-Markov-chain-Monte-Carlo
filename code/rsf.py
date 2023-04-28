@@ -93,8 +93,10 @@ class rsf:
       input_tensor = T_train
 
       # Build the LSTM model and train it
-      model_lstm   = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], hidden_size, num_layers, False)
-      loss         = model_lstm.train_model(input_tensor, Y_train, epochs, window, batch_size)
+      model_lstm   = lstm_encoder_decoder.lstm_seq2seq(
+         input_tensor.shape[2], hidden_size, num_layers, False)
+      loss         = model_lstm.train_model(
+         input_tensor, Y_train, epochs, window, batch_size)
 
       # Save the trained LSTM model to a file
       save_object(model_lstm,self.lstm_file) 
@@ -117,9 +119,17 @@ class rsf:
       return
             
    def plot_results(
-      self,lstm_model, T_, X_, Y_, 
-      stride, window, dataset_type, 
-      objective, num_samples, num_p, p_, num_tsteps):
+      self,
+      lstm_model, 
+      T_, X_, Y_, 
+      stride, 
+      window, 
+      dataset_type, 
+      objective, 
+      num_samples, 
+      num_p, 
+      p_, 
+      num_tsteps):
          
       # Initialize the reconstructed signal array
       Y_return              = np.zeros([int(num_samples*window)])     
@@ -160,20 +170,18 @@ class rsf:
       return
          
    def inference_full(self,nsamples):
-
-      # Load data
+      """ 
+      Run the MCMC algorithm to estimate the posterior distribution of the model parameters
+      Plot the posterior distribution of the model parameters   
+      """
       noisy_acc  = load_object(self.data_file)
-      # Loop over each duty cycle and perform Bayesian inference
       for j in range(self.num_dc):
-         # Extract the data for this duty cycle and reshape it to a 1D array
          data    = noisy_acc[j*self.model.num_tsteps:j*self.model.num_tsteps+self.model.num_tsteps,0]
          data    = data.reshape(1, self.model.num_tsteps)
          dc      = self.dc_list[j]
          print(f'--- d_c is {dc}')
-         # Run the MCMC algorithm to estimate the posterior distribution of the model parameters
          MCMCobj = MCMC(self.model,data,self.qpriors,self.qstart,adapt_interval=10,nsamples=nsamples)
          qparams = MCMCobj.sample()       
-         # Plot the posterior distribution of the model parameters
          MCMCobj.plot_dist(qparams,dc)
 
       return
