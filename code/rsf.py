@@ -37,8 +37,6 @@ class rsf:
    
    def time_series(self):
 
-      # rate state model
-      self.model                         = RateStateModel()
       # Create arrays to store the time and acceleration data for all values of dc
       t_appended                         = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
       acc_appended                       = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
@@ -70,35 +68,35 @@ class rsf:
 
       return
          
-   def build_lstm(self):
-      """ 
-      Prepare the training data for the LSTM model
-      """
-      t_                      = self.t_appended.reshape(-1,self.num_features)
-      var_                    = self.acc_appended.reshape(-1,self.num_features)
-      n_train, Ttrain, Ytrain = self.windowed_dataset(t_, var_, 
-                                                      self.model.window, 
-                                                      self.model.stride, 
-                                                      self.num_features)
-      T_train                 = torch.from_numpy(Ttrain).type(torch.Tensor)
-      Y_train                 = torch.from_numpy(Ytrain).type(torch.Tensor)
+   def build_lstm(self, epochs=20):
+
+      window                            = int(self.model.num_tsteps/20)
+      stride                            = int(window/5)
+      t_                                = self.t_appended.reshape(-1,self.num_features)
+      var_                              = self.acc_appended.reshape(-1,self.num_features)
+      L                                 = var_.shape[0]
+      n_train                           = (L - window) // stride + 1
+      Ytrain                            = np.zeros([window, n_train, self.num_features])     
+      Ttrain                            = np.zeros([window, n_train, self.num_features])     
+      for ff in np.arange(self.num_features):
+         for ii in np.arange(n_train):
+               start_x                  = stride * ii
+               end_x                    = start_x + window
+               index                    = range(start_x,end_x)
+               Ytrain[0:window, ii, ff] = var_[index, ff] 
+               Ttrain[0:window, ii, ff] = t_[index, ff]
 
       # Define the parameters for the LSTM model
-      hidden_size             = self.model.window
-      batch_size              = 1
-      n_epochs                = self.model.epochs
-      num_layers              = 1 
-      input_tensor            = T_train
+      T_train      = torch.from_numpy(Ttrain).type(torch.Tensor)
+      Y_train      = torch.from_numpy(Ytrain).type(torch.Tensor)
+      hidden_size  = window
+      batch_size   = 1
+      num_layers   = 1 
+      input_tensor = T_train
 
       # Build the LSTM model and train it
-      model_lstm              = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], 
-                                                                  hidden_size, 
-                                                                  num_layers, False)
-      loss                    = model_lstm.train_model(input_tensor, 
-                                                      Y_train, 
-                                                      n_epochs, 
-                                                      self.model.window, 
-                                                      batch_size)
+      model_lstm   = lstm_encoder_decoder.lstm_seq2seq(input_tensor.shape[2], hidden_size, num_layers, False)
+      loss         = model_lstm.train_model(input_tensor, Y_train, epochs, window, batch_size)
 
       # Save the trained LSTM model to a file
       save_object(model_lstm,self.lstm_file) 
@@ -109,8 +107,8 @@ class rsf:
          Ttrain, 
          Ttrain, 
          Ytrain, 
-         self.model.stride, 
-         self.model.window, 
+         stride, 
+         window, 
          'Training', 
          'Reconstruction', 
          n_train, 
@@ -119,32 +117,6 @@ class rsf:
          self.model.num_tsteps)
 
       return
-
-   def windowed_dataset(self, t, y, window, stride, num_features = 1):
-      '''
-      create a windowed dataset
-      
-      : param y:                time series feature (array)
-      : param input_window:     number of y samples to give model 
-      : param output_window:    number of future y samples to predict  
-      : param stride:            spacing between windows   
-      : param num_features:     number of features (i.e., 1 for us, but we could have multiple features)
-      : return X, Y:            arrays with correct dimensions for LSTM
-      :                         (i.e., [input/output window size # examples, # features])
-      '''
-      L                            = y.shape[0]
-      num_samples                  = (L - window) // stride + 1
-      Y                            = np.zeros([window, num_samples, num_features])     
-      T                            = np.zeros([window, num_samples, num_features])     
-      for ff in np.arange(num_features):
-         for ii in np.arange(num_samples):
-               start_x             = stride * ii
-               end_x               = start_x + window
-               index               = range(start_x,end_x)
-               Y[0:window, ii, ff] = y[index, ff] 
-               T[0:window, ii, ff] = t[index, ff]
-
-      return num_samples, T, Y
             
    def plot_results(
       self,lstm_model, T_, X_, Y_, 

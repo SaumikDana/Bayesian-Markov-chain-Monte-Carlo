@@ -4,9 +4,11 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Rsf problem constructor
-    problem   = rsf(number_slip_values=5)
+    problem       = rsf(number_slip_values=5)
+    # rate state model
+    problem.model = RateStateModel()
     # flags for problem type
-    reduction = False # Use ROM
+    reduction     = False # Use ROM
     if reduction:
         # Use LSTM encoder-decoder for dimensionality reduction
         problem.build_lstm()
