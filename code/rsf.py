@@ -30,8 +30,6 @@ class rsf:
       self.data_file    = 'data.pickle'
       self.num_features = 2
       self.plotfigs     = False
-      # Generate the time series for the RSF model
-      self.time_series()
 
       return
    
