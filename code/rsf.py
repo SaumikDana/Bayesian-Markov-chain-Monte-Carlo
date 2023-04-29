@@ -15,7 +15,8 @@ class rsf:
       self, 
       number_slip_values=1, 
       lowest_slip_value=1.0, 
-      largest_slip_value=1000.0):
+      largest_slip_value=1000.0,
+      plotfigs=False):
       
       # Define the range of values for the critical slip distance
       self.num_dc       = number_slip_values
@@ -27,7 +28,7 @@ class rsf:
       self.lstm_file    = 'model_lstm.pickle'
       self.data_file    = 'data.pickle'
       self.num_features = 2
-      self.plotfigs     = False
+      self.plotfigs     = plotfigs
 
       return
    
@@ -121,7 +122,7 @@ class rsf:
          plt.xlabel('$Time (sec)$')
          plt.ylabel('$a (\mu m/s^2)$')
          plt.legend(frameon=False)
-         plt.suptitle('%s data set for dc=%s $\mu m$' % ('Training',dc), x = 0.445, y = 1.)
+         plt.suptitle('%s data set for dc=%s $\mu m$' % ('Training',dc))
          plt.tight_layout()
 
          count_dc += 1
