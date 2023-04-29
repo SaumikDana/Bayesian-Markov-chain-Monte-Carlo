@@ -13,7 +13,7 @@ if __name__ == '__main__':
     problem.time_series()
 
     # flags for problem type
-    reduction     = False # Use ROM
+    reduction = False # Use ROM
 
     if reduction:
         # Use LSTM encoder-decoder for dimensionality reduction
