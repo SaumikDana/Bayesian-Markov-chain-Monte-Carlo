@@ -22,7 +22,7 @@ class rsf:
       start_dc          = lowest_slip_value
       end_dc            = largest_slip_value
       self.dc_list      = np.linspace(start_dc,end_dc,self.num_dc)
-      self.qstart       = start_dc/10.
+      self.qstart       = 1.e-1
       self.qpriors      = ["Uniform",0.,end_dc]
 
       # Define file names for saving and loading data and LSTM model
@@ -72,8 +72,9 @@ class rsf:
       Plot the posterior distribution of the model parameters   
       """
       noisy_acc  = load_object(self.data_file)
+
       for j in range(self.num_dc):
-         data    = noisy_acc[j*self.model.num_tsteps:j*self.model.num_tsteps+self.model.num_tsteps,0]
+         data    = noisy_acc[j*self.model.num_tsteps:(j+1)*self.model.num_tsteps,0]
          data    = data.reshape(1, self.model.num_tsteps)
          dc      = self.dc_list[j]
          print(f'--- d_c is {dc}')
