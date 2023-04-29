@@ -22,8 +22,6 @@ class rsf:
       start_dc          = lowest_slip_value
       end_dc            = largest_slip_value
       self.dc_list      = np.linspace(start_dc,end_dc,self.num_dc)
-      self.qstart       = 1.e-1
-      self.qpriors      = ["Uniform",0.,end_dc]
 
       # Define file names for saving and loading data and LSTM model
       self.lstm_file    = 'model_lstm.pickle'
@@ -63,24 +61,6 @@ class rsf:
 
       # Save the data using pickle
       save_object(acc_appended_noise,self.data_file)
-
-      return
-         
-   def inference_full(self,nsamples):
-      """ 
-      Run the MCMC algorithm to estimate the posterior distribution of the model parameters
-      Plot the posterior distribution of the model parameters   
-      """
-      noisy_acc  = load_object(self.data_file)
-
-      for j in range(self.num_dc):
-         data    = noisy_acc[j*self.model.num_tsteps:(j+1)*self.model.num_tsteps,0]
-         data    = data.reshape(1, self.model.num_tsteps)
-         dc      = self.dc_list[j]
-         print(f'--- d_c is {dc}')
-         MCMCobj = MCMC(self.model,data,self.qpriors,self.qstart,adapt_interval=10,nsamples=nsamples)
-         qparams = MCMCobj.sample()       
-         MCMCobj.plot_dist(qparams,dc)
 
       return
          
@@ -153,30 +133,37 @@ class rsf:
 
       return
    
-   def rsf_inference(self,nsamples):
+   def inference(self,nsamples,reduction=False):
+      """ 
+      Run the MCMC algorithm to estimate the posterior distribution of the model parameters
+      Plot the posterior distribution of the model parameters   
+      """
 
-      model_lstm         = load_object(self.lstm_file)  # Load a saved LSTM model
-      acc_appended_noise = load_object(self.data_file)  # Load a saved data file
-      num_p              = self.num_dc  # Get the number of parameters
-      p_                 = self.dc_list  # Get the parameter values
-      num_tsteps         = self.model.num_tsteps  # Get the number of time steps
-
-      for ii in range(0,num_p):
-            # Get the accelerometer data for the current parameter index
-            acc          = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
-            acc          = acc.reshape(1, num_tsteps)
-            dc           = p_[ii]  # Get the current parameter value
-            print('--- dc is %s ---' % dc)
-            # Run the MCMC algorithm to estimate the posterior distribution of the model parameters
-            MCMCobj      = MCMC(self.model,acc,self.qpriors,self.qstart,nsamples=nsamples)
-            qparams      = MCMCobj.sample()
-            # Plot the posterior distribution of the model parameters
-            MCMCobj.plot_dist(qparams,dc)
-            # Create an MCMC object for the reduced-order model and run the algorithm
-            MCMCobj      = MCMC(self.model,acc,self.qpriors,self.qstart,lstm_model=model_lstm,nsamples=nsamples)
-            qparams      = MCMCobj.sample()
-            # Plot the posterior distribution of the parameter values for the reduced-order model
-            MCMCobj.plot_dist(qparams,dc)
+      if reduction:
+         model_lstm = load_object(self.lstm_file)  # Load a saved LSTM model
+         noisy_acc  = load_object(self.data_file)  # Load a saved data file
+         for j in range(0,self.num_dc):
+               acc = noisy_acc[j*self.model.num_tsteps:(j+1)*self.model.num_tsteps,0]
+               acc = acc.reshape(1, self.model.num_tsteps)
+               print('--- dc is %s ---' % self.dc_list[j])
+               # Inference for full model
+               MCMCobj = MCMC(self.model,acc,self.qpriors,self.qstart,nsamples=nsamples)
+               qparams = MCMCobj.sample()
+               MCMCobj.plot_dist(qparams,self.dc_list[j])
+               # Inference for reduced order model
+               MCMCobj = MCMC(self.model,acc,self.qpriors,self.qstart,lstm_model=model_lstm,nsamples=nsamples)
+               qparams = MCMCobj.sample()
+               MCMCobj.plot_dist(qparams,self.dc_list[j])
+      else:
+         noisy_acc  = load_object(self.data_file)  # Load a saved data file
+         for j in range(0,self.num_dc):
+               acc = noisy_acc[j*self.model.num_tsteps:(j+1)*self.model.num_tsteps,0]
+               acc = acc.reshape(1, self.model.num_tsteps)
+               print('--- dc is %s ---' % self.dc_list[j])
+               # Inference for full model
+               MCMCobj = MCMC(self.model,acc,self.qpriors,self.qstart,nsamples=nsamples)
+               qparams = MCMCobj.sample()
+               MCMCobj.plot_dist(qparams,self.dc_list[j])
 
       return
    

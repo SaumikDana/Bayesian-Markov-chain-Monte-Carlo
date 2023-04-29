@@ -3,26 +3,24 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
-    # Rsf problem constructor
-    problem       = rsf(number_slip_values=5)
-
     # Rate State model
+    problem       = rsf(number_slip_values=5)
     problem.model = RateStateModel()
 
     # Generate the time series for the RSF model
     problem.time_series()
 
-    # flags for problem type
-    reduction = True # Use ROM
+    # Flag for problem type
+    reduction = False 
 
     if reduction:
         # Use LSTM encoder-decoder for dimensionality reduction
         problem.build_lstm(epochs=20)
-        # Perform RSF inference with LSTM encoder-decoder
-        problem.rsf_inference(nsamples=100)      
-    else:
-        # Perform RSF inference without dimensionality reduction
-        problem.inference_full(nsamples=500)
+
+    # Perform Bayesian inference
+    problem.qstart  = 100.
+    problem.qpriors = ["Uniform",0.,10000.]
+    problem.inference(nsamples=500,reduction=reduction)      
 
     # Close it out
     plt.show()
