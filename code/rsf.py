@@ -36,18 +36,15 @@ class rsf:
    def time_series(self):
 
       # Create arrays to store the time and acceleration data for all values of dc
-      t_appended                         = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
-      acc_appended                       = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
-      acc_appended_noise                 = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))  
-      count_dc                           = 0
+      t_appended         = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
+      acc_appended       = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
+      acc_appended_noise = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))  
+      count_dc           = 0
 
       for dc in self.dc_list:
          # Evaluate the model for the current value of dc
          self.model.Dc                   = dc
          t, acc, acc_noise               = self.model.evaluate() # noisy data
-         # Generate plots if desired
-         self.generateplots(t[:,0], acc[:,0], acc_noise[:,0])      
-         # Append the time and acceleration data to the corresponding arrays
          start                           = count_dc*self.model.num_tsteps
          end                             = start + self.model.num_tsteps
          t_appended[start:end,0]         = t[:,0]
@@ -57,13 +54,32 @@ class rsf:
          acc_appended_noise[start:end,0] = acc_noise[:,0]
          acc_appended_noise[start:end,1] = acc_noise[:,1]
          count_dc += 1
+         # Generate plots if desired
+         self.generateplots(t[:,0], acc[:,0], acc_noise[:,0])      
 
       # Store the time and acceleration data as attributes of the class
-      self.t_appended                    = t_appended
-      self.acc_appended                  = acc_appended
+      self.t_appended   = t_appended
+      self.acc_appended = acc_appended
 
       # Save the data using pickle
       save_object(acc_appended_noise,self.data_file)
+
+      return
+         
+   def inference_full(self,nsamples):
+      """ 
+      Run the MCMC algorithm to estimate the posterior distribution of the model parameters
+      Plot the posterior distribution of the model parameters   
+      """
+      noisy_acc  = load_object(self.data_file)
+      for j in range(self.num_dc):
+         data    = noisy_acc[j*self.model.num_tsteps:j*self.model.num_tsteps+self.model.num_tsteps,0]
+         data    = data.reshape(1, self.model.num_tsteps)
+         dc      = self.dc_list[j]
+         print(f'--- d_c is {dc}')
+         MCMCobj = MCMC(self.model,data,self.qpriors,self.qstart,adapt_interval=10,nsamples=nsamples)
+         qparams = MCMCobj.sample()       
+         MCMCobj.plot_dist(qparams,dc)
 
       return
          
@@ -135,23 +151,6 @@ class rsf:
          del X,Y,T
 
       return
-         
-   def inference_full(self,nsamples):
-      """ 
-      Run the MCMC algorithm to estimate the posterior distribution of the model parameters
-      Plot the posterior distribution of the model parameters   
-      """
-      noisy_acc  = load_object(self.data_file)
-      for j in range(self.num_dc):
-         data    = noisy_acc[j*self.model.num_tsteps:j*self.model.num_tsteps+self.model.num_tsteps,0]
-         data    = data.reshape(1, self.model.num_tsteps)
-         dc      = self.dc_list[j]
-         print(f'--- d_c is {dc}')
-         MCMCobj = MCMC(self.model,data,self.qpriors,self.qstart,adapt_interval=10,nsamples=nsamples)
-         qparams = MCMCobj.sample()       
-         MCMCobj.plot_dist(qparams,dc)
-
-      return
    
    def rsf_inference(self,nsamples):
 
@@ -160,6 +159,7 @@ class rsf:
       num_p              = self.num_dc  # Get the number of parameters
       p_                 = self.dc_list  # Get the parameter values
       num_tsteps         = self.model.num_tsteps  # Get the number of time steps
+
       for ii in range(0,num_p):
             # Get the accelerometer data for the current parameter index
             acc          = acc_appended_noise[ii*num_tsteps:ii*num_tsteps+num_tsteps,0]
