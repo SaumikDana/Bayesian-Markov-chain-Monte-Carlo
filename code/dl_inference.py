@@ -11,16 +11,16 @@ if __name__ == '__main__':
     problem.time_series()
 
     # Flag for problem type
-    reduction = False 
+    reduction = True 
 
     if reduction:
         # Use LSTM encoder-decoder for dimensionality reduction
-        problem.build_lstm(epochs=20)
+        problem.build_lstm(epochs=20, num_layers=1)
 
-    # Perform Bayesian inference
-    problem.qstart  = 100.
-    problem.qpriors = ["Uniform",0.,10000.]
-    problem.inference(nsamples=500,reduction=reduction)      
+    # # Perform Bayesian inference
+    # problem.qstart  = 100.
+    # problem.qpriors = ["Uniform",0.,10000.]
+    # problem.inference(nsamples=500,reduction=reduction)      
 
     # Close it out
     plt.show()

@@ -64,7 +64,7 @@ class rsf:
 
       return
          
-   def build_lstm(self, epochs=20):
+   def build_lstm(self, epochs=20, num_layers=1, batch_size=1):
 
       window  = int(self.model.num_tsteps/20)
       stride  = int(window/5)
@@ -86,11 +86,9 @@ class rsf:
       T_train      = torch.from_numpy(Ttrain).type(torch.Tensor)
       Y_train      = torch.from_numpy(Ytrain).type(torch.Tensor)
       hidden_size  = window
-      batch_size   = 1
-      num_layers   = 1 
 
       # Build the LSTM model and train it
-      lstm_model = lstm_encoder_decoder.lstm_seq2seq(T_train.shape[2], hidden_size, num_layers, False)
+      lstm_model = lstm_encoder_decoder.lstm_seq2seq(T_train.shape[2], hidden_size, num_layers)
       _ = lstm_model.train_model(T_train, Y_train, epochs, window, batch_size)
 
       # Save the trained LSTM model to a file
@@ -119,7 +117,7 @@ class rsf:
          plt.rcParams.update({'font.size': 10})
          plt.figure()
          plt.plot(T, X, '-', linewidth = 1.0, markersize = 1.0, label = 'Target')
-         plt.plot(T, Y, '-', linewidth = 1.0, markersize = 1.0, label = 'Reconstructed')
+         # plt.plot(T, Y, '-', linewidth = 1.0, markersize = 1.0, label = 'Reconstructed')
          plt.xlabel('$Time (sec)$')
          plt.ylabel('$a (\mu m/s^2)$')
          plt.legend(frameon=False)
