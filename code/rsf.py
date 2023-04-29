@@ -40,6 +40,7 @@ class rsf:
       acc_appended                       = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))
       acc_appended_noise                 = np.zeros((self.num_dc*self.model.num_tsteps,self.num_features))  
       count_dc                           = 0
+
       for dc in self.dc_list:
          # Evaluate the model for the current value of dc
          self.model.Dc                   = dc
@@ -70,9 +71,9 @@ class rsf:
 
       window  = int(self.model.num_tsteps/20)
       stride  = int(window/5)
-      t_      = self.t_appended.reshape(-1,self.num_features)
-      var_    = self.acc_appended.reshape(-1,self.num_features)
-      n_train = (var_.shape[0] - window) // stride + 1
+      T       = self.t_appended.reshape(-1,self.num_features)
+      data    = self.acc_appended.reshape(-1,self.num_features)
+      n_train = (data.shape[0] - window) // stride + 1
       Ytrain  = np.zeros([window, n_train, self.num_features])     
       Ttrain  = np.zeros([window, n_train, self.num_features])     
 
@@ -81,8 +82,8 @@ class rsf:
                start_x                  = stride * ii
                end_x                    = start_x + window
                index                    = range(start_x,end_x)
-               Ytrain[0:window, ii, ff] = var_[index, ff] 
-               Ttrain[0:window, ii, ff] = t_[index, ff]
+               Ytrain[0:window, ii, ff] = data[index, ff] 
+               Ttrain[0:window, ii, ff] = T[index, ff]
 
       # Define the parameters for the LSTM model
       T_train      = torch.from_numpy(Ttrain).type(torch.Tensor)
@@ -99,8 +100,7 @@ class rsf:
       save_object(lstm_model,self.lstm_file) 
 
       # Plot the results of the trained LSTM model         
-      Y_return              = np.zeros([int(n_train*window)])     
-      count_dc              = 0
+      count_dc = 0
 
       for dc in self.dc_list:
          # Initialize the arrays for the target, input, and output signals
@@ -110,16 +110,13 @@ class rsf:
          num_samples_per_dc = int(n_train/self.num_dc) 
 
          for ii in range(num_samples_per_dc):
-               start                     = ii*stride
-               end                       = start + window
-               train_plt                 = Ttrain[:, count_dc*num_samples_per_dc+ii, :]
-               Y_train_pred              = lstm_model.predict(
-                  torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
-               X[start:end]              = Ytrain[:, count_dc*num_samples_per_dc+ii, 0]
-               Y[start:end]              = Y_train_pred[:, 0]
-               T[start:end]              = Ttrain[:, count_dc*num_samples_per_dc+ii, 0]
-               jj                        = count_dc*self.model.num_tsteps
-               Y_return[jj+start:jj+end] = Y_train_pred[:, 0]
+               start        = ii*stride
+               end          = start + window
+               train_plt    = Ttrain[:, count_dc*num_samples_per_dc+ii, :]
+               Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
+               X[start:end] = Ytrain[:, count_dc*num_samples_per_dc+ii, 0]
+               Y[start:end] = Y_train_pred[:, 0]
+               T[start:end] = Ttrain[:, count_dc*num_samples_per_dc+ii, 0]
 
          # Plot the target and predicted output signals
          plt.rcParams.update({'font.size': 10})
