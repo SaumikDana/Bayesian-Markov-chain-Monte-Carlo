@@ -13,11 +13,11 @@ if __name__ == '__main__':
     problem.time_series()
 
     # flags for problem type
-    reduction = False # Use ROM
+    reduction = True # Use ROM
 
     if reduction:
         # Use LSTM encoder-decoder for dimensionality reduction
-        problem.build_lstm()
+        problem.build_lstm(epochs=20)
         # Perform RSF inference with LSTM encoder-decoder
         problem.rsf_inference(nsamples=100)      
     else:

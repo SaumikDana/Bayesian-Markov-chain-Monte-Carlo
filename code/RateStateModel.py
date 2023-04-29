@@ -148,7 +148,7 @@ class RateStateModel:
          
         # Calculate the number of steps to take
         num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))
-        window = self.window
+        window  = int(self.num_tsteps/20)
 
         # Create arrays to store trajectory
         t = np.zeros((num_steps, 2))
@@ -170,11 +170,9 @@ class RateStateModel:
         for ii in range(num_steps_):
             start = ii * window
             end = start + window
-
             train_plt[0:window, 0] = t[start:end, 0]
             train_plt[0:window, 1] = t[start:end, 1]
-            Y_train_pred = lstm_model.predict(
-                torch.from_numpy(train_plt).type(torch.Tensor), target_len=window)
+            Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len=window)
             acc[start:end, 0] = Y_train_pred[:, 0]
             acc[start:end, 1] = Y_train_pred[:, 0]
 
