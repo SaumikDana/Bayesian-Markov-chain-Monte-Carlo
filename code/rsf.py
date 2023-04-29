@@ -53,9 +53,19 @@ class rsf:
          acc_appended_noise[start:end,0] = acc_noise[:,0]
          acc_appended_noise[start:end,1] = acc_noise[:,1]
          count_dc += 1
-         # Generate plots if desired
-         self.generateplots(t[:,0], acc[:,0], acc_noise[:,0])      
 
+         # Generate plots if desired
+         if self.plotfigs:
+            plt.figure()
+            plt.title('$d_c$=' + str(self.model.Dc) + ' $\mu m$' + ' RSF solution')
+            plt.plot(t[:,0], acc[:,0], linewidth=1.0,label='True')
+            # plt.plot(t[:,0], acc_noise[:,0], linewidth=1.0,label='Noisy')
+            plt.xlim(self.model.t_start - 2.0, self.model.t_final)
+            plt.xlabel('Time (sec)')
+            plt.ylabel('Acceleration $(\mu m/s^2)$')
+            plt.grid('on')
+            plt.legend()        
+      
       # Store the time and acceleration data as attributes of the class
       self.t_appended   = t_appended
       self.acc_appended = acc_appended
@@ -165,21 +175,5 @@ class rsf:
                MCMCobj.plot_dist(qparams,self.dc_list[j])
 
       return
-   
-   def generateplots(self,t,acc,acc_noise):
-
-      if self.plotfigs:
-         # Plots
-         plt.figure()
-         plt.title('$d_c$=' + str(self.model.Dc) + ' $\mu m$' + ' RSF solution')
-         plt.plot(t, acc, '--', linewidth=1.0,label='True')
-         plt.plot(t, acc_noise, linewidth=1.0,label='Noisy')
-         plt.xlim(self.model.t_start - 2.0, self.model.t_final)
-         plt.xlabel('Time (sec)')
-         plt.ylabel('Acceleration $(\mu m/s^2)$')
-         plt.grid('on')
-         plt.legend()        
-      
-      return        
    
    
