@@ -31,26 +31,26 @@ class MCMC:
         self.lstm_model     = lstm_model
         self.n0             = 0.01
 
-        # Evaluate the model with the original dc value
-        acc_                = self.model.evaluate(lstm_model)[1]
-        # Perturb the dc value
-        self.model.Dc       *= (1 + 1e-6)
-        # Evaluate the model with the perturbed dc value
-        acc_dq_             = self.model.evaluate()[1]
-        # Extract the accuracy values and reshape them to a 1D array
-        acc                 = acc_[:, 0].reshape(1, -1)
-        # Compute the variance of the noise
-        self.std2           = [np.sum((acc - self.data) ** 2, axis=1).item()/(acc.shape[1] - len(self.qpriors))]
-        # Extract the accuracy gradient values and reshape them to a 1D array
-        acc_dq              = acc_dq_[:, 0].reshape(1, -1)
-        # Compute the covariance matrix
-        X                   = ((acc_dq - acc) / (self.model.Dc * 1e-6)).T
-        X                   = np.linalg.inv(np.dot(X.T, X))
-        self.Vstart         = self.std2[-1] * X 
-
         return
 
     def sample(self):
+
+        # Evaluate the model with the original dc value
+        acc_               = self.model.evaluate(self.lstm_model)[1]
+        # Perturb the dc value
+        self.model.Dc      *= (1 + 1e-6)
+        # Evaluate the model with the perturbed dc value
+        acc_dq_            = self.model.evaluate()[1]
+        # Extract the accuracy values and reshape them to a 1D array
+        acc                = acc_[:, 0].reshape(1, -1)
+        # Compute the variance of the noise
+        self.std2          = [np.sum((acc - self.data) ** 2, axis=1).item()/(acc.shape[1] - len(self.qpriors))]
+        # Extract the accuracy gradient values and reshape them to a 1D array
+        acc_dq             = acc_dq_[:, 0].reshape(1, -1)
+        # Compute the covariance matrix
+        X                  = ((acc_dq - acc) / (self.model.Dc * 1e-6)).T
+        X                  = np.linalg.inv(np.dot(X.T, X))
+        self.Vstart        = self.std2[-1] * X 
 
         # Initialize variables
         qstart_vect        = np.array([[self.qstart]])
@@ -93,10 +93,8 @@ class MCMC:
                     Vold   = Vnew.copy()
                 except:
                     pass
-
         # Print acceptance ratio
         print("acceptance ratio:",iaccept/self.nsamples)
-
         self.std2          = np.asarray(self.std2)[self.nburn:] 
         # Trim the estimate of the standard deviation to exclude burn-in samples
         
