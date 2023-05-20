@@ -39,61 +39,58 @@ class RateStateModel:
 
         return
 
-    def friction(self, t, y):
-
-        # Just to help readability
-        # y[0] is mu (friction)
-        # y[1] is theta
-        # y[2] is velocity
-        
-        V_ref = self.V_ref
-        a = self.a
-        b = self.b
-        dc = self.Dc
-
-        # effective spring stiffness
-        kprime = 1e-2 * 10 / dc
-
-        # loading
-        a1 = 20
-        a2 = 10
-        V_l = V_ref * (1 + exp(-t/a1) * sin(a2*t))
-
-        # initialize the array of derivatives
-        n = len(y)
-        dydt = np.zeros((n, 1))
-
-        # compute v
-        temp = 1 / a * (y[0] - self.mu_ref - b * log(V_ref * y[1] / dc))
-        v = V_ref * exp(temp)
-
-        # time derivative of theta
-        dydt[1] = 1. - v * y[1] / dc
-
-        # time derivative of mu
-        dydt[0] = kprime * V_l - kprime * v
-
-        # time derivative of velocity
-        dydt[2] = v / a * (dydt[0] - b / y[1] * dydt[1])
-
-        # add radiation damping term if specified
-        if self.RadiationDamping:
-            # time derivative of mu with radiation damping
-            dydt[0] = dydt[0] - self.k1 * dydt[2]
-            # time derivative of velocity with radiation damping
-            dydt[2] = v / a * (dydt[0] - b / y[1] * dydt[1])
-
-        return dydt
-
     def evaluate(self, lstm_model={}):
         # call either full model evaluation or reduced order model evaluation
 
-        if lstm_model:
-            return self.rom_evaluate(lstm_model)
-        else:
-            return self.full_evaluate()
+        return self.rom_evaluate(lstm_model) if lstm_model else self.full_evaluate()
         
     def full_evaluate(self):
+
+        def friction(t, y):
+
+            # Just to help readability
+            # y[0] is mu (friction)
+            # y[1] is theta
+            # y[2] is velocity
+            
+            V_ref = self.V_ref
+            a = self.a
+            b = self.b
+            dc = self.Dc
+
+            # effective spring stiffness
+            kprime = 1e-2 * 10 / dc
+
+            # loading
+            a1 = 20
+            a2 = 10
+            V_l = V_ref * (1 + exp(-t/a1) * sin(a2*t))
+
+            # initialize the array of derivatives
+            n = len(y)
+            dydt = np.zeros((n, 1))
+
+            # compute v
+            temp = 1 / a * (y[0] - self.mu_ref - b * log(V_ref * y[1] / dc))
+            v = V_ref * exp(temp)
+
+            # time derivative of theta
+            dydt[1] = 1. - v * y[1] / dc
+
+            # time derivative of mu
+            dydt[0] = kprime * V_l - kprime * v
+
+            # time derivative of velocity
+            dydt[2] = v / a * (dydt[0] - b / y[1] * dydt[1])
+
+            # add radiation damping term if specified
+            if self.RadiationDamping:
+                # time derivative of mu with radiation damping
+                dydt[0] = dydt[0] - self.k1 * dydt[2]
+                # time derivative of velocity with radiation damping
+                dydt[2] = v / a * (dydt[0] - b / y[1] * dydt[1])
+
+            return dydt
         
         # Calculate the number of steps to take
         num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))
@@ -107,7 +104,7 @@ class RateStateModel:
         acc[0] = 0
 
         # Set up the ODE solver
-        r = integrate.ode(self.friction).set_integrator('dop853', rtol=1e-6, atol=1e-10)
+        r = integrate.ode(friction).set_integrator('dop853', rtol=1e-6, atol=1e-10)
 
         # Set the initial conditions for the ODE solver
         r.set_initial_value([self.mu_t_zero, theta[0], velocity[0]], t[0])
