@@ -38,13 +38,8 @@ class RateStateModel:
         self.Dc = None
 
         return
-
-    def evaluate(self, lstm_model={}):
-        # call either full model evaluation or reduced order model evaluation
-
-        return self.rom_evaluate(lstm_model) if lstm_model else self.full_evaluate()
         
-    def full_evaluate(self):
+    def evaluate(self):
 
         def friction(t, y):
 

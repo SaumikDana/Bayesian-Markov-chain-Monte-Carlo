@@ -12,11 +12,7 @@ class rsf:
    Driver class for RSF model
    '''
    def __init__(
-      self, 
-      number_slip_values=1, 
-      lowest_slip_value=1.0, 
-      largest_slip_value=1000.0,
-      plotfigs=False):
+      self, number_slip_values=1, lowest_slip_value=1.0, largest_slip_value=1000.0, plotfigs=False):
       
       # Define the range of values for the critical slip distance
       self.num_dc       = number_slip_values
@@ -106,71 +102,65 @@ class rsf:
       lstm_model = lstm_encoder_decoder.lstm_seq2seq(T_train.shape[2], hidden_size, num_layers)
       _ = lstm_model.train_model(T_train, Y_train, epochs, window, batch_size)
 
-      # Save the trained LSTM model to a file
-      save_object(lstm_model,self.lstm_file) 
+      # # Plot the results of the trained LSTM model         
+      # count_dc = 0
 
-      # Plot the results of the trained LSTM model         
-      count_dc = 0
+      # for dc in self.dc_list:
+      #    # Initialize the arrays for the target, input, and output signals
+      #    X = np.zeros([int(n_train*window/self.num_dc)]) 
+      #    Y = np.zeros([int(n_train*window/self.num_dc)])     
+      #    T = np.zeros([int(n_train*window/self.num_dc)])     
+      #    num_samples_per_dc = int(n_train/self.num_dc) 
 
-      for dc in self.dc_list:
-         # Initialize the arrays for the target, input, and output signals
-         X = np.zeros([int(n_train*window/self.num_dc)]) 
-         Y = np.zeros([int(n_train*window/self.num_dc)])     
-         T = np.zeros([int(n_train*window/self.num_dc)])     
-         num_samples_per_dc = int(n_train/self.num_dc) 
+      #    for ii in range(num_samples_per_dc):
+      #          start        = ii*stride
+      #          end          = start + window
+      #          train_plt    = Ttrain[:, count_dc*num_samples_per_dc+ii, :]
+      #          Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
+      #          X[start:end] = Ytrain[:, count_dc*num_samples_per_dc+ii, 0]
+      #          Y[start:end] = Y_train_pred[:, 0]
+      #          T[start:end] = Ttrain[:, count_dc*num_samples_per_dc+ii, 0]
 
-         for ii in range(num_samples_per_dc):
-               start        = ii*stride
-               end          = start + window
-               train_plt    = Ttrain[:, count_dc*num_samples_per_dc+ii, :]
-               Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
-               X[start:end] = Ytrain[:, count_dc*num_samples_per_dc+ii, 0]
-               Y[start:end] = Y_train_pred[:, 0]
-               T[start:end] = Ttrain[:, count_dc*num_samples_per_dc+ii, 0]
+      #    # Plot the target and predicted output signals
+      #    plt.rcParams.update({'font.size': 10})
+      #    plt.figure()
+      #    plt.plot(T, X, '-', linewidth = 1.0, markersize = 1.0, label = 'Target')
+      #    # plt.plot(T, Y, '-', linewidth = 1.0, markersize = 1.0, label = 'Reconstructed')
+      #    plt.xlabel('$Time (sec)$')
+      #    plt.ylabel('$a (\mu m/s^2)$')
+      #    plt.legend(frameon=False)
+      #    plt.suptitle('%s data set for dc=%s $\mu m$' % ('Training',dc))
+      #    plt.tight_layout()
 
-         # Plot the target and predicted output signals
-         plt.rcParams.update({'font.size': 10})
-         plt.figure()
-         plt.plot(T, X, '-', linewidth = 1.0, markersize = 1.0, label = 'Target')
-         # plt.plot(T, Y, '-', linewidth = 1.0, markersize = 1.0, label = 'Reconstructed')
-         plt.xlabel('$Time (sec)$')
-         plt.ylabel('$a (\mu m/s^2)$')
-         plt.legend(frameon=False)
-         plt.suptitle('%s data set for dc=%s $\mu m$' % ('Training',dc))
-         plt.tight_layout()
+      #    count_dc += 1
 
-         count_dc += 1
+      #    # Free up memory by deleting the arrays
+      #    del X,Y,T
 
-         # Free up memory by deleting the arrays
-         del X,Y,T
-
-      return
+      return lstm_model
    
    def inference(self,nsamples,reduction=False):
       """ 
       Run the MCMC algorithm to estimate the posterior distribution of the model parameters
       Plot the posterior distribution of the model parameters   
       """
-
-      noisy_acc = load_object(self.data_file)  # Load a saved data file
-
+      noisy_acc     = load_object(self.data_file)  # Load a saved data file
       if reduction:
-         model_lstm = load_object(self.lstm_file)  # Load a saved LSTM model
-
+         model_lstm = self.build_lstm()  # Return the lSTM model
+         
       for j in range(0, self.num_dc):
-         acc = noisy_acc[j*self.model.num_tsteps:(j+1)*self.model.num_tsteps, 0]
-         acc = acc.reshape(1, self.model.num_tsteps)
-         
-         print('--- dc is %s ---' % self.dc_list[j])
-         
+         acc        = noisy_acc[j*self.model.num_tsteps:(j+1)*self.model.num_tsteps, 0]
+         acc        = acc.reshape(1, self.model.num_tsteps)
+         print('--- Dc is %s ---' % self.dc_list[j])
+
          # Perform MCMC sampling without reduction
-         MCMCobj = MCMC(self.model, acc, self.qpriors, self.qstart, nsamples=nsamples)
-         qparams = MCMCobj.sample()
-         MCMCobj.plot_dist(qparams, self.dc_list[j])
-         
+         MCMCobj    = MCMC(self.model,acc,self.qpriors,self.qstart,nsamples=nsamples)
+         qparams    = MCMCobj.sample()
+         MCMCobj.plot_dist(qparams, self.dc_list[j])         
+
+         # Perform MCMC sampling with reduction using LSTM model
          if reduction:
-            # Perform MCMC sampling with reduction using LSTM model
-            MCMCobj = MCMC(self.model, acc, self.qpriors, self.qstart, lstm_model=model_lstm, nsamples=nsamples)
+            MCMCobj = MCMC(self.model,acc,self.qpriors,self.qstart,lstm_model=model_lstm,nsamples=nsamples)
             qparams = MCMCobj.sample()
             MCMCobj.plot_dist(qparams, self.dc_list[j])
 
