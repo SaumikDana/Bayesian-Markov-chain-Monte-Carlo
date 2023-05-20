@@ -31,41 +31,28 @@ class rsf:
    def generate_time_series(self):
 
       # RSF model
-      self.model                         = RateStateModel()
+      self.model = RateStateModel()
 
       # Create arrays to store the time and acceleration data for all values of dc
-      entries                            = self.num_dc*self.model.num_tsteps
-      t_appended                         = np.zeros((entries,self.num_features))
-      acc_appended                       = np.zeros((entries,self.num_features))
-      acc_appended_noise                 = np.zeros((entries,self.num_features))  
-      count_dc                           = 0
+      entries = self.num_dc*self.model.num_tsteps
+      t_appended,acc_appended,acc_appended_noise = np.zeros((entries,self.num_features)),np.zeros((entries,self.num_features)),np.zeros((entries,self.num_features))  
+      count_dc = 0
 
       for dc in self.dc_list:
          # Evaluate the model for the current value of dc
-         self.model.Dc                   = dc
-         t, acc, acc_noise               = self.model.evaluate() # noisy data
-         start                           = count_dc*self.model.num_tsteps
-         end                             = start + self.model.num_tsteps
-         t_appended[start:end,0]         = t[:,0]
-         t_appended[start:end,1]         = dc
-         acc_appended[start:end,0]       = acc[:,0]
-         acc_appended[start:end,1]       = acc[:,1]
-         acc_appended_noise[start:end,0] = acc_noise[:,0]
-         acc_appended_noise[start:end,1] = acc_noise[:,1]
+         self.model.Dc           = dc
+         t, acc, acc_noise       = self.model.evaluate() # noisy data
+         start                   = count_dc*self.model.num_tsteps
+         end                     = start + self.model.num_tsteps
+         t_appended[start:end,0] = t[:,0]
+         t_appended[start:end,1] = dc
+         for index in range(2):
+            acc_appended[start:end,index]       = acc[:,index]
+            acc_appended_noise[start:end,index] = acc_noise[:,index]
          count_dc += 1
-
-         # Generate plots if desired
-         if self.plotfigs:
-            plt.figure()
-            plt.title('$d_c$=' + str(self.model.Dc) + ' $\mu m$' + ' RSF solution')
-            plt.plot(t[:,0], acc[:,0], linewidth=1.0,label='True')
-            # plt.plot(t[:,0], acc_noise[:,0], linewidth=1.0,label='Noisy')
-            plt.xlim(self.model.t_start - 2.0, self.model.t_final)
-            plt.xlabel('Time (sec)')
-            plt.ylabel('Acceleration $(\mu m/s^2)$')
-            plt.grid('on')
-            plt.legend()        
-      
+         # generate plots
+         self.plot_time_series(t, acc)
+                  
       # Store the time and acceleration data as attributes of the class
       self.t_appended   = t_appended
       self.acc_appended = acc_appended
@@ -74,9 +61,25 @@ class rsf:
       save_object(acc_appended_noise,self.data_file)
 
       return
+
+   def plot_time_series(self, t, acc):
+
+      # Generate plots if desired
+      if self.plotfigs:
+         plt.figure()
+         plt.title('$d_c$=' + str(self.model.Dc) + ' $\mu m$' + ' RSF solution')
+         plt.plot(t[:,0], acc[:,0], linewidth=1.0,label='True')
+         # plt.plot(t[:,0], acc_noise[:,0], linewidth=1.0,label='Noisy')
+         plt.xlim(self.model.t_start - 2.0, self.model.t_final)
+         plt.xlabel('Time (sec)')
+         plt.ylabel('Acceleration $(\mu m/s^2)$')
+         plt.grid('on')
+         plt.legend()        
+      return
          
    def build_lstm(self, epochs=20, num_layers=1, batch_size=1):
 
+      # build LSTM redeuced order model
       window  = int(self.model.num_tsteps/20)
       stride  = int(window/5)
       T       = self.t_appended.reshape(-1,self.num_features)
@@ -102,42 +105,49 @@ class rsf:
       lstm_model = lstm_encoder_decoder.lstm_seq2seq(T_train.shape[2], hidden_size, num_layers)
       _ = lstm_model.train_model(T_train, Y_train, epochs, window, batch_size)
 
-      # # Plot the results of the trained LSTM model         
-      # count_dc = 0
-
-      # for dc in self.dc_list:
-      #    # Initialize the arrays for the target, input, and output signals
-      #    X = np.zeros([int(n_train*window/self.num_dc)]) 
-      #    Y = np.zeros([int(n_train*window/self.num_dc)])     
-      #    T = np.zeros([int(n_train*window/self.num_dc)])     
-      #    num_samples_per_dc = int(n_train/self.num_dc) 
-
-      #    for ii in range(num_samples_per_dc):
-      #          start        = ii*stride
-      #          end          = start + window
-      #          train_plt    = Ttrain[:, count_dc*num_samples_per_dc+ii, :]
-      #          Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
-      #          X[start:end] = Ytrain[:, count_dc*num_samples_per_dc+ii, 0]
-      #          Y[start:end] = Y_train_pred[:, 0]
-      #          T[start:end] = Ttrain[:, count_dc*num_samples_per_dc+ii, 0]
-
-      #    # Plot the target and predicted output signals
-      #    plt.rcParams.update({'font.size': 10})
-      #    plt.figure()
-      #    plt.plot(T, X, '-', linewidth = 1.0, markersize = 1.0, label = 'Target')
-      #    # plt.plot(T, Y, '-', linewidth = 1.0, markersize = 1.0, label = 'Reconstructed')
-      #    plt.xlabel('$Time (sec)$')
-      #    plt.ylabel('$a (\mu m/s^2)$')
-      #    plt.legend(frameon=False)
-      #    plt.suptitle('%s data set for dc=%s $\mu m$' % ('Training',dc))
-      #    plt.tight_layout()
-
-      #    count_dc += 1
-
-      #    # Free up memory by deleting the arrays
-      #    del X,Y,T
+      # Plot the results of the trained LSTM model         
+      self.plot_lstm(n_train, window, stride, Ttrain, Ytrain, lstm_model)
 
       return lstm_model
+
+   def plot_lstm(self, n_train, window, stride, Ttrain, Ytrain, lstm_model):
+
+      # Plot the results of the trained LSTM model         
+      count_dc = 0
+
+      for dc in self.dc_list:
+         # Initialize the arrays for the target, input, and output signals
+         X = np.zeros([int(n_train*window/self.num_dc)]) 
+         Y = np.zeros([int(n_train*window/self.num_dc)])     
+         T = np.zeros([int(n_train*window/self.num_dc)])     
+         num_samples_per_dc = int(n_train/self.num_dc) 
+
+         for ii in range(num_samples_per_dc):
+               start        = ii*stride
+               end          = start + window
+               train_plt    = Ttrain[:, count_dc*num_samples_per_dc+ii, :]
+               Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len = window)
+               X[start:end] = Ytrain[:, count_dc*num_samples_per_dc+ii, 0]
+               Y[start:end] = Y_train_pred[:, 0]
+               T[start:end] = Ttrain[:, count_dc*num_samples_per_dc+ii, 0]
+
+         # Plot the target and predicted output signals
+         plt.rcParams.update({'font.size': 10})
+         plt.figure()
+         plt.plot(T, X, '-', linewidth = 1.0, markersize = 1.0, label = 'Target')
+         # plt.plot(T, Y, '-', linewidth = 1.0, markersize = 1.0, label = 'Reconstructed')
+         plt.xlabel('$Time (sec)$')
+         plt.ylabel('$a (\mu m/s^2)$')
+         plt.legend(frameon=False)
+         plt.suptitle('%s data set for dc=%s $\mu m$' % ('Training',dc))
+         plt.tight_layout()
+
+         count_dc += 1
+
+         # Free up memory by deleting the arrays
+         del X,Y,T
+         
+      return
    
    def inference(self,nsamples,reduction=False):
       """ 
@@ -148,21 +158,20 @@ class rsf:
       if reduction:
          model_lstm = self.build_lstm()  # Return the lSTM model
          
-      for j in range(0, self.num_dc):
-         acc        = noisy_acc[j*self.model.num_tsteps:(j+1)*self.model.num_tsteps, 0]
-         acc        = acc.reshape(1, self.model.num_tsteps)
-         print('--- Dc is %s ---' % self.dc_list[j])
+      for index, dc in enumerate(self.dc_list):
+         acc = noisy_acc[index*self.model.num_tsteps:(index+1)*self.model.num_tsteps, 0].reshape(1, self.model.num_tsteps)
+         print('--- Dc is %s ---' % dc)
 
          # Perform MCMC sampling without reduction
-         MCMCobj    = MCMC(self.model,acc,self.qpriors,self.qstart,nsamples=nsamples)
-         qparams    = MCMCobj.sample()
-         MCMCobj.plot_dist(qparams, self.dc_list[j])         
+         MCMCobj = MCMC(self.model,acc,self.qpriors,self.qstart,nsamples=nsamples)
+         qparams = MCMCobj.sample()
+         MCMCobj.plot_dist(qparams, dc)         
 
          # Perform MCMC sampling with reduction using LSTM model
          if reduction:
             MCMCobj = MCMC(self.model,acc,self.qpriors,self.qstart,lstm_model=model_lstm,nsamples=nsamples)
             qparams = MCMCobj.sample()
-            MCMCobj.plot_dist(qparams, self.dc_list[j])
+            MCMCobj.plot_dist(qparams, dc)
 
       return
    

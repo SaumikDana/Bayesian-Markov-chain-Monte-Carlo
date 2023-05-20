@@ -96,14 +96,12 @@ class MCMC:
         # Evaluate the model with the perturbed dc value
         acc_dq_ = self.model.rom_evaluate(self.lstm_model)[1] if self.lstm_model else self.model.evaluate()[1]
 
-        # Extract the accuracy values and reshape them to a 1D array
+        # Extract the values and reshape them to a 1D array
         acc = acc_[:, 0].reshape(1, -1)
+        acc_dq = acc_dq_[:, 0].reshape(1, -1)
 
         # Compute the variance of the noise
         self.std2 = [np.sum((acc - self.data) ** 2, axis=1).item()/(acc.shape[1] - len(self.qpriors))]
-
-        # Extract the accuracy gradient values and reshape them to a 1D array
-        acc_dq = acc_dq_[:, 0].reshape(1, -1)
 
         # Compute the covariance matrix
         X                  = ((acc_dq - acc) / (self.model.Dc * 1e-6)).T
@@ -117,7 +115,6 @@ class MCMC:
         SSqprev            = self.SSqcalc(qparams) # Squared error of previously sampled parameters
         iaccept            = 0 # Counter for accepted samples
 
-        # Loop over number of desired samples
         for isample in np.arange(self.nsamples):
             # Sample new parameters from a normal distribution with mean being the last element of qparams
             q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
@@ -203,7 +200,9 @@ class MCMC:
         return SSq
 
     def plot_dist(self, qparams, dc):
-        # Set up the plot layout with 1 row and 2 columns, and adjust the width ratios and space between subplots
+
+        # Set up the plot layout with 1 row and 2 columns, 
+        # and adjust the width ratios and space between subplots
         n_rows = 1
         n_columns = 2
         gridspec = {'width_ratios': [0.7, 0.15], 'wspace': 0.15}
