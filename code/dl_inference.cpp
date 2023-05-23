@@ -26,8 +26,8 @@ public:
         t_final = 10.0;
     }
 
-    vector<vector<double>> evaluate() {
-        vector<vector<double>> result(num_tsteps, vector<double>(2));
+    vector<vector<double> > evaluate() {
+        vector<vector<double> > result(num_tsteps, vector<double>(2));
 
         double a = 0.011;
         double b = 0.014;
@@ -108,8 +108,8 @@ public:
             acc_noise[i] = acc[i] + 1.0 * abs(acc[i]) * random_normal();
         }
 
-        vector<vector<double>> t_acc_noise(num_steps, vector<double>(2));
-        vector<vector<double>> acc_vec(num_steps, vector<double>(2));
+        vector<vector<double> > t_acc_noise(num_steps, vector<double>(2));
+        vector<vector<double> > acc_vec(num_steps, vector<double>(2));
 
         for (int i = 0; i < num_steps; i++) {
             t_acc_noise[i][0] = t[i];
@@ -135,8 +135,8 @@ public:
     int num_features;
     bool plotfigs;
     RateStateModel model;
-    vector<vector<double>> t_appended;
-    vector<vector<double>> acc_appended;
+    vector<vector<double> > t_appended;
+    vector<vector<double> > acc_appended;
 
     rsf(int number_slip_values = 1, double lowest_slip_value = 1.0, double largest_slip_value = 1000.0, bool plotfigs = false)
         : num_dc(number_slip_values), lowest_slip_value(lowest_slip_value), largest_slip_value(largest_slip_value), plotfigs(plotfigs) {
@@ -160,13 +160,13 @@ public:
         int entries = num_dc * model.num_tsteps;
         t_appended.resize(entries, vector<double>(num_features));
         acc_appended.resize(entries, vector<double>(num_features));
-        vector<vector<double>> acc_appended_noise(entries, vector<double>(num_features));
+        vector<vector<double> > acc_appended_noise(entries, vector<double>(num_features));
         int count_dc = 0;
 
         for (double dc : dc_list) {
             // Evaluate the model for the current value of dc
             model.Dc = dc;
-            vector<vector<double>> result = model.evaluate();
+            vector<vector<double> > result = model.evaluate();
             int start = count_dc * model.num_tsteps;
             int end = start + model.num_tsteps;
             for (int i = start, j = 0; i < end; i++, j++) {
@@ -189,7 +189,7 @@ public:
         // save_object(acc_appended_noise, data_file);
     }
 
-    // void plot_time_series(vector<vector<double>> t, vector<vector<double>> acc) {
+    // void plot_time_series(vector<vector<double> > t, vector<vector<double> > acc) {
     //     if (plotfigs) {
     //         // Plot the data
     //         plt::figure();
@@ -205,14 +205,14 @@ public:
     // }
 
     // // Helper functions for saving and loading data using pickle
-    // void save_object(vector<vector<double>> data, string filename) {
+    // void save_object(vector<vector<double> > data, string filename) {
     //     // Save data using pickle
     //     // ...
     // }
 
-    // vector<vector<double>> load_object(string filename) {
+    // vector<vector<double> > load_object(string filename) {
     //     // Load data using pickle
-    //     vector<vector<double>> data;
+    //     vector<vector<double> > data;
     //     // ...
     //     return data;
     // }
