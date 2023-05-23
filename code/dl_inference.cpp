@@ -2,7 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <random>
-#include "/usr/local/include/matplotlibcpp.h"
+// #include "/usr/local/include/matplotlibcpp.h"
 
 using namespace std;
 
@@ -179,7 +179,7 @@ public:
             }
             count_dc++;
             // Generate plots
-            plot_time_series(t_appended, acc_appended);
+            // plot_time_series(t_appended, acc_appended);
         }
 
         // // Store the time and acceleration data
@@ -189,20 +189,20 @@ public:
         // save_object(acc_appended_noise, data_file);
     }
 
-    void plot_time_series(vector<vector<double>> t, vector<vector<double>> acc) {
-        if (plotfigs) {
-            // Plot the data
-            plt::figure();
-            plt::title("$d_c$=" + std::to_string(model.Dc) + " $\mu m$" + " RSF solution");
-            plt::plot(t[0], acc[0], "-b", "linewidth=1.0", "label='True'");
-            plt::xlim(model.t_start - 2.0, model.t_final);
-            plt::xlabel("Time (sec)");
-            plt::ylabel("Acceleration $(\mu m/s^2)$");
-            plt::grid("on");
-            plt::legend();
-            plt::show();
-        }
-    }
+    // void plot_time_series(vector<vector<double>> t, vector<vector<double>> acc) {
+    //     if (plotfigs) {
+    //         // Plot the data
+    //         plt::figure();
+    //         plt::title("$d_c$=" + std::to_string(model.Dc) + " $\mu m$" + " RSF solution");
+    //         plt::plot(t[0], acc[0], "-b", "linewidth=1.0", "label='True'");
+    //         plt::xlim(model.t_start - 2.0, model.t_final);
+    //         plt::xlabel("Time (sec)");
+    //         plt::ylabel("Acceleration $(\mu m/s^2)$");
+    //         plt::grid("on");
+    //         plt::legend();
+    //         plt::show();
+    //     }
+    // }
 
     // // Helper functions for saving and loading data using pickle
     // void save_object(vector<vector<double>> data, string filename) {
