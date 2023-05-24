@@ -6,7 +6,6 @@
 
 #include "/Users/saumikdana/gnuplot-iostream/gnuplot-iostream.h"
 
-
 using namespace std;
 
 class RateStateModel {
@@ -117,7 +116,6 @@ public:
 
         return make_tuple(t, acc, acc_noise);
     }
-
 };
 
 class rsf {
@@ -162,17 +160,17 @@ public:
         for (double dc : dc_list) {
             // Evaluate the model for the current value of dc
             model.Dc = dc;
-            tie(t, acc, acc_noise) = evaluate();
+            auto [t, acc, acc_noise] = model.evaluate();
             // Generate plots
             plot_time_series(t, acc);
             int start = count_dc * model.num_tsteps;
             int end = start + model.num_tsteps;
             for (int i = start, j = 0; i < end; i++, j++) {
-                t_appended[i][0] = t[i-start];
+                t_appended[i][0] = t[j];
                 t_appended[i][1] = dc;
                 for (int index = 0; index < num_features; index++) {
-                    acc_appended[i][index] = acc[i-start][0];
-                    acc_appended_noise[i][index] = acc_noise[i-start][0];
+                    acc_appended[i][index] = acc[j];
+                    acc_appended_noise[i][index] = acc_noise[j];
                 }
             }
             count_dc++;
@@ -181,7 +179,7 @@ public:
         return make_pair(t_appended, acc_appended);
     }
 
-    void plot_time_series(const std::vector<std::vector<double>>& t, const std::vector<std::vector<double>>& acc) {
+    void plot_time_series(const vector<double>& t, const vector<double>& acc) {
         if (plotfigs) {
             Gnuplot gp;
 
@@ -190,7 +188,7 @@ public:
 
             // Plot the data
             gp << "plot '-' with lines linewidth 1 title 'True'\n";
-            gp.send1d(std::make_tuple(t[0], acc[0]));
+            gp.send1d(make_tuple(t, acc));
 
             // Set x-axis limits
             gp << "set xrange [" << (model.t_start - 2.0) << ":" << model.t_final << "]\n";
@@ -211,7 +209,6 @@ public:
             gp << "replot\n";
         }
     }
-    
 };
 
 int main() {
@@ -224,5 +221,4 @@ int main() {
     vector<vector<double>>& acc_appended = time_series.second;
 
     return 0;
-
 }
