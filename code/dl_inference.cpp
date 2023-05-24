@@ -2,7 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <random>
-// #include "/usr/local/include/matplotlibcpp.h"
+#include <gnuplot-iostream.h>
 
 using namespace std;
 
@@ -189,20 +189,36 @@ public:
         // save_object(acc_appended_noise, data_file);
     }
 
-    // void plot_time_series(vector<vector<double> > t, vector<vector<double> > acc) {
-    //     if (plotfigs) {
-    //         // Plot the data
-    //         plt::figure();
-    //         plt::title("$d_c$=" + std::to_string(model.Dc) + " $\mu m$" + " RSF solution");
-    //         plt::plot(t[0], acc[0], "-b", "linewidth=1.0", "label='True'");
-    //         plt::xlim(model.t_start - 2.0, model.t_final);
-    //         plt::xlabel("Time (sec)");
-    //         plt::ylabel("Acceleration $(\mu m/s^2)$");
-    //         plt::grid("on");
-    //         plt::legend();
-    //         plt::show();
-    //     }
-    // }
+    void plot_time_series(const std::vector<std::vector<double>>& t, const std::vector<std::vector<double>>& acc) {
+        if (plotfigs) {
+            Gnuplot gp;
+
+            // Set plot title
+            gp << "set title \"$d_c$=" << model.Dc << " $\\mu m$ RSF solution\"\n";
+
+            // Plot the data
+            gp << "plot '-' with lines linewidth 1 title 'True'\n";
+            gp.send1d(std::make_tuple(t[0], acc[0]));
+
+            // Set x-axis limits
+            gp << "set xrange [" << (model.t_start - 2.0) << ":" << model.t_final << "]\n";
+
+            // Set x-axis label
+            gp << "set xlabel \"Time (sec)\"\n";
+
+            // Set y-axis label
+            gp << "set ylabel \"Acceleration $(\\mu m/s^2)$\"\n";
+
+            // Enable grid
+            gp << "set grid on\n";
+
+            // Enable legend
+            gp << "set key outside\n";
+
+            // Display the plot
+            gp << "replot\n";
+        }
+    }
 
     // // Helper functions for saving and loading data using pickle
     // void save_object(vector<vector<double> > data, string filename) {
