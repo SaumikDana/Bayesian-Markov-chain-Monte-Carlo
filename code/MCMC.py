@@ -1,16 +1,6 @@
 import numpy as np
 from scipy.stats import gamma 
 
-""" 
-The code provided seems to be part of a sampling algorithm  that uses the Metropolis-Hastings algorithm to generate samples from a distribution. 
-Markov Chain Monte Carlo (MCMC) method for parameter estimation.
-
-The acceptreject function checks if a proposed sample falls within the limits and decides whether to accept or reject it based on the acceptance probability 
-and a random number. It returns a boolean value indicating acceptance and the sum of squares error of the accepted or previous proposal.
-
-The SSqcalc function updates the Dc parameter of the model with a proposed value, evaluates the model's performance, and computes the sum of squares error 
-between the model's accuracy and the data.
-"""
 
 class MCMC:
     """
@@ -41,7 +31,11 @@ class MCMC:
         return
 
     def sample(self):
-
+        """ 
+        The code provided seems to be part of a sampling algorithm 
+        that uses the Metropolis-Hastings algorithm to generate samples from a distribution. 
+        Markov Chain Monte Carlo (MCMC) method for parameter estimation.
+        """
         # Evaluate the model with the original dc value
         if self.lstm_model:
             acc_ = self.model.rom_evaluate(self.lstm_model)[1]
@@ -125,7 +119,13 @@ class MCMC:
         return qparams[:,self.nburn:]
 
     def acceptreject(self, q_new, SSqprev, std2):
-
+        """ 
+        The acceptreject function checks if a proposed sample falls within the limits 
+        and decides whether to accept or reject it 
+        based on the acceptance probability and a random number. 
+        It returns a boolean value indicating acceptance 
+        and the sum of squares error of the accepted or previous proposal.
+        """
         # Check if the proposal values are within the limits
         accept = np.all((q_new > self.qstart_limits[:, 0]) & (q_new < self.qstart_limits[:, 1]), axis=0)
 
@@ -148,7 +148,11 @@ class MCMC:
             return accept, SSqprev
 
     def SSqcalc(self, q_new):
-
+        """ 
+        The SSqcalc function updates the Dc parameter of the model with a proposed value, 
+        evaluates the model's performance, and computes the sum of squares error 
+        between the model's accuracy and the data.
+        """
         # Update the Dc parameter of the model with the new proposal
         self.model.Dc = q_new[0,]
 
