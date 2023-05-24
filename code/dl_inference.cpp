@@ -162,7 +162,7 @@ public:
         num_features = 2;
     }
 
-    void generate_time_series() {
+    pair<vector<vector<double>>, vector<vector<double>>> generate_time_series() {
         // Create arrays to store the time and acceleration data for all values of dc
         int entries = num_dc * model.num_tsteps;
         t_appended.resize(entries, vector<double>(num_features));
@@ -186,7 +186,10 @@ public:
             }
             count_dc++;
         }
+
+        return make_pair(t_appended, acc_appended);
     }
+    
 };
 
 int main() {
@@ -194,7 +197,10 @@ int main() {
     rsf problem(5, 10.0, 1000.0, true);
 
     // Generate the time series for the RSF model
-    problem.generate_time_series();
+    pair<vector<vector<double>>, vector<vector<double>>> time_series = problem.generate_time_series();
+    vector<vector<double>>& t_appended = time_series.first;
+    vector<vector<double>>& acc_appended = time_series.second;
+
 
     return 0;
 }
