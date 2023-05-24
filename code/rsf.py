@@ -5,6 +5,7 @@ import lstm_encoder_decoder
 from MCMC import MCMC
 import torch
 import matplotlib.pyplot as plt
+from scipy.stats import gaussian_kde
 
 
 class rsf:
@@ -165,14 +166,62 @@ class rsf:
          # Perform MCMC sampling without reduction
          MCMCobj = MCMC(self.model,acc,self.qpriors,self.qstart,nsamples=nsamples)
          qparams = MCMCobj.sample()
-         MCMCobj.plot_dist(qparams, dc)         
+         self.plot_dist(qparams, dc)         
 
          # Perform MCMC sampling with reduction using LSTM model
          if reduction:
             MCMCobj = MCMC(self.model,acc,self.qpriors,self.qstart,lstm_model=model_lstm,nsamples=nsamples)
             qparams = MCMCobj.sample()
-            MCMCobj.plot_dist(qparams, dc)
+            self.plot_dist(qparams, dc)
 
       return
-   
-   
+
+   def plot_dist(self, qparams, dc):
+
+      # Set up the plot layout with 1 row and 2 columns, 
+      # and adjust the width ratios and space between subplots
+      n_rows = 1
+      n_columns = 2
+      gridspec = {'width_ratios': [0.7, 0.15], 'wspace': 0.15}
+
+      # Create the subplots with the specified gridspec
+      fig, ax = plt.subplots(n_rows, n_columns, gridspec_kw=gridspec)
+
+      # Set the main plot title with the specified dc value
+      fig.suptitle(f'$d_c={dc}\,\mu m$', fontsize=10)
+
+      # Plot the MCMC samples as a blue line in the first subplot
+      ax[0].plot(qparams[0, :], 'b-', linewidth=1.0)
+
+      # Get the limits of the y-axis
+      ylims = ax[0].get_ylim()
+
+      # Create an array of 1000 evenly spaced points between the y-axis limits
+      x = np.linspace(ylims[0], ylims[1], 1000)
+
+      # Calculate the probability density function using Gaussian Kernel Density Estimation
+      kde = gaussian_kde(qparams[0, :])
+
+      # Plot the probability density function as a blue line in the second subplot
+      ax[1].plot(kde.pdf(x), x, 'b-')
+
+      # Fill the area under the probability density function with a light blue color
+      ax[1].fill_betweenx(x, kde.pdf(x), np.zeros(x.shape), alpha=0.3)
+
+      # Set the x-axis limits for the second subplot
+      ax[1].set_xlim(0, None)
+
+      # Set labels and axis limits for the first subplot
+      ax[0].set_ylabel('$d_c$', fontsize=10)
+      ax[0].set_xlim(0, qparams.shape[1])
+      ax[0].set_xlabel('Sample number')
+
+      # Set the x-axis label for the second subplot and hide the y-axis
+      ax[1].set_xlabel('Prob. density')
+      ax[1].get_yaxis().set_visible(False)
+      ax[1].get_xaxis().set_visible(True)
+      ax[1].get_xaxis().set_ticks([])
+
+      return 
+
+
