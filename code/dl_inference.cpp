@@ -2,6 +2,8 @@
 #include <vector>
 #include <cmath>
 #include <random>
+#include <tuple>
+
 #include "/Users/saumikdana/gnuplot-iostream/gnuplot-iostream.h"
 
 
@@ -14,12 +16,6 @@ public:
     double t_start;     // Start time
     double t_final;     // Final time
 
-    double random_normal() {
-        static std::mt19937 generator;                                      // Random number generator
-        static std::normal_distribution<double> distribution(0.0, 1.0);     // Normal distribution with mean 0 and standard deviation 1
-        return distribution(generator);                                     // Return a random number from the distribution
-    }
-
     RateStateModel() {
         num_tsteps = 100;
         Dc = 0.0;
@@ -27,9 +23,7 @@ public:
         t_final = 10.0;
     }
 
-    vector<vector<double> > evaluate() {
-        vector<vector<double> > result(num_tsteps, vector<double>(2));      // Vector to store the results
-
+    tuple<vector<double>, vector<double>, vector<double>> evaluate() {
         // Constants and parameters
         double a = 0.011;
         double b = 0.014;
@@ -69,7 +63,7 @@ public:
             double kprime = 1e-2 * 10 / dc;
             double a1 = 20;
             double a2 = 10;
-            double V_l = V_ref * (1 + exp(-t/a1) * sin(a2*t));
+            double V_l = V_ref * (1 + exp(-t / a1) * sin(a2 * t));
 
             vector<double> dydt(3, 0.0);
             double temp = 1 / a * (y[0] - mu_ref - b * log(V_ref * y[1] / dc));
@@ -114,23 +108,16 @@ public:
 
         // Add noise to acceleration
         vector<double> acc_noise(acc.size(), 0.0);
+        default_random_engine generator;
+        normal_distribution<double> distribution(0.0, 1.0);
+
         for (size_t i = 0; i < acc.size(); i++) {
-            acc_noise[i] = acc[i] + 1.0 * abs(acc[i]) * random_normal();
+            acc_noise[i] = acc[i] + 1.0 * abs(acc[i]) * distribution(generator);
         }
 
-        // Prepare results for output
-        vector<vector<double> > t_acc_noise(num_steps, vector<double>(2));
-        vector<vector<double> > acc_vec(num_steps, vector<double>(2));
-
-        for (int i = 0; i < num_steps; i++) {
-            t_acc_noise[i][0] = t[i];
-            t_acc_noise[i][1] = Dc;
-            acc_vec[i][0] = acc[i];
-            acc_vec[i][1] = acc[i];
-        }
-
-        return t_acc_noise;
+        return make_tuple(t, acc, acc_noise);
     }
+
 };
 
 class rsf {
@@ -175,20 +162,20 @@ public:
         for (double dc : dc_list) {
             // Evaluate the model for the current value of dc
             model.Dc = dc;
-            vector<vector<double> > result = model.evaluate();
+            tie(t, acc, acc_noise) = evaluate();
+            // Generate plots
+            plot_time_series(t, acc);
             int start = count_dc * model.num_tsteps;
             int end = start + model.num_tsteps;
             for (int i = start, j = 0; i < end; i++, j++) {
-                t_appended[i][0] = result[j][0];
+                t_appended[i][0] = t[i-start];
                 t_appended[i][1] = dc;
                 for (int index = 0; index < num_features; index++) {
-                    acc_appended[i][index] = result[j][index + 1];
-                    acc_appended_noise[i][index] = result[j][index + 1];
+                    acc_appended[i][index] = acc[i-start][0];
+                    acc_appended_noise[i][index] = acc_noise[i-start][0];
                 }
             }
             count_dc++;
-            // Generate plots
-            plot_time_series(t_appended, acc_appended);
         }
 
         return make_pair(t_appended, acc_appended);
