@@ -179,7 +179,7 @@ public:
             }
             count_dc++;
             // Generate plots
-            // plot_time_series(t_appended, acc_appended);
+            plot_time_series(t_appended, acc_appended);
         }
 
         // // Store the time and acceleration data
