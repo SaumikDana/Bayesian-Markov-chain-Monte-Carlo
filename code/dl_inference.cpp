@@ -181,12 +181,6 @@ public:
             // Generate plots
             plot_time_series(t_appended, acc_appended);
         }
-
-        // // Store the time and acceleration data
-        // // ...
-
-        // // Save the data using pickle
-        // save_object(acc_appended_noise, data_file);
     }
 
     void plot_time_series(const std::vector<std::vector<double>>& t, const std::vector<std::vector<double>>& acc) {
@@ -219,19 +213,6 @@ public:
             gp << "replot\n";
         }
     }
-
-    // // Helper functions for saving and loading data using pickle
-    // void save_object(vector<vector<double> > data, string filename) {
-    //     // Save data using pickle
-    //     // ...
-    // }
-
-    // vector<vector<double> > load_object(string filename) {
-    //     // Load data using pickle
-    //     vector<vector<double> > data;
-    //     // ...
-    //     return data;
-    // }
 
 };
 
