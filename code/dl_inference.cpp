@@ -2,6 +2,8 @@
 #include <vector>
 #include <cmath>
 #include <random>
+#include "/Users/saumikdana/gnuplot-iostream/gnuplot-iostream.h"
+
 
 using namespace std;
 
@@ -185,9 +187,42 @@ public:
                 }
             }
             count_dc++;
+            // Generate plots
+            plot_time_series(t_appended, acc_appended);
         }
 
         return make_pair(t_appended, acc_appended);
+    }
+
+    void plot_time_series(const std::vector<std::vector<double>>& t, const std::vector<std::vector<double>>& acc) {
+        if (plotfigs) {
+            Gnuplot gp;
+
+            // Set plot title
+            gp << "set title \"$d_c$=" << model.Dc << " $\\mu m$ RSF solution\"\n";
+
+            // Plot the data
+            gp << "plot '-' with lines linewidth 1 title 'True'\n";
+            gp.send1d(std::make_tuple(t[0], acc[0]));
+
+            // Set x-axis limits
+            gp << "set xrange [" << (model.t_start - 2.0) << ":" << model.t_final << "]\n";
+
+            // Set x-axis label
+            gp << "set xlabel \"Time (sec)\"\n";
+
+            // Set y-axis label
+            gp << "set ylabel \"Acceleration $(\\mu m/s^2)$\"\n";
+
+            // Enable grid
+            gp << "set grid on\n";
+
+            // Enable legend
+            gp << "set key outside\n";
+
+            // Display the plot
+            gp << "replot\n";
+        }
     }
     
 };
