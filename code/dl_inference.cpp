@@ -201,6 +201,6 @@ int main() {
     vector<vector<double>>& t_appended = time_series.first;
     vector<vector<double>>& acc_appended = time_series.second;
 
-
     return 0;
+
 }
