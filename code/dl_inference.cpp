@@ -186,6 +186,9 @@ public:
             // Set plot title
             gp << "set title \"$d_c$=" << model.Dc << " $\\mu m$ RSF solution\"\n";
 
+            // Set grid
+            gp << "set grid\n";
+
             // Plot the data
             gp << "plot '-' with lines linewidth 1 title 'True'\n";
             gp.send1d(make_tuple(t, acc));
@@ -199,9 +202,6 @@ public:
             // Set y-axis label
             gp << "set ylabel \"Acceleration $(\\mu m/s^2)$\"\n";
 
-            // Enable grid
-            gp << "set grid on\n";
-
             // Enable legend
             gp << "set key outside\n";
 
@@ -209,9 +209,11 @@ public:
             gp << "replot\n";
         }
     }
+
 };
 
 int main() {
+
     // Rate State model
     rsf problem(5, 10.0, 1000.0, true);
 
