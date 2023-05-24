@@ -32,7 +32,7 @@ The code performs the following steps:
 
 # C++ version
 
-clang++ -std=c++11 -o executable dl_inference.cpp
+g++ -std=c++11 dl_inference.cpp -o executable
 
 ## Contact
 dana.spk5@gmail.com
