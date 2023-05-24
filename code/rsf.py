@@ -37,9 +37,7 @@ class rsf:
       # Create arrays to store the time and acceleration data for all values of dc
       entries = self.num_dc*self.model.num_tsteps
       t_appended,acc_appended,acc_appended_noise = \
-         np.zeros((entries,self.num_features)),\
-            np.zeros((entries,self.num_features)),\
-               np.zeros((entries,self.num_features))  
+         np.zeros((entries,self.num_features)),np.zeros(entries),np.zeros(entries)  
       count_dc = 0
 
       for dc in self.dc_list:
@@ -51,11 +49,10 @@ class rsf:
          # appended data structures
          start = count_dc*self.model.num_tsteps
          end = start + self.model.num_tsteps
-         t_appended[start:end,0] = t[:,0]
+         t_appended[start:end,0] = t[:]
          t_appended[start:end,1] = dc
-         for index in range(2):
-            acc_appended[start:end,index] = acc[:,index]
-            acc_appended_noise[start:end,index] = acc_noise[:,index]
+         acc_appended[start:end] = acc[:]
+         acc_appended_noise[start:end] = acc_noise[:]
          # count_dc
          count_dc += 1
                   
@@ -74,8 +71,7 @@ class rsf:
       if self.plotfigs:
          plt.figure()
          plt.title('$d_c$=' + str(self.model.Dc) + ' $\mu m$' + ' RSF solution')
-         plt.plot(t[:,0], acc[:,0], linewidth=1.0,label='True')
-         # plt.plot(t[:,0], acc_noise[:,0], linewidth=1.0,label='Noisy')
+         plt.plot(t[:], acc[:], linewidth=1.0,label='True')
          plt.xlim(self.model.t_start - 2.0, self.model.t_final)
          plt.xlabel('Time (sec)')
          plt.ylabel('Acceleration $(\mu m/s^2)$')
@@ -162,26 +158,35 @@ class rsf:
       Run the MCMC algorithm to estimate the posterior distribution of the model parameters
       Plot the posterior distribution of the model parameters   
       """
-      noisy_acc     = load_object(self.data_file)  # Load a saved data file
+      noisy_acc = load_object(self.data_file)  # Load a saved data file
       if reduction:
          model_lstm = self.build_lstm()  # Return the lSTM model
          
       for index, dc in enumerate(self.dc_list):
          start = index*self.model.num_tsteps
          end = start + self.model.num_tsteps
-         acc = noisy_acc[start:end,0].reshape(1, self.model.num_tsteps)
+         noisy_data = noisy_acc[start:end]
          print('--- Dc is %s ---' % dc)
 
          # Perform MCMC sampling without reduction
          MCMCobj = MCMC(
-            self.model,acc,self.qpriors,self.qstart,nsamples=nsamples)
+            self.model,
+            noisy_data,
+            self.qpriors,
+            self.qstart,
+            nsamples=nsamples)
          qparams = MCMCobj.sample()
          self.plot_dist(qparams, dc)         
 
          # Perform MCMC sampling with reduction using LSTM model
          if reduction:
             MCMCobj = MCMC(
-               self.model,acc,self.qpriors,self.qstart,lstm_model=model_lstm,nsamples=nsamples)
+               self.model,
+               noisy_data,
+               self.qpriors,
+               self.qstart,
+               lstm_model=model_lstm,
+               nsamples=nsamples)
             qparams = MCMCobj.sample()
             self.plot_dist(qparams, dc)
 

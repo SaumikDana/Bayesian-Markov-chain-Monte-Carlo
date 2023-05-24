@@ -91,7 +91,12 @@ class RateStateModel:
         num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))
 
         # Create arrays to store trajectory
-        t, mu, theta, velocity, acc = np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1)), np.zeros((num_steps, 1))
+        t, mu, theta, velocity, acc = \
+            np.zeros(num_steps),\
+                np.zeros(num_steps),\
+                    np.zeros(num_steps),\
+                        np.zeros(num_steps),\
+                            np.zeros(num_steps)
         t[0] = self.t_start
         mu[0] = self.mu_ref
         theta[0] = self.Dc / self.V_ref
@@ -117,24 +122,10 @@ class RateStateModel:
             k += 1
 
         # Add some noise to the acceleration data to simulate real-world noise
-        acc_noise = acc + 1.0 * np.abs(acc) * np.random.randn(acc.shape[0], acc.shape[1])
-
-        # Create arrays to store data for plotting
-        t_, acc_, acc_noise_ = np.zeros((num_steps, 2)), np.zeros((num_steps, 2)), np.zeros((num_steps, 2))
-        t_[:, 0] = t[:, 0]
-        t_[:, 1] = self.Dc
-
-        acc_noise_[:, 0] = acc_noise[:, 0]
-        acc_noise_[:, 1] = acc_noise[:, 0]
-
-        acc_[:, 0] = acc[:, 0]
-        acc_[:, 1] = acc[:, 0]
-
-        # Clean up
-        del(t, mu, theta, velocity, acc, acc_noise)
+        acc_noise = acc + 1.0 * np.abs(acc) * np.random.randn(acc.shape[0])
 
         # Return the data for plotting and analysis
-        return t_, acc_, acc_noise_
+        return t, acc, acc_noise
 
     def rom_evaluate(self,lstm_model):
          

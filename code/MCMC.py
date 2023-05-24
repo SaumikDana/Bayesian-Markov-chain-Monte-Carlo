@@ -17,7 +17,15 @@ class MCMC:
     Class for MCMC sampling
     """
     def __init__(
-        self, model, data, qpriors, qstart, nsamples=100, lstm_model={}, adapt_interval=10, verbose=True):
+        self, 
+        model, 
+        data, 
+        qpriors, 
+        qstart, 
+        nsamples=100, 
+        lstm_model={}, 
+        adapt_interval=10, 
+        verbose=True):
 
         self.model          = model
         self.qstart         = qstart
@@ -35,17 +43,23 @@ class MCMC:
     def sample(self):
 
         # Evaluate the model with the original dc value
-        acc_ = self.model.rom_evaluate(self.lstm_model)[1] if self.lstm_model else self.model.evaluate()[1]
+        if self.lstm_model:
+            acc_ = self.model.rom_evaluate(self.lstm_model)[1]
+        else:
+            acc_ = self.model.evaluate()[1]
 
         # Perturb the dc value
         self.model.Dc *= (1 + 1e-6)
 
         # Evaluate the model with the perturbed dc value
-        acc_dq_ = self.model.rom_evaluate(self.lstm_model)[1] if self.lstm_model else self.model.evaluate()[1]
+        if self.lstm_model:
+            acc_dq_ = self.model.rom_evaluate(self.lstm_model)[1]
+        else:
+            acc_dq_ = self.model.evaluate()[1]
 
         # Extract the values and reshape them to a 1D array
-        acc = acc_[:, 0].reshape(1, -1)
-        acc_dq = acc_dq_[:, 0].reshape(1, -1)
+        acc = acc_.reshape(1, -1)
+        acc_dq = acc_dq_.reshape(1, -1)
 
         # Compute the variance of the noise
         self.std2 = [np.sum((acc - self.data) ** 2, axis=1).item()/(acc.shape[1] - len(self.qpriors))]
@@ -86,7 +100,7 @@ class MCMC:
                 qparams    = np.concatenate((qparams,q_new),axis=1)
 
             # Update the estimate of the standard deviation
-            aval           = 0.5*(self.n0+self.data.shape[1])
+            aval           = 0.5*(self.n0+self.data.shape[0])
             bval           = 0.5*(self.n0*self.std2[-1]+SSqprev)
             self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
 
@@ -139,10 +153,13 @@ class MCMC:
         self.model.Dc = q_new[0,]
 
         # Evaluate the model's performance on the problem type and LSTM model
-        acc = self.model.rom_evaluate(self.lstm_model)[1] if self.lstm_model else self.model.evaluate()[1]
+        if self.lstm_model:
+            acc = self.model.rom_evaluate(self.lstm_model)[1]
+        else:
+            acc = self.model.evaluate()[1]
 
         # Compute the sum of squares error between the model's accuracy and the data
-        SSq = np.sum((acc[:, 0].reshape(1, -1) - self.data)**2, axis=1, keepdims=True)
+        SSq = np.sum((acc.reshape(1, -1) - self.data)**2, axis=1, keepdims=True)
 
         return SSq
 
