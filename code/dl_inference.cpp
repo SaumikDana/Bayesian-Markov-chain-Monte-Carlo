@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <random>
+#include "fileIO.h"
 
 using namespace std;
 
@@ -181,6 +182,8 @@ int main() {
     for (int i = 0; i < number_slip_values; ++i)
         dc_list[i] = lowest_slip_value + i * dc_step;
 
+    vector<double> acc_appended_noise;
+
     bool plotfigs = true;
 
     for (double dc : dc_list) {
@@ -206,6 +209,11 @@ int main() {
         vector<double> t, acc, acc_noise;
         model.evaluate(t, acc, acc_noise);
 
+        // Loop to push elements from acc_noise to acc_appended_noise
+        for (const auto& value : acc_noise) {
+            acc_appended_noise.push_back(value);
+        }
+
         if (plotfigs) {
             vector<pair<double, double>> data(t.size());
             for (int i = 0; i < t.size(); ++i)
@@ -227,27 +235,25 @@ int main() {
         }
     }
 
+    const char* filename = "data.bin";
+
+    // Dump the data to a file
+    dumpData(filename, acc_appended_noise.data());
+
+    // Load the data from the file
+    vector<char> loadedData = loadData(filename);
+
+    // Use the loaded data
+    vector<int> loadedIntData(loadedData.size() / sizeof(int));
+    memcpy(loadedIntData.data(), loadedData.data(), loadedData.size());
+
+    // Print the loaded data
+    for (const auto& value : loadedIntData) {
+        cout << value << " ";
+    }
+    cout << endl;
+
     return 0;
 
 }
 
-// const char* filename = "data.bin";
-
-// // Load the data from the file
-// std::vector<char> loadedData = loadData(filename);
-
-// // Check if loading was successful
-// if (!loadedData.empty())
-// {
-//     // Use the loaded data
-//     std::size_t loadedDataSize = loadedData.size();
-
-//     // Access the loaded data using loadedData.data()
-//     // Perform further processing on the loaded data
-// }
-// else
-// {
-//     // Handle the error: display an error message or take appropriate action
-//     std::cerr << "Error loading data from file: " << filename << std::endl;
-//     // Perform error handling tasks such as logging the error, displaying an error message, or taking necessary actions
-// }
