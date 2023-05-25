@@ -73,17 +73,6 @@ public:
         bool RadiationDamping = *reinterpret_cast<bool*>(p + 5);
         double k1 = p[6];
 
-        // Print parameter values
-        cout << endl;
-        cout << "V_ref: " << V_ref << endl;
-        cout << "a: " << a << endl;
-        cout << "b: " << b << endl;
-        cout << "dc: " << dc << endl;
-        cout << "mu_ref: " << mu_ref << endl;
-        cout << "RadiationDamping: " << RadiationDamping << endl;
-        cout << "k1: " << k1 << endl;
-        cout << endl;
-
         // effective spring stiffness
         double kprime = 1e-2 * 10 / dc;
 
@@ -134,7 +123,8 @@ public:
 
         // Create GSL workspace and ODE system
         const gsl_odeiv2_step_type* step_type = gsl_odeiv2_step_rkf45;
-        gsl_odeiv2_system sys = {friction, nullptr, 3, &V_ref};
+        double params[7] = {V_ref, a, b, Dc, mu_ref, static_cast<double>(RadiationDamping), k1};
+        gsl_odeiv2_system sys = {friction, nullptr, 3, params};
 
         gsl_odeiv2_driver* driver = gsl_odeiv2_driver_alloc_y_new(&sys, step_type, 1e-6, 1e-10, 0.0);
 
