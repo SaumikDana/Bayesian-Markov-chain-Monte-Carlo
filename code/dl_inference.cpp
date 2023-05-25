@@ -177,22 +177,23 @@ int main() {
 
     bool plotfigs = true;
 
+    RateStateModel model(500, 0.0, 50.0);
+    model.setA(0.011);
+    model.setB(0.014);
+    model.setMuRef(0.6);
+    model.setVRef(1);
+    model.setK1(1e-7);
+    model.setTStart(0.0);
+    model.setTFinal(50.0);
+    model.setMuTZero(0.6);
+    model.setRadiationDamping(true);
+
     for (double dc : dc_list) {
         Gnuplot gp;
         gp << "set xlabel 'Time (sec)'\n";
         gp << "set ylabel 'Acceleration (um/s^2)'\n";
         gp << "set grid\n";
 
-        RateStateModel model(500, 0.0, 50.0);
-        model.setA(0.011);
-        model.setB(0.014);
-        model.setMuRef(0.6);
-        model.setVRef(1);
-        model.setK1(1e-7);
-        model.setTStart(0.0);
-        model.setTFinal(50.0);
-        model.setMuTZero(0.6);
-        model.setRadiationDamping(true);
         model.setDc(dc);
 
         vector<double> t, acc, acc_noise;
