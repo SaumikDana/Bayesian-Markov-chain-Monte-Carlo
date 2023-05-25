@@ -6,7 +6,7 @@
 
 class MCMC {
 private:
-    Model model;
+    RateStateModel model;
     double qstart;
     std::vector<double> qpriors;
     int nsamples;
@@ -20,7 +20,7 @@ private:
     Eigen::MatrixXd qstart_limits;
 
 public:
-    MCMC(Model model, std::vector<double> data, std::vector<double> qpriors, double qstart,
+    MCMC(RateStateModel model, std::vector<double> data, std::vector<double> qpriors, double qstart,
          int nsamples = 100, int adapt_interval = 10, bool verbose = true);
 
     Eigen::MatrixXd sample();
