@@ -66,13 +66,24 @@ public:
         // Cast the parameters to the appropriate types
         double* p = static_cast<double*>(params);
         double V_ref = p[0];
-        double a = p[1];
+        double a = p[1]; 
         double b = p[2];
         double dc = p[3];
         double mu_ref = p[4];
         bool RadiationDamping = *reinterpret_cast<bool*>(p + 5);
         double k1 = p[6];
-    
+
+        // Print parameter values
+        cout << endl;
+        cout << "V_ref: " << V_ref << endl;
+        cout << "a: " << a << endl;
+        cout << "b: " << b << endl;
+        cout << "dc: " << dc << endl;
+        cout << "mu_ref: " << mu_ref << endl;
+        cout << "RadiationDamping: " << RadiationDamping << endl;
+        cout << "k1: " << k1 << endl;
+        cout << endl;
+
         // effective spring stiffness
         double kprime = 1e-2 * 10 / dc;
 
@@ -146,6 +157,7 @@ public:
             mu[k] = y[0];
             theta[k] = y[1];
             velocity[k] = y[2];
+
             acc[k] = (velocity[k] - velocity[k - 1]) / delta_t;
             acc_noise[k] = acc[k] + 1.0 * std::abs(acc[k]) * dist(gen);
             t[k] = t_next;
