@@ -22,8 +22,6 @@ class rsf:
       self.dc_list      = np.linspace(start_dc,end_dc,self.num_dc)
 
       # Define file names for saving and loading data and LSTM model
-      # self.lstm_file    = 'model_lstm.pickle'
-      # self.data_file    = 'data.pickle'
       self.lstm_file    = 'model_lstm.json'
       self.data_file    = 'data.json'
 
@@ -39,30 +37,20 @@ class rsf:
 
       # Create arrays to store the time and acceleration data for all values of dc
       entries = self.num_dc*self.model.num_tsteps
-      t_appended,acc_appended,acc_appended_noise = \
-         np.zeros((entries,self.num_features)),np.zeros(entries),np.zeros(entries)  
+      acc_appended_noise = np.zeros(entries)  
       count_dc = 0
 
       for dc in self.dc_list:
          # Evaluate the model for the current value of dc
          self.model.Dc = dc
-         t, acc, acc_noise = self.model.evaluate() # noisy data
-         # generate plots
-         self.plot_time_series(t, acc)
-         # appended data structures
+         t, acc, acc_noise = self.model.evaluate()
+         self.plot_time_series(t, acc) # generate plots
          start = count_dc*self.model.num_tsteps
          end = start + self.model.num_tsteps
-         t_appended[start:end,0] = t[:]
-         t_appended[start:end,1] = dc
-         acc_appended[start:end] = acc[:]
          acc_appended_noise[start:end] = acc_noise[:]
          # count_dc
          count_dc += 1
                   
-      # Store the time and acceleration data as attributes of the class
-      self.t_appended = t_appended
-      self.acc_appended = acc_appended
-
       # Save the data using pickle
       save_object(acc_appended_noise,self.data_file)
 

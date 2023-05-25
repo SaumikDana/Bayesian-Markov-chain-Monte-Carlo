@@ -230,3 +230,24 @@ int main() {
     return 0;
 
 }
+
+// const char* filename = "data.bin";
+
+// // Load the data from the file
+// std::vector<char> loadedData = loadData(filename);
+
+// // Check if loading was successful
+// if (!loadedData.empty())
+// {
+//     // Use the loaded data
+//     std::size_t loadedDataSize = loadedData.size();
+
+//     // Access the loaded data using loadedData.data()
+//     // Perform further processing on the loaded data
+// }
+// else
+// {
+//     // Handle the error: display an error message or take appropriate action
+//     std::cerr << "Error loading data from file: " << filename << std::endl;
+//     // Perform error handling tasks such as logging the error, displaying an error message, or taking necessary actions
+// }
