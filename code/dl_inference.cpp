@@ -177,12 +177,12 @@ int main() {
 
     bool plotfigs = true;
 
-    Gnuplot gp;
-    gp << "set xlabel 'Time (sec)'\n";
-    gp << "set ylabel 'Acceleration (um/s^2)'\n";
-    gp << "set grid\n";
-
     for (double dc : dc_list) {
+        Gnuplot gp;
+        gp << "set xlabel 'Time (sec)'\n";
+        gp << "set ylabel 'Acceleration (um/s^2)'\n";
+        gp << "set grid\n";
+
         RateStateModel model(500, 0.0, 50.0);
         model.setA(0.011);
         model.setB(0.014);
