@@ -49,6 +49,11 @@ void RateStateModel::setDc(double value) {
     Dc = value;
 }
 
+// Getter function for Dc
+double RateStateModel::getDc() {
+    return Dc;
+}
+
 void RateStateModel::setRadiationDamping(bool value) {
     RadiationDamping = value;
 }

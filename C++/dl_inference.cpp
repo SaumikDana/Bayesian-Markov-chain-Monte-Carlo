@@ -6,8 +6,7 @@
 #include <random>
 #include "fileIO.h"
 #include "RateStateModel.h"
-
-// #include "MCMC.h"
+#include "MCMC.h"
 
 using namespace std;
 
@@ -80,32 +79,35 @@ int main() {
         }
     }
 
-    // // Bayesian MCMC starts here ..
-    // const char* filename = "data.bin";
+    // Bayesian MCMC starts here ..
+    const char* filename = "data.bin";
 
-    // // Dump the data to a file
-    // dumpData(filename, acc_appended_noise);
+    // Dump the data to a file
+    dumpData(filename, acc_appended_noise);
 
-    // // Load the data from the file
-    // vector<double> noisy_acc = loadData(filename);
+    // Load the data from the file
+    vector<double> noisy_acc = loadData(filename);
 
-    // vector<double> qpriors; // Declare and initialize qpriors if needed
-    // double qstart; // Declare and initialize qstart if needed
-    // int nsamples; // Declare and initialize nsamples if needed
+    vector<double> qpriors; // Declare and initialize qpriors if needed
+    double qstart; // Declare and initialize qstart if needed
+    int nsamples; // Declare and initialize nsamples if needed
 
-    // for (int index = 0; index < dc_list.size(); ++index) {
-    //     int start = index * model.getNumTimesteps();
-    //     int end = start + model.getNumTimesteps();
-    //     vector<double> noisy_data(noisy_acc.begin() + start, noisy_acc.begin() + end);
-    //     cout << "--- Dc is " << dc_list[index] << " ---" << endl;
+    for (int index = 0; index < dc_list.size(); ++index) {
+        int start = index * model.getNumTimesteps();
+        int end = start + model.getNumTimesteps();
+        vector<double> noisy_data(noisy_acc.begin() + start, noisy_acc.begin() + end);
+        cout << "--- Dc is " << dc_list[index] << " ---" << endl;
 
-    //     // Perform MCMC sampling without reduction
-    //     MCMC MCMCobj(model, noisy_data, qpriors, qstart, nsamples);
-    //     vector<double> qparams = MCMCobj.sample();
-    //     // plot_dist(qparams, dc);
+        // Perform MCMC sampling without reduction
+        MCMC MCMCobj(model, noisy_data, qpriors, qstart, nsamples);
+        // Perform MCMC sampling without reduction
+        Eigen::MatrixXd qparams = MCMCobj.sample();
+        // Convert Eigen::MatrixXd to vector<double>
+        vector<double> qparams_vector(qparams.data(), qparams.data() + qparams.size());
+        // plot_dist(qparams, dc);
 
-    // }
-    // // Bayesian MCMC ends here ..
+    }
+    // Bayesian MCMC ends here ..
 
     return 0;
 }

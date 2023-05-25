@@ -5,6 +5,7 @@
 #include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/Eigen/Dense>
 #include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/Eigen/Cholesky>
 #include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/unsupported/Eigen/MatrixFunctions>
+#include "RateStateModel.h"
 
 using namespace std;
 
@@ -33,17 +34,23 @@ public:
 
     Eigen::MatrixXd sample() {
         // Evaluate the model with the original dc value
-        Eigen::MatrixXd acc_ = model.evaluate()[1];
+        vector<double> t, acc_vector, acc_noise;
+        model.evaluate(t, acc_vector, acc_noise);
+        Eigen::MatrixXd acc_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
 
         // Perturb the dc value
-        model.Dc *= (1 + 1e-6);
+        model.setDc(model.getDc() * (1 + 1e-6));
 
         // Evaluate the model with the perturbed dc value
-        Eigen::MatrixXd acc_dq_ = model.evaluate()[1];
+        model.evaluate(t, acc_vector, acc_noise);
+        Eigen::MatrixXd acc_dq_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
 
         // Extract the values and reshape them to a 1D array
-        Eigen::MatrixXd acc = acc_.reshape(1, -1);
-        Eigen::MatrixXd acc_dq = acc_dq_.reshape(1, -1);
+        Eigen::MatrixXd acc(acc_.rows(), acc_.cols());
+        acc = acc_.row(0);
+
+        Eigen::MatrixXd acc_dq(acc_dq_.rows(), acc_dq_.cols());
+        acc_dq = acc_dq_.row(0);
 
         // Compute the variance of the noise
         std2.push_back((acc - data).array().square().sum() / (acc.cols() - qpriors.size()));

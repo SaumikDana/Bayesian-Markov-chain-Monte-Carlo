@@ -19,6 +19,7 @@ public:
     void setRadiationDamping(bool value);
 
     int getNumTimesteps() const;
+    double getDc();
 
     void evaluate(std::vector<double>& t, std::vector<double>& acc, std::vector<double>& acc_noise);
 
