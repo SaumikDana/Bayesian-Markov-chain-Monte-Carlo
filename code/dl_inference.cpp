@@ -213,7 +213,14 @@ int main() {
 
             string title = "$d_c$=" + to_string(dc) + " um";
             gp << "set title '" + title + "'\n";
-            gp << "set yrange [-1:1]\n";  // Set y-axis range
+
+            // Calculate y-axis range based on minimum and maximum acceleration values
+            double minAcc = *min_element(acc.begin(), acc.end());
+            double maxAcc = *max_element(acc.begin(), acc.end());
+            double yMin = minAcc - 0.1 * fabs(minAcc);
+            double yMax = maxAcc + 0.1 * fabs(maxAcc);
+            gp << "set yrange [" << yMin << ":" << yMax << "]\n";
+
             gp << "plot '-' with lines title 'True'\n";
             gp.send1d(data);  // Send data using send1d
             gp.flush();
