@@ -12,10 +12,10 @@ using namespace std;
 class RateStateModel {
 public:
     RateStateModel(int number_time_steps = 500, double start_time = 0.0, double end_time = 50.0)
-        : a(0.011), b(0.014), mu_ref(0.6), V_ref(1), k1(1e-7),
-          t_start(start_time), t_final(end_time), num_tsteps(number_time_steps),
-          delta_t((end_time - start_time) / number_time_steps),
-          mu_t_zero(0.6), Dc(0.0), RadiationDamping(true) {}
+        : a(0.011), b(0.014), mu_ref(0.6), V_ref(1), k1(1e-7), 
+        t_start(start_time), t_final(end_time), num_tsteps(number_time_steps), 
+        delta_t((end_time - start_time) / number_time_steps),
+        mu_t_zero(0.6), Dc(0.0), RadiationDamping(true) {}
 
     void setA(double value) {
         a = value;
@@ -58,36 +58,28 @@ public:
     }
 
     static int friction(double t, const double y[], double dydt[], void* params) {
-        // Cast the `params` pointer to the appropriate type
-        double* paramsArray = static_cast<double*>(params);
-
-        // Extract the individual parameters using the casted pointer
-        double V_ref = paramsArray[0];
-        double a = paramsArray[1];
-        double b = paramsArray[2];
-        double dc = paramsArray[3];
-        double mu_ref = paramsArray[4];
-        bool RadiationDamping = static_cast<bool>(paramsArray[5]);
-        double k1 = paramsArray[6];
-
         // Just to help readability
         // y[0] is mu (friction)
         // y[1] is theta
         // y[2] is velocity
-
+    
+        // Cast the parameters to the appropriate types
+        double* p = static_cast<double*>(params);
+        double V_ref = p[0];
+        double a = p[1];
+        double b = p[2];
+        double dc = p[3];
+        double mu_ref = p[4];
+        bool RadiationDamping = *reinterpret_cast<bool*>(p + 5);
+        double k1 = p[6];
+    
         // effective spring stiffness
         double kprime = 1e-2 * 10 / dc;
 
         // loading
         double a1 = 20;
         double a2 = 10;
-        double V_l = V_ref * (1 + exp(-t / a1) * sin(a2 * t));
-
-        // initialize the array of derivatives
-        int n = 3;
-        dydt[0] = 0.0;
-        dydt[1] = 0.0;
-        dydt[2] = 0.0;
+        double V_l = V_ref * (1 + exp(-t/a1) * sin(a2*t));
 
         // compute v
         double temp = 1 / a * (y[0] - mu_ref - b * log(V_ref * y[1] / dc));
@@ -105,7 +97,7 @@ public:
         // add radiation damping term if specified
         if (RadiationDamping) {
             // time derivative of mu with radiation damping
-            dydt[0] -= k1 * dydt[2];
+            dydt[0] = dydt[0] - k1 * dydt[2];
             // time derivative of velocity with radiation damping
             dydt[2] = v / a * (dydt[0] - b / y[1] * dydt[1]);
         }
@@ -129,25 +121,37 @@ public:
         mt19937 gen(rd());
         normal_distribution<> dist(0.0, 1.0);
 
-        for (int k = 1; k < num_tsteps; ++k) {
-            double temp = 1 / a * (mu[k - 1] - mu_ref - b * log(V_ref * theta[k - 1] / Dc));
-            double v = V_ref * exp(temp);
-            theta[k] = 1.0 - v * theta[k - 1] / Dc;
-            double V_l = V_ref * (1 + exp(-t[k - 1] / 20) * sin(10 * t[k - 1]));
-            double kprime = 1e-2 * 10 / Dc;
-            double dydt_mu = kprime * V_l - kprime * v;
+        // Create GSL workspace and ODE system
+        const gsl_odeiv2_step_type* step_type = gsl_odeiv2_step_rkf45;
+        gsl_odeiv2_system sys = {friction, nullptr, 3, &V_ref};
 
-            if (RadiationDamping) {
-                double dydt_velocity = v / a * (dydt_mu - b / theta[k - 1] * theta[k]);
-                dydt_mu -= k1 * dydt_velocity;
+        gsl_odeiv2_driver* driver = gsl_odeiv2_driver_alloc_y_new(&sys, step_type, 1e-6, 1e-10, 0.0);
+
+        double t_current = t_start;
+        double y[3] = {mu_ref, Dc / V_ref, V_ref};
+        double h = delta_t;
+
+        for (int k = 1; k < num_tsteps; ++k) {
+            double t_next = t_current + h;
+
+            int status = gsl_odeiv2_driver_apply(driver, &t_current, t_next, y);
+
+            if (status != GSL_SUCCESS) {
+                // Handle integration error
+                cout << "Integration error occurred at time: " << t_current << endl;
+                // You can choose to exit the loop or take any other appropriate action
+                break;
             }
 
-            mu[k] = mu[k - 1] + delta_t * dydt_mu;
-            velocity[k] = v / a * (dydt_mu - b / theta[k - 1] * theta[k]);
+            mu[k] = y[0];
+            theta[k] = y[1];
+            velocity[k] = y[2];
             acc[k] = (velocity[k] - velocity[k - 1]) / delta_t;
-            acc_noise[k] = acc[k] + 1.0 * abs(acc[k]) * dist(gen);
-            t[k] = t[k - 1] + delta_t;
+            acc_noise[k] = acc[k] + 1.0 * std::abs(acc[k]) * dist(gen);
+            t[k] = t_next;
         }
+
+        gsl_odeiv2_driver_free(driver);
     }
 
 private:
@@ -177,22 +181,23 @@ int main() {
 
     bool plotfigs = true;
 
-    RateStateModel model(500, 0.0, 50.0);
-    model.setA(0.011);
-    model.setB(0.014);
-    model.setMuRef(0.6);
-    model.setVRef(1);
-    model.setK1(1e-7);
-    model.setTStart(0.0);
-    model.setTFinal(50.0);
-    model.setMuTZero(0.6);
-    model.setRadiationDamping(true);
+    Gnuplot gp;
+    gp << "set xlabel 'Time (sec)'\n";
+    gp << "set ylabel 'Acceleration (um/s^2)'\n";
+    gp << "set grid\n";
 
     for (double dc : dc_list) {
-        Gnuplot gp;
-        gp << "set xlabel 'Time (sec)'\n";
-        gp << "set ylabel 'Acceleration (um/s^2)'\n";
-        gp << "set grid\n";
+
+        RateStateModel model(500, 0.0, 50.0);
+        model.setA(0.011);
+        model.setB(0.014);
+        model.setMuRef(0.6);
+        model.setVRef(1);
+        model.setK1(1e-7);
+        model.setTStart(0.0);
+        model.setTFinal(50.0);
+        model.setMuTZero(0.6);
+        model.setRadiationDamping(true);
 
         model.setDc(dc);
 
@@ -206,13 +211,15 @@ int main() {
 
             string title = "$d_c$=" + to_string(dc) + " um";
             gp << "set title '" + title + "'\n";
+            gp << "set yrange [-1:1]\n";  // Set y-axis range
             gp << "plot '-' with lines title 'True'\n";
-            gp.send(data);
+            gp.send1d(data);  // Use send1d instead of send
             gp.flush();
 
             gp << "unset title\n";
             gp << "reset\n";
         }
+
     }
 
     return 0;
