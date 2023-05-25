@@ -2,7 +2,7 @@
 #define MCMC_H
 
 #include <vector>
-#include <Eigen/Dense>
+#include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/Eigen/Dense>
 
 class MCMC {
 private:

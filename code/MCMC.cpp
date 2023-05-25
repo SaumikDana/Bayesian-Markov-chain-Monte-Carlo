@@ -2,9 +2,9 @@
 #include <random>
 #include <cmath>
 #include <vector>
-#include <Eigen/Dense>
-#include <Eigen/Cholesky>
-#include <unsupported/Eigen/MatrixFunctions>
+#include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/Eigen/Dense>
+#include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/Eigen/Cholesky>
+#include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/unsupported/Eigen/MatrixFunctions>
 
 using namespace std;
 
