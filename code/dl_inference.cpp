@@ -213,13 +213,12 @@ int main() {
             gp << "set title '" + title + "'\n";
             gp << "set yrange [-1:1]\n";  // Set y-axis range
             gp << "plot '-' with lines title 'True'\n";
-            gp.send1d(data);  // Use send1d instead of send
+            gp.send1d(data);  // Send data using send1d
             gp.flush();
 
             gp << "unset title\n";
             gp << "reset\n";
         }
-
     }
 
     return 0;
