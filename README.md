@@ -32,7 +32,9 @@ The code performs the following steps:
 
 # C++ version
 
+```
 g++ -std=c++17 -o executable dl_inference.cpp -I/opt/homebrew/Cellar/boost/1.81.0_1/include -L/opt/homebrew/Cellar/boost/1.81.0_1/lib -lboost_iostreams
+```
 
 ## Contact
 dana.spk5@gmail.com
