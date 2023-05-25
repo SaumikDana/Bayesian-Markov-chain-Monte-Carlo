@@ -94,7 +94,7 @@ class MCMC:
                 qparams    = np.concatenate((qparams,q_new),axis=1)
 
             # Update the estimate of the standard deviation
-            aval           = 0.5*(self.n0+self.data.shape[0])
+            aval           = 0.5*(self.n0+len(self.data))
             bval           = 0.5*(self.n0*self.std2[-1]+SSqprev)
             self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
 

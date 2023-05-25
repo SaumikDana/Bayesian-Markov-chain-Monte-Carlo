@@ -22,8 +22,11 @@ class rsf:
       self.dc_list      = np.linspace(start_dc,end_dc,self.num_dc)
 
       # Define file names for saving and loading data and LSTM model
-      self.lstm_file    = 'model_lstm.pickle'
-      self.data_file    = 'data.pickle'
+      # self.lstm_file    = 'model_lstm.pickle'
+      # self.data_file    = 'data.pickle'
+      self.lstm_file    = 'model_lstm.json'
+      self.data_file    = 'data.json'
+
       self.num_features = 2
       self.plotfigs     = plotfigs
 

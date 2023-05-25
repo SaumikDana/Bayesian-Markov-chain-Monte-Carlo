@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Rate State model
-    problem = rsf(number_slip_values=5,lowest_slip_value=10.,largest_slip_value=1000.,plotfigs=True)
+    problem = rsf(number_slip_values=5,lowest_slip_value=100.,largest_slip_value=1000.,plotfigs=True)
 
     # Generate the time series for the RSF model
     problem.generate_time_series()
