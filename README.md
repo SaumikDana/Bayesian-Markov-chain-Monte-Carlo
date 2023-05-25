@@ -33,8 +33,7 @@ The code performs the following steps:
 # C++ version
 
 ```
-g++ -std=c++17 -o executable dl_inference.cpp fileIO.cpp -I/opt/homebrew/Cellar/boost/1.81.0_1/include -I/opt/homebrew/Cellar/gsl/2.7.1/include -L/opt/homebrew/Cellar/boost/1.81.0_1/lib -lboost_iostreams -L/opt/homebrew/Cellar/gsl/2.7.1/lib -lgsl -lgslcblas -lm
-
+g++ -std=c++17 -o executable dl_inference.cpp fileIO.cpp RateStateModel.cpp -I/opt/homebrew/Cellar/boost/1.81.0_1/include -I/opt/homebrew/Cellar/gsl/2.7.1/include -L/opt/homebrew/Cellar/boost/1.81.0_1/lib -lboost_iostreams -L/opt/homebrew/Cellar/gsl/2.7.1/lib -lgsl -lgslcblas -lm
 ```
 
 ## Contact
