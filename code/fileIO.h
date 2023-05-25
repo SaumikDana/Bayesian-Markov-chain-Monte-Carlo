@@ -3,7 +3,8 @@
 
 #include <vector>
 
-void dumpData(const char* filename, const void* data);
-std::vector<char> loadData(const char* filename);
+void dumpData(const char* filename, const std::vector<double>& data);
+std::vector<double> loadData(const char* filename);
+bool areVectorsIdentical(const std::vector<double>& vector1, const std::vector<double>& vector2);
 
 #endif

@@ -238,20 +238,10 @@ int main() {
     const char* filename = "data.bin";
 
     // Dump the data to a file
-    dumpData(filename, acc_appended_noise.data());
+    dumpData(filename, acc_appended_noise);
 
     // Load the data from the file
-    vector<char> loadedData = loadData(filename);
-
-    // Use the loaded data
-    vector<int> loadedIntData(loadedData.size() / sizeof(int));
-    memcpy(loadedIntData.data(), loadedData.data(), loadedData.size());
-
-    // Print the loaded data
-    for (const auto& value : loadedIntData) {
-        cout << value << " ";
-    }
-    cout << endl;
+    vector<double> loadedData = loadData(filename);
 
     return 0;
 
