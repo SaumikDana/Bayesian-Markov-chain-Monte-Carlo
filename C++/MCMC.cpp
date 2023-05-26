@@ -53,10 +53,10 @@ public:
         acc_dq = acc_dq_.row(0);
 
         // Compute the variance of the noise
-        std2.push_back((acc - data).array().square().sum() / (acc.cols() - qpriors.size()));
+        std2.push_back((acc - Eigen::Map<Eigen::MatrixXd>(data.data(), 1, data.size())).array().square().sum() / (acc.cols() - qpriors.size()));
 
         // Compute the covariance matrix
-        Eigen::MatrixXd X = ((acc_dq - acc) / (model.Dc * 1e-6)).transpose();
+        Eigen::MatrixXd X = ((acc_dq - acc) / (model.getDc() * 1e-6)).transpose();
         Eigen::MatrixXd XTX = X.transpose() * X;
         Vstart = std2.back() * XTX.inverse();
         Eigen::MatrixXd qstart_vect = Eigen::MatrixXd::Constant(1, 1, qstart);
