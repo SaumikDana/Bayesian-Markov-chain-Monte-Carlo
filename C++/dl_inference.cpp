@@ -154,6 +154,7 @@ int main() {
     double qstart = 10.0;
 
     int nsamples = 500; // Declare and initialize nsamples if needed
+    int adapt_interval = 1; // Declare and initialize adapt_interval
 
     for (int index = 0; index < dc_list.size(); ++index) {
         int start = index * model.getNumTimesteps();
@@ -162,7 +163,7 @@ int main() {
         cout << "--- Dc is " << dc_list[index] << " ---" << endl;
 
         // Perform MCMC sampling without reduction
-        MCMC MCMCobj(model, noisy_data, qpriors, qstart, nsamples);
+        MCMC MCMCobj(model, noisy_data, qpriors, qstart, nsamples, adapt_interval);
         // Perform MCMC sampling without reduction
         Eigen::MatrixXd qparams = MCMCobj.sample();
     }

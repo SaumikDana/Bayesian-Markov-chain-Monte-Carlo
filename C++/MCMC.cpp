@@ -97,6 +97,9 @@ Eigen::MatrixXd MCMC::sample() {
             qparams.col(isample) = qparams.col(isample - 1);
         }
 
+        // Print out 
+        cout << "Qparams.col(isample) for " << isample << " is: " << qparams.col(isample) << endl;
+
         // Update the estimate of the standard deviation
         double aval = 0.5 * (n0 + data.size());
         double bval = 0.5 * (n0 * std2.back() + SSqprev);
@@ -119,9 +122,6 @@ Eigen::MatrixXd MCMC::sample() {
     // Trim the estimate of the standard deviation to exclude burn-in samples
     std2.erase(std2.begin(), std2.begin() + nburn);
 
-    // Print the qparams matrix
-    std::cout << qparams.rightCols(nsamples - nburn) << std::endl << std::endl;  // Insert an extra newline for better formatting
-
     // Return accepted samples
     return qparams.rightCols(nsamples - nburn);
 
@@ -136,9 +136,11 @@ tuple<bool, double> MCMC::acceptreject(const Eigen::MatrixXd& q_new, double SSqp
     if (accept) {
         SSqnew = SSqcalc(q_new)(0);
 
-        accept_prob = min(0.5 * (SSqprev - SSqnew) / std2, 0.0);
+        // Adjust the acceptance probability threshold to promote exploration
+        accept_prob = exp(0.5 * (SSqprev - SSqnew) / std2);
 
-        accept = accept_prob > log(uniform_real_distribution<>(0.0, 1.0)(random_engine));
+        // Randomly accept or reject based on the adjusted threshold
+        accept = uniform_real_distribution<>(0.0, 1.0)(random_engine) < accept_prob;
     }
 
     if (accept) {
