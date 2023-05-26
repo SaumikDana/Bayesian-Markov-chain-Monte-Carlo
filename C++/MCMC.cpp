@@ -169,6 +169,7 @@ private:
         acc = acc_.row(0);
 
         // Compute the sum of squares error between the model's accuracy and the data
-        return (acc - data).array().square().colwise().sum();
+        Eigen::VectorXd data_vector = Eigen::Map<Eigen::VectorXd>(data.data(), data.size());
+        return (acc - data_vector).array().square().colwise().sum();
     }
 };
