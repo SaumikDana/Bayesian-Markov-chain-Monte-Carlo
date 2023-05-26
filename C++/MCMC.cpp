@@ -96,20 +96,21 @@ Eigen::MatrixXd MCMC::sample() {
         double bval = 0.5 * (n0 * std2.back() + SSqprev);
         std2.push_back(1.0 / gamma_distribution<>(aval, 1.0 / bval)(random_engine));
 
-        // // Update the covariance matrix if it is time to adapt it
-        // if ((isample + 1) % adapt_interval == 0) {
-        //     try {
-        //         Vnew = 2.38 * 2 / qpriors(random_engine) * qparams.rightCols(adapt_interval).transpose() *
-        //                 qparams.rightCols(adapt_interval);
-        //         if (qparams.rows() == 1) {
-        //             Vnew.resize(1, 1);
-        //         }
-        //         Vnew = Vnew.llt().matrixL();
-        //         Vold = Vnew;
-        //     } catch (...) {
-        //         // Ignore any errors
-        //     }
-        // }
+        // Update the covariance matrix if it is time to adapt it
+        if ((isample + 1) % adapt_interval == 0) {
+            try {
+                Vnew = 2.38 * 2 / qpriors(random_engine) * qparams.rightCols(adapt_interval).transpose() * qparams.rightCols(adapt_interval);
+                if (qparams.rows() == 1) {
+                    Vnew.resize(1, 1);
+                }
+                Vnew = Vnew.llt().matrixL();
+                Vold = Vnew;
+            } catch (...) {
+                // Handle the error or print additional information for debugging
+                // ...
+                // You can also consider returning an error value or throwing an exception here
+            }
+        }
 
         // Print intermediate values for debugging
         cout << "Iteration: " << isample << endl;
