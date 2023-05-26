@@ -3,6 +3,8 @@
 
 #include <vector>
 
+using namespace std;
+
 class RateStateModel {
 public:
     RateStateModel(int number_time_steps = 500, double start_time = 0.0, double end_time = 50.0);
@@ -21,8 +23,8 @@ public:
     int getNumTimesteps() const;
     double getDc();
 
-    void evaluate(std::vector<double>& t, std::vector<double>& acc, std::vector<double>& acc_noise);
-    void timeseries(std::vector<double>& t);
+    void evaluate(vector<double>& t, vector<double>& acc, vector<double>& acc_noise);
+    void timeseries(vector<double>& t);
 
 private:
     double a;

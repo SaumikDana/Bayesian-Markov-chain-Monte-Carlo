@@ -6,6 +6,7 @@
 #include "/opt/homebrew/Cellar/gsl/2.7.1/include/gsl/gsl_odeiv2.h"
 #include "/opt/homebrew/Cellar/gsl/2.7.1/include/gsl/gsl_errno.h"
 
+using namespace std;
 
 RateStateModel::RateStateModel(int number_time_steps, double start_time, double end_time)
     : a(0.011), b(0.014), mu_ref(0.6), V_ref(1), k1(1e-7),
@@ -110,8 +111,8 @@ int RateStateModel::friction(double t, const double y[], double dydt[], void* pa
     return GSL_SUCCESS;
 }
 
-void RateStateModel::evaluate(std::vector<double>& t, std::vector<double>& acc, std::vector<double>& acc_noise) {
-    std::vector<double> mu(num_tsteps), theta(num_tsteps), velocity(num_tsteps);
+void RateStateModel::evaluate(vector<double>& t, vector<double>& acc, vector<double>& acc_noise) {
+    vector<double> mu(num_tsteps), theta(num_tsteps), velocity(num_tsteps);
     t.resize(num_tsteps);
     acc.resize(num_tsteps);
     acc_noise.resize(num_tsteps);
@@ -122,9 +123,9 @@ void RateStateModel::evaluate(std::vector<double>& t, std::vector<double>& acc, 
     velocity[0] = V_ref;
     acc[0] = 0.0;
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::normal_distribution<> dist(0.0, 1.0);
+    random_device rd;
+    mt19937 gen(rd());
+    normal_distribution<> dist(0.0, 1.0);
 
     // Create GSL workspace and ODE system
     const gsl_odeiv2_step_type* step_type = gsl_odeiv2_step_rkf45;
@@ -144,7 +145,7 @@ void RateStateModel::evaluate(std::vector<double>& t, std::vector<double>& acc, 
 
         if (status != GSL_SUCCESS) {
             // Handle integration error
-            std::cout << "Integration error occurred at time: " << t_current << std::endl;
+            cout << "Integration error occurred at time: " << t_current << endl;
             // You can choose to exit the loop or take any other appropriate action
             break;
         }
@@ -154,14 +155,14 @@ void RateStateModel::evaluate(std::vector<double>& t, std::vector<double>& acc, 
         velocity[k] = y[2];
 
         acc[k] = (velocity[k] - velocity[k - 1]) / delta_t;
-        acc_noise[k] = acc[k] + 1.0 * std::abs(acc[k]) * dist(gen);
+        acc_noise[k] = acc[k] + 1.0 * abs(acc[k]) * dist(gen);
         t[k] = t_next;
     }
 
     gsl_odeiv2_driver_free(driver);
 }
 
-void RateStateModel::timeseries(std::vector<double>& t) {
+void RateStateModel::timeseries(vector<double>& t) {
     t.resize(num_tsteps);
 
     t[0] = t_start;
@@ -173,5 +174,4 @@ void RateStateModel::timeseries(std::vector<double>& t) {
         t[k] = t_next;
         t_current = t_next;
     }
-
 }
