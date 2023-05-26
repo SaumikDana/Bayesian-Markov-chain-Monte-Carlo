@@ -68,7 +68,7 @@ bool areVectorsIdentical(const vector<double>& vector1, const vector<double>& ve
 
 int main() {
     int number_slip_values = 5;
-    double lowest_slip_value = 10.0;
+    double lowest_slip_value = 100.0;
     double largest_slip_value = 1000.0;
 
     // Generate a list of slip values
@@ -151,7 +151,7 @@ int main() {
     mt19937 gen(rd());
     uniform_real_distribution<double> qpriors(0.0, 10000.0);
 
-    double qstart = 100.0;
+    double qstart = 10.0;
 
     int nsamples = 500; // Declare and initialize nsamples if needed
 
@@ -165,10 +165,6 @@ int main() {
         MCMC MCMCobj(model, noisy_data, qpriors, qstart, nsamples);
         // Perform MCMC sampling without reduction
         Eigen::MatrixXd qparams = MCMCobj.sample();
-        // Convert Eigen::MatrixXd to vector<double>
-        vector<double> qparams_vector(qparams.data(), qparams.data() + qparams.size());
-        // plot_dist(qparams, dc);
-
     }
     // Bayesian MCMC ends here ..
 
