@@ -88,13 +88,12 @@ int main() {
     // Load the data from the file
     vector<double> noisy_acc = loadData(filename);
 
-    struct Prior {
-        string type;
-        double min;
-        double max;
-    };
-
-    vector<Prior> qpriors = {{"Uniform", 0.0, 10000.0}};
+    // we use std::random_device to obtain a random seed 
+    // for the pseudo-random number generator (std::mt19937). 
+    // We then define a std::uniform_real_distribution<double> with a range from 0.0 to 10000.0.
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<double> qpriors(0.0, 10000.0);
 
     double qstart = 100.0;
 

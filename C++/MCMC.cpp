@@ -14,7 +14,7 @@ private:
     // Define class variables
     RateStateModel model;
     double qstart;
-    vector<double> qpriors;
+    uniform_real_distribution<double> qpriors;
     int nsamples;
     int nburn;
     bool verbose;
@@ -26,7 +26,7 @@ private:
     Eigen::MatrixXd qstart_limits;
 
 public:
-    MCMC(RateStateModel model, vector<double> data, vector<double> qpriors, double qstart,
+    MCMC(RateStateModel model, vector<double> data, uniform_real_distribution<double> qpriors, double qstart,
          int nsamples = 100, int adapt_interval = 10, bool verbose = true)
         : model(model), data(data), qpriors(qpriors), qstart(qstart), nsamples(nsamples),
           nburn(nsamples / 2), verbose(verbose), adapt_interval(adapt_interval),
