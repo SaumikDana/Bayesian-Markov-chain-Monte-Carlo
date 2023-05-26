@@ -22,6 +22,11 @@ private:
     vector<double> std2;
     Eigen::MatrixXd Vstart;
     Eigen::MatrixXd qstart_limits;
+    // Add a member variable random_engine to the MCMC class
+    default_random_engine random_engine;
+    tuple<bool, double> acceptreject(const Eigen::MatrixXd& q_new, double SSqprev, double std2);
+
+    Eigen::VectorXd SSqcalc(const Eigen::MatrixXd& q_new);
 
 public:
     MCMC(RateStateModel model, vector<double> data, uniform_real_distribution<double> qpriors, double qstart,
@@ -29,12 +34,6 @@ public:
 
     Eigen::MatrixXd sample();
 
-private:
-    mt19937 random_engine;
-
-    tuple<bool, double> acceptreject(const Eigen::MatrixXd& q_new, double SSqprev, double std2);
-
-    Eigen::VectorXd SSqcalc(const Eigen::MatrixXd& q_new);
 };
 
 #endif /* MCMC_H */

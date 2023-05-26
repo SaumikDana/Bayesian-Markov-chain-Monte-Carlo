@@ -12,6 +12,13 @@
 
 using namespace std;
 
+// Define a helper function to generate random values
+double generateRandomValue(std::default_random_engine& random_engine) {
+    std::normal_distribution<> distribution(0.0, 1.0);
+    return distribution(random_engine);
+}
+
+
 MCMC::MCMC(RateStateModel model, vector<double> data, uniform_real_distribution<double> qpriors, double qstart,
            int nsamples, int adapt_interval, bool verbose)
     : model(model),
@@ -22,13 +29,13 @@ MCMC::MCMC(RateStateModel model, vector<double> data, uniform_real_distribution<
       nburn(nsamples / 2),
       verbose(verbose),
       adapt_interval(adapt_interval),
-      n0(0.01) {
+      n0(0.01),
+      random_engine(std::random_device{}()) {
     qstart_limits = Eigen::MatrixXd(1, 2);
     qstart_limits << 0.0, 10000.0;
 }
 
 Eigen::MatrixXd MCMC::sample() {
-    cout << "Entering sample() function" << endl;
 
     // Evaluate the model with the original dc value
     vector<double> t, acc_vector, acc_noise;
@@ -73,8 +80,12 @@ Eigen::MatrixXd MCMC::sample() {
         // Sample new parameters from a normal distribution with mean being the last element of qparams
         Eigen::MatrixXd q_new = qparams.col(isample - 1) +
                                 Eigen::MatrixXd::NullaryExpr(qparams.rows(), 1,
-                                                              [&]() { return normal_distribution<>(0.0, 1.0)(random_engine); }) *
+                                                            [this]() { return generateRandomValue(random_engine); }) *
                                 Vold.llt().matrixL();
+
+        // Print intermediate values for debugging
+        cout << "Iteration: " << isample << endl;
+        cout << "q_new = " << q_new << endl; // Print q_new
 
         // Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
         double SSqnew;
@@ -112,19 +123,7 @@ Eigen::MatrixXd MCMC::sample() {
         //     }
         // }
 
-        // Print intermediate values for debugging
-        cout << "Iteration: " << isample << endl;
-        cout << "q_new:\n" << q_new << endl;
-        cout << "accept: " << accept << endl;
-        cout << "SSqprev: " << SSqprev << endl;
-        cout << "SSqnew: " << SSqnew << endl;
-        cout << "std2.back(): " << std2.back() << endl;
-        cout << "iaccept: " << iaccept << endl;
-        cout << "Vold:\n" << Vold << endl;
     }
-
-    // Print acceptance ratio
-    cout << "Acceptance ratio: " << static_cast<double>(iaccept) / nsamples << endl;
 
     // Trim the estimate of the standard deviation to exclude burn-in samples
     std2.erase(std2.begin(), std2.begin() + nburn);
@@ -148,10 +147,8 @@ tuple<bool, double> MCMC::acceptreject(const Eigen::MatrixXd& q_new, double SSqp
     }
 
     if (accept) {
-        cout << "Accepted: SSqnew = " << SSqnew << endl;
         return make_tuple(true, SSqnew);
     } else {
-        cout << "Rejected: SSqprev = " << SSqprev << endl;
         return make_tuple(false, SSqprev);
     }
 }
@@ -167,5 +164,8 @@ Eigen::VectorXd MCMC::SSqcalc(const Eigen::MatrixXd& q_new) {
     acc = acc_.row(0);
 
     Eigen::VectorXd data_vector = Eigen::Map<Eigen::VectorXd>(data.data(), data.size());
-    return (acc - data_vector).array().square().colwise().sum();
+
+    assert(acc.cols() == data_vector.size()); // Ensure the number of columns in acc matches the size of data_vector
+
+    return (acc.row(0).transpose() - data_vector).array().square();
 }
