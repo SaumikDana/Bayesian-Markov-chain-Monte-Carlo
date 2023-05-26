@@ -160,3 +160,18 @@ void RateStateModel::evaluate(std::vector<double>& t, std::vector<double>& acc, 
 
     gsl_odeiv2_driver_free(driver);
 }
+
+void RateStateModel::timeseries(std::vector<double>& t) {
+    t.resize(num_tsteps);
+
+    t[0] = t_start;
+    double t_current = t_start;
+    double h = delta_t;
+
+    for (int k = 1; k < num_tsteps; ++k) {
+        double t_next = t_current + h;
+        t[k] = t_next;
+        t_current = t_next;
+    }
+
+}

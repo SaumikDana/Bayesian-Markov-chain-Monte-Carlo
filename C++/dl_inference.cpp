@@ -109,30 +109,6 @@ int main() {
             acc_appended_noise.push_back(value);
         }
 
-        if (plotfigs) {
-            Gnuplot gp;
-            gp << "set xlabel 'Time (sec)'\n";
-            gp << "set ylabel 'Acceleration (um/s^2)'\n";
-            gp << "set grid\n";
-
-            vector<pair<double, double>> data(t.size());
-            for (int i = 0; i < t.size(); ++i)
-                data[i] = make_pair(t[i], acc[i]);
-
-            string title = "$d_c$=" + to_string(dc) + " um";
-            gp << "set title '" + title + "'\n";
-
-            // Calculate y-axis range based on minimum and maximum acceleration values
-            double minAcc = *min_element(acc.begin(), acc.end());
-            double maxAcc = *max_element(acc.begin(), acc.end());
-            double yMin = minAcc - 0.1 * fabs(minAcc);
-            double yMax = maxAcc + 0.1 * fabs(maxAcc);
-            gp << "set yrange [" << yMin << ":" << yMax << "]\n";
-
-            gp << "plot '-' with lines title 'True'\n";
-            gp.send1d(data);  // Send data using send1d
-            gp.flush();
-        }
     }
 
     // Bayesian MCMC starts here ..
@@ -156,10 +132,39 @@ int main() {
     int nsamples = 500; // Declare and initialize nsamples if needed
     int adapt_interval = 1; // Declare and initialize adapt_interval
 
+    vector<double> t;
+    model.timeseries(t); // Get time series
+
     for (int index = 0; index < dc_list.size(); ++index) {
         int start = index * model.getNumTimesteps();
         int end = start + model.getNumTimesteps();
         vector<double> noisy_data(noisy_acc.begin() + start, noisy_acc.begin() + end);
+
+        if (plotfigs) {
+            Gnuplot gp;
+            gp << "set xlabel 'Time (sec)'\n";
+            gp << "set ylabel 'Acceleration (um/s^2)'\n";
+            gp << "set grid\n";
+
+            vector<pair<double, double>> data(t.size());
+            for (int i = 0; i < t.size(); ++i)
+                data[i] = make_pair(t[i], noisy_data[i]);
+
+            string title = "$d_c$=" + to_string(dc_list[index]) + " um";
+            gp << "set title '" + title + "'\n";
+
+            // Calculate y-axis range based on minimum and maximum acceleration values
+            double minAcc = *min_element(noisy_data.begin(), noisy_data.end());
+            double maxAcc = *max_element(noisy_data.begin(), noisy_data.end());
+            double yMin = minAcc - 0.1 * fabs(minAcc);
+            double yMax = maxAcc + 0.1 * fabs(maxAcc);
+            gp << "set yrange [" << yMin << ":" << yMax << "]\n";
+
+            gp << "plot '-' with lines title 'True'\n";
+            gp.send1d(data);  // Send data using send1d
+            gp.flush();
+        }
+
         cout << "--- Dc is " << dc_list[index] << " ---" << endl;
 
         // Perform MCMC sampling without reduction

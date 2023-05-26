@@ -22,6 +22,7 @@ public:
     double getDc();
 
     void evaluate(std::vector<double>& t, std::vector<double>& acc, std::vector<double>& acc_noise);
+    void timeseries(std::vector<double>& t);
 
 private:
     double a;
