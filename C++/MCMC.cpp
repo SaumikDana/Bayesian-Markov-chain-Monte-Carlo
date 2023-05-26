@@ -97,9 +97,6 @@ Eigen::MatrixXd MCMC::sample() {
             qparams.col(isample) = qparams.col(isample - 1);
         }
 
-        // Print out 
-        cout << "Qparams.col(isample) for " << isample << " is: " << qparams.col(isample) << endl;
-
         // Update the estimate of the standard deviation
         double aval = 0.5 * (n0 + data.size());
         double bval = 0.5 * (n0 * std2.back() + SSqprev);
