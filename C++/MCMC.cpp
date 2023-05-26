@@ -12,13 +12,6 @@
 
 using namespace std;
 
-// Define a helper function to generate random values
-double generateRandomValue(std::default_random_engine& random_engine) {
-    std::normal_distribution<> distribution(0.0, 1.0);
-    return distribution(random_engine);
-}
-
-
 MCMC::MCMC(RateStateModel model, vector<double> data, uniform_real_distribution<double> qpriors, double qstart,
            int nsamples, int adapt_interval, bool verbose)
     : model(model),
@@ -75,18 +68,21 @@ Eigen::MatrixXd MCMC::sample() {
 
     double SSqprev = SSqcalc(qparams.col(0))(0);
     int iaccept = 0;
+    double SSqnew;
+    bool accept;
 
     for (int isample = 1; isample < nsamples; isample++) {
         // Sample new parameters from a normal distribution with mean being the last element of qparams
-        Eigen::MatrixXd q_new = qparams.col(isample - 1).unaryExpr([this](double) { return generateRandomValue(random_engine); }) * Vold.llt().matrixL();
+        normal_distribution<double> norm_dist(0, 1);
+        Eigen::MatrixXd random_values(qparams.rows(), 1);
+        for (int i = 0; i < qparams.rows(); ++i) {
+            random_values(i, 0) = norm_dist(random_engine);
+        }
+        Eigen::MatrixXd q_new = qparams.col(isample - 1) + (Vold.llt().matrixL() * random_values);
 
-        // Print intermediate values for debugging
-        cout << "Iteration: " << isample << endl;
-        cout << "q_new = " << q_new << endl; // Print q_new
+        cout << "q_new = " << q_new << endl;
 
         // Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
-        double SSqnew;
-        bool accept;
         tie(accept, SSqnew) = acceptreject(q_new, SSqprev, std2.back());
 
         // If the new sample is accepted, add it to the list of sampled parameters
