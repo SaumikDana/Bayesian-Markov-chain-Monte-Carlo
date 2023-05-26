@@ -78,10 +78,7 @@ Eigen::MatrixXd MCMC::sample() {
 
     for (int isample = 1; isample < nsamples; isample++) {
         // Sample new parameters from a normal distribution with mean being the last element of qparams
-        Eigen::MatrixXd q_new = qparams.col(isample - 1) +
-                                Eigen::MatrixXd::NullaryExpr(qparams.rows(), 1,
-                                                            [this]() { return generateRandomValue(random_engine); }) *
-                                Vold.llt().matrixL();
+        Eigen::MatrixXd q_new = qparams.col(isample - 1).unaryExpr([this](double) { return generateRandomValue(random_engine); }) * Vold.llt().matrixL();
 
         // Print intermediate values for debugging
         cout << "Iteration: " << isample << endl;
