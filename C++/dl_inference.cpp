@@ -88,8 +88,16 @@ int main() {
     // Load the data from the file
     vector<double> noisy_acc = loadData(filename);
 
-    vector<double> qpriors; // Declare and initialize qpriors if needed
-    double qstart; // Declare and initialize qstart if needed
+    struct Prior {
+        string type;
+        double min;
+        double max;
+    };
+
+    vector<Prior> qpriors = {{"Uniform", 0.0, 10000.0}};
+
+    double qstart = 100.0;
+
     int nsamples; // Declare and initialize nsamples if needed
 
     for (int index = 0; index < dc_list.size(); ++index) {
