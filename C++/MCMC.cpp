@@ -1,175 +1,151 @@
-#include <iostream>
-#include <random>
-#include <cmath>
-#include <vector>
 #include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/Eigen/Dense>
 #include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/Eigen/Cholesky>
 #include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/unsupported/Eigen/MatrixFunctions>
+
+#include "MCMC.h"
 #include "RateStateModel.h"
+
+#include <iostream>
+#include <random>
+#include <cmath>
+#include <tuple>
 
 using namespace std;
 
-class MCMC {
-private:
-    // Define class variables
-    RateStateModel model;
-    double qstart;
-    uniform_real_distribution<double> qpriors;
-    int nsamples;
-    int nburn;
-    bool verbose;
-    int adapt_interval;
-    vector<double> data;
-    double n0;
-    vector<double> std2;
-    Eigen::MatrixXd Vstart;
-    Eigen::MatrixXd qstart_limits;
+MCMC::MCMC(RateStateModel model, vector<double> data, uniform_real_distribution<double> qpriors, double qstart,
+           int nsamples, int adapt_interval, bool verbose)
+    : model(model),
+      data(data),
+      qpriors(qpriors),
+      qstart(qstart),
+      nsamples(nsamples),
+      nburn(nsamples / 2),
+      verbose(verbose),
+      adapt_interval(adapt_interval),
+      n0(0.01) {}
 
-public:
-    MCMC(RateStateModel model, vector<double> data, uniform_real_distribution<double> qpriors, double qstart,
-         int nsamples = 100, int adapt_interval = 10, bool verbose = true)
-        : model(model), data(data), qpriors(qpriors), qstart(qstart), nsamples(nsamples),
-          nburn(nsamples / 2), verbose(verbose), adapt_interval(adapt_interval),
-          n0(0.01) {}
+Eigen::MatrixXd MCMC::sample() {
+    // Evaluate the model with the original dc value
+    vector<double> t, acc_vector, acc_noise;
+    model.evaluate(t, acc_vector, acc_noise);
+    Eigen::MatrixXd acc_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
 
-    Eigen::MatrixXd sample() {
-        // Evaluate the model with the original dc value
-        vector<double> t, acc_vector, acc_noise;
-        model.evaluate(t, acc_vector, acc_noise);
-        Eigen::MatrixXd acc_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
+    // Perturb the dc value
+    model.setDc(model.getDc() * (1 + 1e-6));
 
-        // Perturb the dc value
-        model.setDc(model.getDc() * (1 + 1e-6));
+    // Evaluate the model with the perturbed dc value
+    model.evaluate(t, acc_vector, acc_noise);
+    Eigen::MatrixXd acc_dq_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
 
-        // Evaluate the model with the perturbed dc value
-        model.evaluate(t, acc_vector, acc_noise);
-        Eigen::MatrixXd acc_dq_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
+    // Extract the values and reshape them to a 1D array
+    Eigen::MatrixXd acc(acc_.rows(), acc_.cols());
+    acc = acc_.row(0);
 
-        // Extract the values and reshape them to a 1D array
-        Eigen::MatrixXd acc(acc_.rows(), acc_.cols());
-        acc = acc_.row(0);
+    Eigen::MatrixXd acc_dq(acc_dq_.rows(), acc_dq_.cols());
+    acc_dq = acc_dq_.row(0);
 
-        Eigen::MatrixXd acc_dq(acc_dq_.rows(), acc_dq_.cols());
-        acc_dq = acc_dq_.row(0);
+    // Compute the variance of the noise
+    std2.push_back((acc - Eigen::Map<Eigen::MatrixXd>(data.data(), 1, data.size())).array().square().sum() /
+                   (acc.cols() - qpriors(random_engine)));
 
-        // Compute the variance of the noise
-        std2.push_back((acc - Eigen::Map<Eigen::MatrixXd>(data.data(), 1, data.size())).array().square().sum() / (acc.cols() - qpriors.size()));
+    // Compute the covariance matrix
+    Eigen::MatrixXd X = ((acc_dq - acc) / (model.getDc() * 1e-6)).transpose();
+    Eigen::MatrixXd XTX = X.transpose() * X;
+    Vstart = std2.back() * XTX.inverse();
+    Eigen::MatrixXd qstart_vect = Eigen::MatrixXd::Constant(1, 1, qstart);
+    qstart_limits = Eigen::MatrixXd(1, 2);
+    qstart_limits << qpriors(random_engine), qpriors(random_engine);
+    Eigen::MatrixXd qparams(qstart_vect.rows(), nsamples);
+    qparams.col(0) = qstart_vect;
+    Eigen::MatrixXd Vold = Vstart;
+    Eigen::MatrixXd Vnew = Vstart;
+    double SSqprev = SSqcalc(qparams.col(0))(0);
+    int iaccept = 0;
 
-        // Compute the covariance matrix
-        Eigen::MatrixXd X = ((acc_dq - acc) / (model.getDc() * 1e-6)).transpose();
-        Eigen::MatrixXd XTX = X.transpose() * X;
-        Vstart = std2.back() * XTX.inverse();
-        Eigen::MatrixXd qstart_vect = Eigen::MatrixXd::Constant(1, 1, qstart);
-        qstart_limits = Eigen::MatrixXd(1, 2);
-        qstart_limits << qpriors[0], qpriors[1];
-        Eigen::MatrixXd qparams(qstart_vect.rows(), nsamples);
-        qparams.col(0) = qstart_vect;
-        Eigen::MatrixXd Vold = Vstart;
-        Eigen::MatrixXd Vnew = Vstart;
-        double SSqprev = SSqcalc(qparams.col(0))(0);
-        int iaccept = 0;
+    for (int isample = 1; isample < nsamples; isample++) {
+        // Sample new parameters from a normal distribution with mean being the last element of qparams
+        Eigen::MatrixXd q_new = qparams.col(isample - 1) +
+                                Eigen::MatrixXd::NullaryExpr(qparams.rows(), 1,
+                                                              [&]() { return normal_distribution<>(0.0, 1.0)(random_engine); }) *
+                                Vold.llt().matrixL();
 
-        for (int isample = 1; isample < nsamples; isample++) {
-            // Sample new parameters from a normal distribution with mean being the last element of qparams
-            Eigen::MatrixXd q_new = qparams.col(isample - 1) +
-                                    Eigen::MatrixXd::NullaryExpr(qparams.rows(), 1,
-                                    [&]() { return normal_distribution<>(0.0, 1.0)(random_engine); }) *
-                                    Vold.llt().matrixL();
+        // Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
+        double SSqnew;
+        bool accept;
+        tie(accept, SSqnew) = acceptreject(q_new, SSqprev, std2.back());
 
-            // Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
-            double SSqnew;
-            bool accept;
-            tie(accept, SSqnew) = acceptreject(q_new, SSqprev, std2.back());
-
-            // If the new sample is accepted, add it to the list of sampled parameters
-            if (accept) {
-                qparams.col(isample) = q_new;
-                SSqprev = SSqnew;
-                iaccept++;
-            } else {
-                // If the new sample is rejected, add the previous sample to the list of sampled parameters
-                qparams.col(isample) = qparams.col(isample - 1);
-            }
-
-            // Update the estimate of the standard deviation
-            double aval = 0.5 * (n0 + data.size());
-            double bval = 0.5 * (n0 * std2.back() + SSqprev);
-            std2.push_back(1.0 / gamma_distribution<>(aval, 1.0 / bval)(random_engine));
-
-            // Update the covariance matrix if it is time to adapt it
-            if ((isample + 1) % adapt_interval == 0) {
-                try {
-                    // Vnew = 2.38 * 2 / qpriors.size() * qparams.rightCols(adapt_interval).cov();
-                    Vnew = 2.38 * 2 / qpriors.size() * qparams.rightCols(adapt_interval).transpose() * qparams.rightCols(adapt_interval);
-                    if (qparams.rows() == 1) {
-                        Vnew.resize(1, 1);
-                    }
-                    Vnew = Vnew.llt().matrixL();
-                    Vold = Vnew;
-                } catch (...) {
-                    // Ignore any errors
-                }
-            }
-        }
-
-        // Print acceptance ratio
-        cout << "Acceptance ratio: " << static_cast<double>(iaccept) / nsamples << endl;
-
-        // Trim the estimate of the standard deviation to exclude burn-in samples
-        std2.erase(std2.begin(), std2.begin() + nburn);
-
-        // Return accepted samples
-        return qparams.rightCols(nsamples - nburn);
-    }
-
-private:
-    mt19937 random_engine{random_device{}()};
-
-    tuple<bool, double> acceptreject(const Eigen::MatrixXd& q_new, double SSqprev, double std2) {
-        // Check if the proposal values are within the limits
-        // bool accept = (q_new.array() > qstart_limits(0, 0)) && (q_new.array() < qstart_limits(0, 1));
-
-        bool accept = (q_new.array() > qstart_limits(0, 0)).all() && (q_new.array() < qstart_limits(0, 1)).all();
-
-        double SSqnew; // Declare SSqnew variable before the if statement
-        double accept_prob;
-        
+        // If the new sample is accepted, add it to the list of sampled parameters
         if (accept) {
-            // Compute the sum of squares error of the new proposal
-            SSqnew = SSqcalc(q_new)(0);
-
-            // Compute the acceptance probability
-            accept_prob = min(0.5 * (SSqprev - SSqnew) / std2, 0.0);
-
-            // Check if the proposal is accepted based on the acceptance probability and a random number
-            accept = accept_prob > log(uniform_real_distribution<>(0.0, 1.0)(random_engine));
-        }
-
-        if (accept) {
-            // If accepted, return the boolean true and the sum of squares error of the new proposal
-            return make_tuple(true, SSqnew);
+            qparams.col(isample) = q_new;
+            SSqprev = SSqnew;
+            iaccept++;
         } else {
-            // If rejected, return the boolean false and the sum of squares error of the previous proposal
-            return make_tuple(false, SSqprev);
+            // If the new sample is rejected, add the previous sample to the list of sampled parameters
+            qparams.col(isample) = qparams.col(isample - 1);
         }
 
+        // Update the estimate of the standard deviation
+        double aval = 0.5 * (n0 + data.size());
+        double bval = 0.5 * (n0 * std2.back() + SSqprev);
+        std2.push_back(1.0 / gamma_distribution<>(aval, 1.0 / bval)(random_engine));
+
+        // Update the covariance matrix if it is time to adapt it
+        if ((isample + 1) % adapt_interval == 0) {
+            try {
+                Vnew = 2.38 * 2 / qpriors(random_engine) * qparams.rightCols(adapt_interval).transpose() *
+                        qparams.rightCols(adapt_interval);
+                if (qparams.rows() == 1) {
+                    Vnew.resize(1, 1);
+                }
+                Vnew = Vnew.llt().matrixL();
+                Vold = Vnew;
+            } catch (...) {
+                // Ignore any errors
+            }
+        }
     }
 
-    Eigen::VectorXd SSqcalc(const Eigen::MatrixXd& q_new) {
-        // Update the Dc parameter of the model with the new proposal
-        model.setDc(q_new(0, 0));
+    // Print acceptance ratio
+    cout << "Acceptance ratio: " << static_cast<double>(iaccept) / nsamples << endl;
 
-        // Evaluate the model's performance on the problem
-        vector<double> t, acc_vector, acc_noise;
-        model.evaluate(t, acc_vector, acc_noise);
-        Eigen::MatrixXd acc_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
+    // Trim the estimate of the standard deviation to exclude burn-in samples
+    std2.erase(std2.begin(), std2.begin() + nburn);
 
-        // Extract the values and reshape them to a 1D array
-        Eigen::MatrixXd acc(acc_.rows(), acc_.cols());
-        acc = acc_.row(0);
+    // Return accepted samples
+    return qparams.rightCols(nsamples - nburn);
+}
 
-        // Compute the sum of squares error between the model's accuracy and the data
-        Eigen::VectorXd data_vector = Eigen::Map<Eigen::VectorXd>(data.data(), data.size());
-        return (acc - data_vector).array().square().colwise().sum();
+tuple<bool, double> MCMC::acceptreject(const Eigen::MatrixXd& q_new, double SSqprev, double std2) {
+    bool accept = (q_new.array() > qstart_limits(0, 0)).all() && (q_new.array() < qstart_limits(0, 1)).all();
+
+    double SSqnew;
+    double accept_prob;
+
+    if (accept) {
+        SSqnew = SSqcalc(q_new)(0);
+
+        accept_prob = min(0.5 * (SSqprev - SSqnew) / std2, 0.0);
+
+        accept = accept_prob > log(uniform_real_distribution<>(0.0, 1.0)(random_engine));
     }
-};
+
+    if (accept) {
+        return make_tuple(true, SSqnew);
+    } else {
+        return make_tuple(false, SSqprev);
+    }
+}
+
+Eigen::VectorXd MCMC::SSqcalc(const Eigen::MatrixXd& q_new) {
+    model.setDc(q_new(0, 0));
+
+    vector<double> t, acc_vector, acc_noise;
+    model.evaluate(t, acc_vector, acc_noise);
+    Eigen::MatrixXd acc_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
+
+    Eigen::MatrixXd acc(acc_.rows(), acc_.cols());
+    acc = acc_.row(0);
+
+    Eigen::VectorXd data_vector = Eigen::Map<Eigen::VectorXd>(data.data(), data.size());
+    return (acc - data_vector).array().square().colwise().sum();
+}

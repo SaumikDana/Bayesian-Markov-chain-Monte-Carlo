@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include </opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3/Eigen/Dense>
+#include "RateStateModel.h"
 
 using namespace std;
 
