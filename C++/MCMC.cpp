@@ -60,7 +60,8 @@ public:
         Eigen::MatrixXd XTX = X.transpose() * X;
         Vstart = std2.back() * XTX.inverse();
         Eigen::MatrixXd qstart_vect = Eigen::MatrixXd::Constant(1, 1, qstart);
-        qstart_limits = Eigen::MatrixXd::Constant(1, 2, qpriors[0], qpriors[1]);
+        qstart_limits = Eigen::MatrixXd(1, 2);
+        qstart_limits << qpriors[0], qpriors[1];
         Eigen::MatrixXd qparams(qstart_vect.rows(), nsamples);
         qparams.col(0) = qstart_vect;
         Eigen::MatrixXd Vold = Vstart;
@@ -98,7 +99,8 @@ public:
             // Update the covariance matrix if it is time to adapt it
             if ((isample + 1) % adapt_interval == 0) {
                 try {
-                    Vnew = 2.38 * 2 / qpriors.size() * qparams.rightCols(adapt_interval).cov();
+                    // Vnew = 2.38 * 2 / qpriors.size() * qparams.rightCols(adapt_interval).cov();
+                    Vnew = 2.38 * 2 / qpriors.size() * qparams.rightCols(adapt_interval).transpose() * qparams.rightCols(adapt_interval);
                     if (qparams.rows() == 1) {
                         Vnew.resize(1, 1);
                     }
@@ -125,14 +127,19 @@ private:
 
     tuple<bool, double> acceptreject(const Eigen::MatrixXd& q_new, double SSqprev, double std2) {
         // Check if the proposal values are within the limits
-        bool accept = (q_new.array() > qstart_limits(0, 0)) && (q_new.array() < qstart_limits(0, 1));
+        // bool accept = (q_new.array() > qstart_limits(0, 0)) && (q_new.array() < qstart_limits(0, 1));
 
+        bool accept = (q_new.array() > qstart_limits(0, 0)).all() && (q_new.array() < qstart_limits(0, 1)).all();
+
+        double SSqnew; // Declare SSqnew variable before the if statement
+        double accept_prob;
+        
         if (accept) {
             // Compute the sum of squares error of the new proposal
-            double SSqnew = SSqcalc(q_new)(0);
+            SSqnew = SSqcalc(q_new)(0);
 
             // Compute the acceptance probability
-            double accept_prob = min(0.5 * (SSqprev - SSqnew) / std2, 0.0);
+            accept_prob = min(0.5 * (SSqprev - SSqnew) / std2, 0.0);
 
             // Check if the proposal is accepted based on the acceptance probability and a random number
             accept = accept_prob > log(uniform_real_distribution<>(0.0, 1.0)(random_engine));
@@ -145,14 +152,21 @@ private:
             // If rejected, return the boolean false and the sum of squares error of the previous proposal
             return make_tuple(false, SSqprev);
         }
+
     }
 
     Eigen::VectorXd SSqcalc(const Eigen::MatrixXd& q_new) {
         // Update the Dc parameter of the model with the new proposal
-        model.Dc = q_new(0, 0);
+        model.setDc(q_new(0, 0));
 
         // Evaluate the model's performance on the problem
-        Eigen::MatrixXd acc = model.evaluate()[1];
+        vector<double> t, acc_vector, acc_noise;
+        model.evaluate(t, acc_vector, acc_noise);
+        Eigen::MatrixXd acc_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
+
+        // Extract the values and reshape them to a 1D array
+        Eigen::MatrixXd acc(acc_.rows(), acc_.cols());
+        acc = acc_.row(0);
 
         // Compute the sum of squares error between the model's accuracy and the data
         return (acc - data).array().square().colwise().sum();
