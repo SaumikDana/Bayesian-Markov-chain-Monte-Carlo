@@ -22,12 +22,18 @@ MCMC::MCMC(RateStateModel model, vector<double> data, uniform_real_distribution<
       nburn(nsamples / 2),
       verbose(verbose),
       adapt_interval(adapt_interval),
-      n0(0.01) {}
+      n0(0.01) {
+    qstart_limits = Eigen::MatrixXd(1, 2);
+    qstart_limits << 0.0, 10000.0;
+}
 
 Eigen::MatrixXd MCMC::sample() {
+    cout << "Entering sample() function" << endl;
+
     // Evaluate the model with the original dc value
     vector<double> t, acc_vector, acc_noise;
     model.evaluate(t, acc_vector, acc_noise);
+
     Eigen::MatrixXd acc_ = Eigen::Map<Eigen::MatrixXd>(acc_noise.data(), 1, acc_noise.size());
 
     // Perturb the dc value
@@ -52,13 +58,14 @@ Eigen::MatrixXd MCMC::sample() {
     Eigen::MatrixXd X = ((acc_dq - acc) / (model.getDc() * 1e-6)).transpose();
     Eigen::MatrixXd XTX = X.transpose() * X;
     Vstart = std2.back() * XTX.inverse();
+
     Eigen::MatrixXd qstart_vect = Eigen::MatrixXd::Constant(1, 1, qstart);
-    qstart_limits = Eigen::MatrixXd(1, 2);
-    qstart_limits << qpriors(random_engine), qpriors(random_engine);
     Eigen::MatrixXd qparams(qstart_vect.rows(), nsamples);
     qparams.col(0) = qstart_vect;
+
     Eigen::MatrixXd Vold = Vstart;
     Eigen::MatrixXd Vnew = Vstart;
+
     double SSqprev = SSqcalc(qparams.col(0))(0);
     int iaccept = 0;
 
@@ -89,20 +96,30 @@ Eigen::MatrixXd MCMC::sample() {
         double bval = 0.5 * (n0 * std2.back() + SSqprev);
         std2.push_back(1.0 / gamma_distribution<>(aval, 1.0 / bval)(random_engine));
 
-        // Update the covariance matrix if it is time to adapt it
-        if ((isample + 1) % adapt_interval == 0) {
-            try {
-                Vnew = 2.38 * 2 / qpriors(random_engine) * qparams.rightCols(adapt_interval).transpose() *
-                        qparams.rightCols(adapt_interval);
-                if (qparams.rows() == 1) {
-                    Vnew.resize(1, 1);
-                }
-                Vnew = Vnew.llt().matrixL();
-                Vold = Vnew;
-            } catch (...) {
-                // Ignore any errors
-            }
-        }
+        // // Update the covariance matrix if it is time to adapt it
+        // if ((isample + 1) % adapt_interval == 0) {
+        //     try {
+        //         Vnew = 2.38 * 2 / qpriors(random_engine) * qparams.rightCols(adapt_interval).transpose() *
+        //                 qparams.rightCols(adapt_interval);
+        //         if (qparams.rows() == 1) {
+        //             Vnew.resize(1, 1);
+        //         }
+        //         Vnew = Vnew.llt().matrixL();
+        //         Vold = Vnew;
+        //     } catch (...) {
+        //         // Ignore any errors
+        //     }
+        // }
+
+        // Print intermediate values for debugging
+        cout << "Iteration: " << isample << endl;
+        cout << "q_new:\n" << q_new << endl;
+        cout << "accept: " << accept << endl;
+        cout << "SSqprev: " << SSqprev << endl;
+        cout << "SSqnew: " << SSqnew << endl;
+        cout << "std2.back(): " << std2.back() << endl;
+        cout << "iaccept: " << iaccept << endl;
+        cout << "Vold:\n" << Vold << endl;
     }
 
     // Print acceptance ratio
@@ -130,8 +147,10 @@ tuple<bool, double> MCMC::acceptreject(const Eigen::MatrixXd& q_new, double SSqp
     }
 
     if (accept) {
+        cout << "Accepted: SSqnew = " << SSqnew << endl;
         return make_tuple(true, SSqnew);
     } else {
+        cout << "Rejected: SSqprev = " << SSqprev << endl;
         return make_tuple(false, SSqprev);
     }
 }

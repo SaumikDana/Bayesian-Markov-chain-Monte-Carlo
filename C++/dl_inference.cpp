@@ -153,7 +153,7 @@ int main() {
 
     double qstart = 100.0;
 
-    int nsamples; // Declare and initialize nsamples if needed
+    int nsamples = 500; // Declare and initialize nsamples if needed
 
     for (int index = 0; index < dc_list.size(); ++index) {
         int start = index * model.getNumTimesteps();
