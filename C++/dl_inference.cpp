@@ -98,11 +98,6 @@ int main() {
     // Loop through each slip value
     for (double dc : dc_list) {
 
-        Gnuplot gp;
-        gp << "set xlabel 'Time (sec)'\n";
-        gp << "set ylabel 'Acceleration (um/s^2)'\n";
-        gp << "set grid\n";
-
         // Set the dc value in the model
         model.setDc(dc);
 
@@ -115,6 +110,11 @@ int main() {
         }
 
         if (plotfigs) {
+            Gnuplot gp;
+            gp << "set xlabel 'Time (sec)'\n";
+            gp << "set ylabel 'Acceleration (um/s^2)'\n";
+            gp << "set grid\n";
+
             vector<pair<double, double>> data(t.size());
             for (int i = 0; i < t.size(); ++i)
                 data[i] = make_pair(t[i], acc[i]);
