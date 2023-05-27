@@ -1,4 +1,5 @@
 import random, pylab
+import matplotlib.pyplot as plt
 
 class Location(object):
     def __init__(self, x, y):
@@ -249,33 +250,31 @@ if __name__ == "__main__":
 
     random.seed(0)
     drunkTest((10, 100, 1000, 10000), 100, UsualDrunk)
-    #
             
-    #random.seed(0)
-    #simAll((UsualDrunk, MasochistDrunk),
-    #       (1000, 10000), 100)
-    #        
-    #xVals = [1, 2, 3, 4]
-    #yVals1 = [1, 2, 3, 4]
-    #pylab.plot(xVals, yVals1, 'b-', label = 'first')
-    #yVals2 = [1, 7, 3, 5]
-    #pylab.plot(xVals, yVals2, 'r--', label = 'second')
-    #pylab.legend()
+    random.seed(0)
+    simAll((UsualDrunk, MasochistDrunk),(1000, 10000), 100)
+     
+    xVals = [1, 2, 3, 4]
+    yVals1 = [1, 2, 3, 4]
+    pylab.plot(xVals, yVals1, 'b-', label = 'first')
+    yVals2 = [1, 7, 3, 5]
+    pylab.plot(xVals, yVals2, 'r--', label = 'second')
+    pylab.legend()
 
-    #random.seed(0)
-    #numSteps = (10,100,1000,10000,100000)
-    #simAll((UsualDrunk, MasochistDrunk), numSteps, 100)
-    #
-    #pylab.plot(numSteps, pylab.array(numSteps)**0.5, 'k-.',
-    #           label = 'Square root of steps')
-    #pylab.plot(numSteps, pylab.array(numSteps)*0.05, 'g-.',
-    #           label = 'numSteps*0.05')
-    #pylab.legend(loc = 'best')
+    random.seed(0)
+    numSteps = (10,100,1000,10000,100000)
+    simAll((UsualDrunk, MasochistDrunk), numSteps, 100)
+    
+    pylab.plot(numSteps, pylab.array(numSteps)**0.5, 'k-.',label = 'Square root of steps')
+    pylab.plot(numSteps, pylab.array(numSteps)*0.05, 'g-.',label = 'numSteps*0.05')
+    pylab.legend(loc = 'best')
 
-    #random.seed(0)
-    #plotLocs((UsualDrunk, MasochistDrunk), 10000, 1000)
+    random.seed(0)
+    plotLocs((UsualDrunk, MasochistDrunk), 10000, 1000)
 
-    #random.seed(0)
-    #traceWalk((Field, OddField), 500)
+    random.seed(0)
+    traceWalk((Field, OddField), 500)
+    
+    plt.show()
 
 
