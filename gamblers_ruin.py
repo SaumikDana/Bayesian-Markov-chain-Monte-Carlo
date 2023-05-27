@@ -1,37 +1,53 @@
-import random
 
-def gamblers_ruin(initial_money, goal, win_probability):
+def calculate_probability(starting_money, goal, win_probability, tolerance=1e-10):
     """
-    Simulates the Gambler's Ruin problem and returns the probability of losing all money before reaching the goal.
+    Calculate the probability of reaching the goal starting with starting_money, given the win_probability.
+    This function uses a dynamic programming approach to iteratively estimate the probability until it converges.
+
     Args:
-        initial_money (int): The initial amount of money the gambler has.
-        goal (int): The target amount of money the gambler wants to reach.
-        win_probability (float): The probability of winning each round.
+    starting_money (int): Initial amount of money.
+    goal (int): Target amount of money.
+    win_probability (float): Probability of winning in a single bet.
+    tolerance (float, optional): Tolerance for the convergence of probability estimation. Default is 1e-10.
+
     Returns:
-        float: The probability of losing all money before reaching the goal.
+    float: The estimated probability of reaching the goal from the starting_money.
     """
-    num_simulations = 100000  # Number of simulations to run
-    num_loss = 0  # Counter for the number of times the gambler loses
     
-    for _ in range(num_simulations):
-        money = initial_money
-        
-        while money > 0 and money < goal:
-            if random.random() < win_probability:
-                money += 1  # Win: increase money by 1
-            else:
-                money -= 1  # Loss: decrease money by 1
-        
-        if money == 0:
-            num_loss += 1
-    
-    probability_loss = num_loss / num_simulations
-    return probability_loss
+    # The number of states equals the goal amount plus one (including zero)
+    num_states = goal + 1
 
-# Example usage
-initial_money = 10
-goal = 20
-win_probability = 0.5
+    # Initialize the probability array with zeros, and set the probability of reaching the goal to 1
+    p = [0 for _ in range(num_states)]
+    p[goal] = 1.0
 
-probability_loss = gamblers_ruin(initial_money, goal, win_probability)
-print(f"The probability of losing all money before reaching the goal is: {probability_loss}")
+    # Initialize the delta (the maximum change in probabilities in each iteration) to a large value
+    delta = 1.0 
+
+    # Iterate until the maximum change in probabilities (delta) is less than the specified tolerance
+    while delta > tolerance:
+        # Reset delta to zero at the start of each iteration
+        delta = 0.0 
+
+        # Iterate over each possible state (amount of money), excluding zero and the goal
+        for i in range(1, goal):
+            # Remember the current probability for this state
+            old_p = p[i]
+
+            # Update the probability for this state based on the probabilities of winning and losing the next bet
+            p[i] = win_probability * p[i + 1] + (1 - win_probability) * p[i - 1]
+
+            # Update delta to the maximum change observed in this iteration
+            delta = max(delta, abs(old_p - p[i]))
+
+    # Return the estimated probability of reaching the goal from the starting amount of money
+    return p[starting_money]
+
+
+# Set the parameters for the calculation
+starting_money = 100
+goal = 200
+win_probability = 0.49
+
+# Calculate and print the probability
+print(calculate_probability(starting_money, goal, win_probability))
