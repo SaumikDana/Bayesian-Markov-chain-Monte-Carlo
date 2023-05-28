@@ -1,6 +1,10 @@
 # Python version
 
-dl_inference is a Python script that implements a Rate State model and performs Bayesian inference on the generated time series. It utilizes the `rsf` module and `matplotlib` library. A version that uses deep learning to generate a reduced order Rate State model is under development.
+dl_inference is a Python script that implements a Rate State model and performs Bayesian inference on the generated time series. It utilizes the `rsf` module and `matplotlib` library.
+
+A paper which gives the modeling framework is https://www.sciencedirect.com/science/article/pii/S266654412200003X
+
+A version that uses deep learning to generate a reduced order Rate State model is under development.
 
 ## Prerequisites
 - Python 3.x
