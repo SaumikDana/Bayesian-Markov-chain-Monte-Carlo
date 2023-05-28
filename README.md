@@ -4,6 +4,8 @@ dl_inference is a Python script that implements a Rate State model and performs 
 
 A paper which gives the modeling framework is https://www.sciencedirect.com/science/article/pii/S266654412200003X
 
+<img width="684" alt="Screen Shot 2023-05-28 at 5 12 24 PM" src="https://github.com/SaumikDana/Bayesian_MCMC_Deep-Learning/assets/9474631/b35e4ed4-85c8-455a-92d8-6f002400f117">
+
 And here is Google Bard summarizing it:
 
 ## Summary of the Paper
