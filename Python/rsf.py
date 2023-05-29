@@ -1,7 +1,5 @@
-from RateStateModel import RateStateModel
 import numpy as np
-from save_load import save_object, load_object
-import lstm_encoder_decoder
+from lstm_encoder_decoder import lstm_encoder, lstm_decoder, lstm_seq2seq
 from MCMC import MCMC
 import torch
 import matplotlib.pyplot as plt
@@ -51,11 +49,8 @@ class rsf:
          acc_appended_noise[start:end] = acc_noise[:]
          # count_dc
          count_dc += 1
-                  
-      # Save the data using pickle
-      save_object(acc_appended_noise,self.data_file)
 
-      return
+      return acc_appended_noise
 
    def plot_time_series(self, t, acc):
 
@@ -145,19 +140,18 @@ class rsf:
          
       return
    
-   def inference(self,nsamples,reduction=False):
+   def inference(self,data,nsamples,reduction=False):
       """ 
       Run the MCMC algorithm to estimate the posterior distribution of the model parameters
       Plot the posterior distribution of the model parameters   
       """
-      noisy_acc = load_object(self.data_file)  # Load a saved data file
       if reduction:
          model_lstm = self.build_lstm()  # Return the lSTM model
          
       for index, dc in enumerate(self.dc_list):
          start = index*self.model.num_tsteps
          end = start + self.model.num_tsteps
-         noisy_data = noisy_acc[start:end]
+         noisy_data = data[start:end]
          print('--- Dc is %s ---' % dc)
 
          # Perform MCMC sampling without reduction

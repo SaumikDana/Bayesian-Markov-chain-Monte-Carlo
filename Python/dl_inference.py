@@ -1,5 +1,7 @@
-from rsf import *
+from rsf import rsf
 import matplotlib.pyplot as plt
+from json_save_load import save_object, load_object
+from RateStateModel import RateStateModel
 
 if __name__ == '__main__':
 
@@ -10,12 +12,16 @@ if __name__ == '__main__':
     problem.model = RateStateModel(number_time_steps=500)
 
     # Generate the time series for the RSF model
-    problem.generate_time_series()
+    data = problem.generate_time_series()
+
+    # Save the data using json
+    save_object(data,problem.data_file)
 
     # Perform Bayesian inference
     problem.qstart  = 100.
     problem.qpriors = ["Uniform",0.,10000.]
-    problem.inference(nsamples=500)      
+    data = load_object(problem.data_file)  # Load a saved data file
+    problem.inference(data,nsamples=500)      
 
     # Close it out
     plt.show()
