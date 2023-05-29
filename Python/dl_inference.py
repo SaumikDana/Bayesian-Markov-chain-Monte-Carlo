@@ -5,36 +5,27 @@ from RateStateModel import RateStateModel
 if __name__ == '__main__':
 
     # Inference problem
-    problem = rsf(number_slip_values=5,lowest_slip_value=100.,largest_slip_value=1000.,plotfigs=True)
+    problem = rsf(number_slip_values=5,
+                  lowest_slip_value=100.,
+                  largest_slip_value=1000.,
+                  qstart=10.,
+                  qpriors=["Uniform",0.,10000.])
 
     # RSF model
     problem.model = RateStateModel(number_time_steps=500)
 
-    # Data format
-    problem.format = 'sql'
-
     # Generate the time series for the RSF model
     data = problem.generate_time_series()
 
-    if problem.format == 'json':
-        from json_save_load import save_object, load_object
-        # Define file names for saving and loading data and LSTM model
-        problem.lstm_file  = 'model_lstm.json'
-        problem.data_file  = 'data.json'
-    elif problem.format == 'sql':
-        from sql_save_load import save_object, load_object
-        # Define file names for saving and loading data and LSTM model
-        problem.lstm_file  = 'model_lstm.db'
-        problem.data_file  = 'data.db'
+    # Perform Bayesian inference with mysql
+    problem.format = 'mysql' # Data format
+    mysql_time = problem.inference(data,nsamples=500)      
 
-    # Save the data & then load the saved data file
-    save_object(data,problem.data_file)
-    data = load_object(problem.data_file)  
+    # Perform Bayesian inference with json
+    problem.format = 'json' # Data format
+    json_time = problem.inference(data,nsamples=500)      
 
-    # Perform Bayesian inference
-    problem.qstart  = 10.
-    problem.qpriors = ["Uniform",0.,10000.]
-    problem.inference(data,nsamples=500)      
+    print(f'\n Run Time For Inference: {mysql_time} & {json_time} seconds with mysql & json respectively \n')
 
     # Close it out
     plt.show()

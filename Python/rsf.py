@@ -4,7 +4,17 @@ from MCMC import MCMC
 import torch
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
+import time
 
+# Function to measure the execution time of a function
+def measure_execution_time(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        return execution_time
+    return wrapper
 
 class rsf:
    '''
@@ -14,7 +24,9 @@ class rsf:
       self, 
       number_slip_values=1, 
       lowest_slip_value=1.0, 
-      largest_slip_value=1000.0, 
+      largest_slip_value=1000.0,
+      qstart=10.,
+      qpriors=["Uniform",0.,10000.], 
       plotfigs=False):
       
       # Define the range of values for the critical slip distance
@@ -25,6 +37,10 @@ class rsf:
 
       self.num_features = 2
       self.plotfigs     = plotfigs
+
+      # Bayesian inference      
+      self.qstart       = qstart
+      self.qpriors      = qpriors
 
       return
    
@@ -136,11 +152,36 @@ class rsf:
          
       return
    
+   @measure_execution_time
    def inference(self,data,nsamples,reduction=False):
       """ 
       Run the MCMC algorithm to estimate the posterior distribution of the model parameters
       Plot the posterior distribution of the model parameters   
       """
+      if self.format == 'json':
+         from json_save_load import save_object, load_object
+
+         # Define file names for saving and loading data and LSTM model
+         self.lstm_file  = 'model_lstm.json'
+         self.data_file  = 'data.json'
+
+         # Save the data & then load the saved data file
+         save_object(data, self.data_file)
+         data = load_object(self.data_file)  
+
+      elif self.format == 'mysql':
+         from mysql_save_load import save_object, load_object
+
+         # MySQL connection details
+         mysql_host = 'localhost'  # replace with your MySQL host
+         mysql_user = 'my_user'    # replace with your MySQL user
+         mysql_password = 'my_password'  # replace with your MySQL password
+         mysql_database = 'my_database'   # replace with your MySQL database
+         
+         # Save the data & then load the saved data file
+         save_object(data, mysql_host, mysql_user, mysql_password, mysql_database)
+         data = load_object(mysql_host, mysql_user, mysql_password, mysql_database)  
+
       if reduction:
          model_lstm = self.build_lstm()  # Return the lSTM model
          
@@ -186,7 +227,7 @@ class rsf:
       fig, ax = plt.subplots(n_rows, n_columns, gridspec_kw=gridspec)
 
       # Set the main plot title with the specified dc value
-      fig.suptitle(f'$d_c={dc}\,\mu m$', fontsize=10)
+      fig.suptitle(f'$d_c={dc}\,\mu m$ with {self.format} formatting', fontsize=10)
 
       # Plot the MCMC samples as a blue line in the first subplot
       ax[0].plot(qparams[0, :], 'b-', linewidth=1.0)
