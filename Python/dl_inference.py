@@ -5,11 +5,13 @@ from RateStateModel import RateStateModel
 if __name__ == '__main__':
 
     # Inference problem
+    qpriors = ["Uniform", 0., 10000.]
+    
     problem = rsf(number_slip_values=5,
                   lowest_slip_value=100.,
                   largest_slip_value=1000.,
                   qstart=10.,
-                  qpriors=["Uniform",0.,10000.])
+                  qpriors=qpriors)
 
     # RSF model
     problem.model = RateStateModel(number_time_steps=500)
