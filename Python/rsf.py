@@ -1,5 +1,5 @@
 import numpy as np
-from lstm_encoder_decoder import lstm_encoder, lstm_decoder, lstm_seq2seq
+import lstm_encoder_decoder
 from MCMC import MCMC
 import torch
 import matplotlib.pyplot as plt
