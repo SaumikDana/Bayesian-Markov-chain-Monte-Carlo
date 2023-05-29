@@ -13,7 +13,11 @@ class rsf:
    Driver class for RSF model
    '''
    def __init__(
-      self, number_slip_values=1, lowest_slip_value=1.0, largest_slip_value=1000.0, plotfigs=False):
+      self, 
+      number_slip_values=1, 
+      lowest_slip_value=1.0, 
+      largest_slip_value=1000.0, 
+      plotfigs=False):
       
       # Define the range of values for the critical slip distance
       self.num_dc       = number_slip_values
@@ -31,9 +35,6 @@ class rsf:
       return
    
    def generate_time_series(self):
-
-      # RSF model
-      self.model = RateStateModel()
 
       # Create arrays to store the time and acceleration data for all values of dc
       entries = self.num_dc*self.model.num_tsteps
