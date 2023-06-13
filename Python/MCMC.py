@@ -135,6 +135,28 @@ class MCMC:
 
             # Compute the acceptance probability
             accept_prob = np.clip(0.5 * (SSqprev - SSqnew) / std2, -np.inf, 0)
+            """ 
+            The numpy function np.clip() is used to limit the values in an array. 
+            Here, it is being used to limit the acceptance probability calculated 
+            in the Adaptive Metropolis Algorithm.
+
+            In the provided Python code snippet, np.clip(0.5 * (SSqprev - SSqnew) / std2, -np.inf, 0) 
+            is used to ensure that the calculated acceptance probability value does not exceed 0 
+            and does not go below negative infinity. 
+            This is done by 'clipping' any calculated value below -np.inf to -np.inf, 
+            and any calculated value above 0 to 0.
+
+            The expression 0.5 * (SSqprev - SSqnew) / std2 is essentially the log 
+            of the acceptance probability used in the Metropolis-Hastings Algorithm. 
+            In the usual Metropolis-Hastings Algorithm, 
+            we use the ratio of the target densities evaluated at the new and old state. 
+            However, when we work with the log of the acceptance probability (as in this case), 
+            we subtract these log-densities instead of dividing them.
+
+            SSqprev and SSqnew represent the sum of squares errors for the old and new state, 
+            respectively. These are used to calculate the acceptance probability. 
+            std2 is a scaling factor.
+            """
 
             # Check if the proposal is accepted 
             # based on the acceptance probability and a random number
