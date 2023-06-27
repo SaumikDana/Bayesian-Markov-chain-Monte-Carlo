@@ -49,6 +49,10 @@ if not os.path.isfile(csv_path):
 # Read the downloaded CSV file
 try:
     df = pd.read_csv(csv_path)
+    # Check for missing values
+    missing_values = df.isnull().sum()
+    # Handle missing values (if any)
+    df = df.dropna()  # Drop rows with missing values
 except Exception as e:
     print(f"Error reading CSV file: {e}")
     exit()
