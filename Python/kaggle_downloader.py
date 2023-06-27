@@ -73,20 +73,19 @@ for stock_name in stock_names:
         stock = df[df['Name'] == stock_name].copy()
         stock.set_index('date', inplace=True)
         monthly_mean = stock['close']
-        zscored_monthly_mean = (monthly_mean - monthly_mean.mean()) / monthly_mean.std()
-        plt.plot(stock.index, zscored_monthly_mean, label=f'{stock_name} Z-Scored Monthly Mean Closing Price')
+        plt.plot(stock.index, monthly_mean, label=f'{stock_name} Monthly Mean Closing Price')
     except Exception as e:
         print(f"Error plotting data for {stock_name}: {e}")
 
 plt.xlabel('Date')
-plt.ylabel('Z-Scored Price')
-plt.title(f'Z-Scored Stock Price Time Series for Multiple Stocks')
+plt.ylabel('Price')
+plt.title(f'Stock Price Time Series for Multiple Stocks')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.show()
 
-# Second plot: Z-Scored First Derivatives
+# Second plot: First Derivatives
 plt.figure(figsize=(12, 6))
 
 for stock_name in stock_names:
@@ -94,21 +93,20 @@ for stock_name in stock_names:
         stock = df[df['Name'] == stock_name].copy()
         stock.set_index('date', inplace=True)
         monthly_mean = stock['close']
-        zscored_monthly_mean = (monthly_mean - monthly_mean.mean()) / monthly_mean.std()
-        first_derivative = zscored_monthly_mean.diff()
-        plt.plot(stock.index, first_derivative, label=f'{stock_name} Z-Scored First Derivative')
+        first_derivative = monthly_mean.diff()
+        plt.plot(stock.index, first_derivative, label=f'{stock_name} First Derivative')
     except Exception as e:
         print(f"Error plotting data for {stock_name}: {e}")
 
 plt.xlabel('Date')
-plt.ylabel('Z-Scored Change in Price')
-plt.title(f'Z-Scored First Derivatives of Stock Prices for Multiple Stocks')
+plt.ylabel('Change in Price')
+plt.title(f'First Derivatives of Stock Prices for Multiple Stocks')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.show()
 
-# Third plot: Z-Scored Second Derivatives
+# Third plot: Second Derivatives
 plt.figure(figsize=(12, 6))
 
 for stock_name in stock_names:
@@ -116,17 +114,15 @@ for stock_name in stock_names:
         stock = df[df['Name'] == stock_name].copy()
         stock.set_index('date', inplace=True)
         monthly_mean = stock['close']
-        zscored_monthly_mean = (monthly_mean - monthly_mean.mean()) / monthly_mean.std()
-        first_derivative = zscored_monthly_mean.diff()
-        zscored_first_derivative = (first_derivative - first_derivative.mean()) / first_derivative.std()
-        second_derivative = zscored_first_derivative.diff()
-        plt.plot(stock.index, second_derivative, label=f'{stock_name} Z-Scored Second Derivative')
+        first_derivative = monthly_mean.diff()
+        second_derivative = first_derivative.diff()
+        plt.plot(stock.index, second_derivative, label=f'{stock_name} Second Derivative')
     except Exception as e:
         print(f"Error plotting data for {stock_name}: {e}")
 
 plt.xlabel('Date')
-plt.ylabel('Z-Scored Change in Change in Price')
-plt.title(f'Z-Scored Second Derivatives of Stock Prices for Multiple Stocks')
+plt.ylabel('Change in Change in Price')
+plt.title(f'Second Derivatives of Stock Prices for Multiple Stocks')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
