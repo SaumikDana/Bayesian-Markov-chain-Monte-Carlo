@@ -26,7 +26,11 @@ The code performs the following steps:
 - Modify the `nsamples` parameter in the `inference` method to control the number of MCMC samples used in the inference process.
 
 # C++ version
+dl_inference is a C++ code that implements a Rate State model and performs Bayesian inference on the generated time series using Markov Chain Monte Carlo (MCMC) sampling.
 
+## Usage
+1. Install the required dependencies (boost, gsl, eigen).
+2. Compile the C++ code
 ```
 g++ -std=c++17 -o executable dl_inference.cpp RateStateModel.cpp MCMC.cpp -I/opt/homebrew/Cellar/boost/1.81.0_1/include -I/opt/homebrew/Cellar/gsl/2.7.1/include -I/opt/homebrew/Cellar/eigen/3.4.0_1/include/eigen3 -L/opt/homebrew/Cellar/boost/1.81.0_1/lib -lboost_iostreams -L/opt/homebrew/Cellar/gsl/2.7.1/lib -lgsl -lgslcblas -lm
 ```
