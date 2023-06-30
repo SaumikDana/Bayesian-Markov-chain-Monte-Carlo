@@ -34,7 +34,8 @@ g++ -std=c++17 -o executable dl_inference.cpp fileIO.cpp RateStateModel.cpp MCMC
 # Paper
 Modeling framework is given in
 
-<img width="684" alt="Screen Shot 2023-05-28 at 5 12 24 PM" src="https://github.com/SaumikDana/Bayesian_MCMC_Deep-Learning/assets/9474631/b35e4ed4-85c8-455a-92d8-6f002400f117">
+<img width="684" alt="Screen Shot 2023-06-30 at 12 12 38 PM" src="https://github.com/SaumikDana/Bayesian_MCMC_Deep-Learning/assets/9474631/10e53962-bf79-40bb-bfa2-5c506879cba3">
+
 
 ## Google Bard summary of the Paper
 
@@ -43,7 +44,6 @@ The paper proposes a Bayesian inference framework for estimating the critical sl
 The Bayesian inference framework uses Markov chain Monte Carlo (MCMC) methods to sample from the posterior distribution of the CSD parameter. The posterior distribution is obtained by combining the prior distribution of the CSD parameter with the likelihood function, which is a function of the observed data.
 
 The authors evaluated the performance of the Bayesian inference framework using synthetic data. The synthetic data was generated using the RS model with different values of the CSD parameter. The Bayesian inference framework was able to accurately estimate the CSD parameter from the synthetic data.
-
 
 The Bayesian inference framework proposed in the paper is a promising new method for estimating the CSD parameter in the RS fault friction model. The framework is able to accurately estimate the CSD parameter from both synthetic and real data. The framework can be used to improve our understanding of fault behavior and to predict the likelihood of future earthquakes.
 
