@@ -41,7 +41,7 @@ Modeling framework is given in
 <img width="684" alt="Screen Shot 2023-06-30 at 12 12 38 PM" src="https://github.com/SaumikDana/Bayesian_MCMC_Deep-Learning/assets/9474631/10e53962-bf79-40bb-bfa2-5c506879cba3">
 
 
-## Google Bard summary of the Paper
+## *Google Bard summary of the Paper*
 
 The paper proposes a Bayesian inference framework for estimating the critical slip distance (CSD) parameter in the rate and state (RS) fault friction model. The RS model is a widely used model for describing the frictional behavior of faults. The CSD parameter is a key parameter in the RS model, and its value can vary widely depending on the fault properties and the loading conditions.
 
@@ -51,7 +51,7 @@ The authors evaluated the performance of the Bayesian inference framework using 
 
 The Bayesian inference framework proposed in the paper is a promising new method for estimating the CSD parameter in the RS fault friction model. The framework is able to accurately estimate the CSD parameter from both synthetic and real data. The framework can be used to improve our understanding of fault behavior and to predict the likelihood of future earthquakes.
 
-### Key Takeaways:
+### *Key Takeaways:*
 
 - Bayesian inference is a powerful tool for estimating parameters in complex models.
 - Markov chain Monte Carlo methods can be used to efficiently sample from the posterior distribution of a parameter.
