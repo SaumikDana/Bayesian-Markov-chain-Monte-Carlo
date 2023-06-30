@@ -1,3 +1,6 @@
+# Description
+A codebase that performs Bayesian inference using Markov Chain Monte Carlo sampling
+
 # Python version
 
 dl_inference is a Python script that implements a Rate State model and performs Bayesian inference on the generated time series. It utilizes the `rsf` module and `matplotlib` library.
