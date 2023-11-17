@@ -1,38 +1,68 @@
-__author__ = 'Saumik Dana'
-__purpose__ = 'Bayesian inference problem using a Rate-State Friction (RSF) model'
+"""
+Bayesian inference problem using a Rate-State Friction (RSF) model.
+
+Author: Saumik Dana
+Purpose: Demonstrate Bayesian inference using RSF model.
+"""
 
 from rsf import rsf
 import matplotlib.pyplot as plt
 from RateStateModel import RateStateModel
 
-if __name__ == '__main__':
+# Constants
+NUMBER_SLIP_VALUES = 5
+LOWEST_SLIP_VALUE = 100.
+LARGEST_SLIP_VALUE = 1000.
+QSTART = 10.
+QPRIORS = ["Uniform", 0., 10000.]
+NUMBER_TIME_STEPS = 500
+NSAMPLES = 500
 
-    # Inference problem
-    qpriors = ["Uniform", 0., 10000.]
-    
-    problem = rsf(number_slip_values=5,
-                  lowest_slip_value=100.,
-                  largest_slip_value=1000.,
-                  qstart=10.,
-                  qpriors=qpriors)
+def setup_problem():
+    """
+    Set up the RSF problem with specified parameters.
 
-    # RSF model
-    problem.model = RateStateModel(number_time_steps=500)
+    Returns:
+        problem: Configured RSF problem instance.
+    """
+    problem = rsf(number_slip_values=NUMBER_SLIP_VALUES,
+                  lowest_slip_value=LOWEST_SLIP_VALUE,
+                  largest_slip_value=LARGEST_SLIP_VALUE,
+                  qstart=QSTART,
+                  qpriors=QPRIORS)
+    problem.model = RateStateModel(number_time_steps=NUMBER_TIME_STEPS)
+    return problem
 
-    # Generate the time series for the RSF model
-    data = problem.generate_time_series()
+def perform_inference(problem, data_format, nsamples):
+    """
+    Perform Bayesian inference on the problem.
 
-    # Perform Bayesian inference with mysql
-    problem.format = 'mysql' # Data format
-    mysql_time = problem.inference(data,nsamples=500)      
+    Args:
+        problem: RSF problem instance.
+        data_format: Format of the data ('mysql' or 'json').
+        nsamples: Number of samples for inference.
 
-    # Perform Bayesian inference with json
-    problem.format = 'json' # Data format
-    json_time = problem.inference(data,nsamples=500)      
+    Returns:
+        Time taken for the inference process.
+    """
+    problem.format = data_format
+    return problem.inference(problem.generate_time_series(), nsamples=nsamples)
 
-    print(f'\n Run Time For Inference: {mysql_time} & {json_time} seconds with mysql & json respectively \n')
+def main():
+    """
+    Main function to run the Bayesian inference problem.
+    """
+    problem = setup_problem()
 
-    # Close it out
+    mysql_time = perform_inference(problem, 'mysql', NSAMPLES)
+    json_time = perform_inference(problem, 'json', NSAMPLES)
+
+    print(f'\nRun Time For Inference: {mysql_time} & {json_time} seconds with mysql & json respectively\n')
+
     plt.show()
     plt.close('all')
+
+if __name__ == '__main__':
+    main()
+
 
