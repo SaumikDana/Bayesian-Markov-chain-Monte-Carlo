@@ -1,14 +1,6 @@
-"""
-RSF Model Implementation
+__author__ = 'Saumik Dana'
+__purpose__  = 'Rate-State Friction (RSF) model for Bayesian inference and LSTM-based data reduction'
 
-Author: Saumik Dana
-Purpose: Implementation of the Rate-State Friction (RSF) model for Bayesian inference and LSTM-based data reduction.
-Last Modified: [Last Modification Date]
-
-Additional Notes:
-- This script includes a class for handling RSF models, data generation, plotting, and Bayesian inference.
-- It uses decorators for measuring execution time and follows Python best practices for readability and maintainability.
-"""
 
 import numpy as np
 import lstm_encoder_decoder
@@ -57,24 +49,32 @@ class rsf:
       self.qpriors      = qpriors
 
       return
-   
+
    def generate_time_series(self):
+      """
+      Generates a time series for different values of dc in the dc_list.
+      Evaluates the model, generates plots, and appends noise-adjusted acceleration data.
 
-      # Create arrays to store the time and acceleration data for all values of dc
-      entries = self.num_dc*self.model.num_tsteps
-      acc_appended_noise = np.zeros(entries)  
-      count_dc = 0
+      Returns:
+         numpy.ndarray: Array of noise-adjusted acceleration data for all dc values.
+      """
 
-      for dc in self.dc_list:
+      # Calculate the total number of entries
+      total_entries = len(self.dc_list) * self.model.num_tsteps
+      acc_appended_noise = np.zeros(total_entries)
+
+      for index, dc_value in enumerate(self.dc_list):
          # Evaluate the model for the current value of dc
-         self.model.Dc = dc
-         t, acc, acc_noise = self.model.evaluate()
-         self.plot_time_series(t, acc) # generate plots
-         start = count_dc*self.model.num_tsteps
-         end = start + self.model.num_tsteps
-         acc_appended_noise[start:end] = acc_noise[:]
-         # count_dc
-         count_dc += 1
+         self.model.Dc = dc_value
+         time_series, acceleration, acc_noise = self.model.evaluate()
+         self.plot_time_series(time_series, acceleration)  # Generate plots
+
+         # Calculate the start and end indices for the current segment
+         start_index = index * self.model.num_tsteps
+         end_index = start_index + self.model.num_tsteps
+
+         # Append the noise-adjusted acceleration data
+         acc_appended_noise[start_index:end_index] = acc_noise
 
       return acc_appended_noise
 
@@ -91,81 +91,110 @@ class rsf:
          plt.grid('on')
          plt.legend()        
       return
+
+   def _create_training_sequences(self, data, T, window, stride):
+      """
+      Create training sequences for the LSTM model.
+      """
+      n_train = (data.shape[0] - window) // stride + 1
+      Y_train = np.zeros([window, n_train, self.num_features])
+      T_train = np.zeros([window, n_train, self.num_features])
+
+      for feature_index in range(self.num_features):
+         for i in range(n_train):
+               start, end = stride * i, stride * i + window
+               Y_train[:, i, feature_index] = data[start:end, feature_index]
+               T_train[:, i, feature_index] = T[start:end, feature_index]
+
+      return n_train, torch.from_numpy(Y_train).type(torch.Tensor), torch.from_numpy(T_train).type(torch.Tensor)
          
    def build_lstm(self, epochs=20, num_layers=1, batch_size=1):
-
-      # build LSTM redeuced order model
+      """
+      Build and train an LSTM model.
+      """
       window  = int(self.model.num_tsteps/20)
       stride  = int(window/5)
       T       = self.t_appended.reshape(-1,self.num_features)
       data    = self.acc_appended.reshape(-1,self.num_features)
-      n_train = (data.shape[0] - window) // stride + 1
-      Ytrain  = np.zeros([window, n_train, self.num_features])     
-      Ttrain  = np.zeros([window, n_train, self.num_features])     
+      
+      # Generate the sequences for training
+      n_train, Y_train, T_train = self._create_training_sequences(data, T, window, stride)
 
-      for ff in np.arange(self.num_features):
-         for ii in np.arange(n_train):
-               start_x                  = stride * ii
-               end_x                    = start_x + window
-               index                    = range(start_x,end_x)
-               Ytrain[0:window, ii, ff] = data[index, ff] 
-               Ttrain[0:window, ii, ff] = T[index, ff]
-
-      # Define the parameters for the LSTM model
-      T_train      = torch.from_numpy(Ttrain).type(torch.Tensor)
-      Y_train      = torch.from_numpy(Ytrain).type(torch.Tensor)
+      # Define the parameters for the LSTM model      
       hidden_size  = window
-
-      # Build the LSTM model and train it
       lstm_model = lstm_encoder_decoder.lstm_seq2seq(T_train.shape[2], hidden_size, num_layers)
+
+      # Train the model
       _ = lstm_model.train_model(T_train, Y_train, epochs, window, batch_size)
 
-      # Plot the results of the trained LSTM model         
-      self.plot_lstm(n_train, window, stride, Ttrain, Ytrain, lstm_model)
+      # Plot the results of the trained LSTM model
+      self.plot_lstm(n_train, window, stride, T_train.numpy(), Y_train.numpy(), lstm_model)
 
       return lstm_model
 
    def plot_lstm(self, n_train, window, stride, Ttrain, Ytrain, lstm_model):
+      """
+      Plot the results of the trained LSTM model.
 
-      # Plot the results of the trained LSTM model         
+      Parameters:
+      n_train (int): Number of training samples.
+      window (int): Window size for LSTM.
+      stride (int): Stride for window.
+      Ttrain (numpy.ndarray): Training time data.
+      Ytrain (numpy.ndarray): Training target data.
+      lstm_model (Model): Trained LSTM model.
+      """
+
+      plt.rcParams.update({'font.size': 10})
       count_dc = 0
 
       for dc in self.dc_list:
-         # Initialize the arrays for the target, input, and output signals
-         X = np.zeros([int(n_train*window/self.num_dc)]) 
-         Y = np.zeros([int(n_train*window/self.num_dc)])     
-         T = np.zeros([int(n_train*window/self.num_dc)])     
-         num_samples_per_dc = int(n_train/self.num_dc) 
+         num_samples_per_dc = int(n_train / self.num_dc)
+         X, Y, T = self.initialize_arrays(n_train, window, num_samples_per_dc)
 
          for ii in range(num_samples_per_dc):
-               start        = ii*stride
-               end          = start + window
-               train_plt    = Ttrain[:, count_dc*num_samples_per_dc+ii, :]
-               Y_train_pred = \
-                  lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), \
-                     target_len = window)
-               X[start:end] = Ytrain[:, count_dc*num_samples_per_dc+ii, 0]
+               start = ii * stride
+               end = start + window
+               train_plt = Ttrain[:, count_dc * num_samples_per_dc + ii, :]
+               Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len=window)
+               X[start:end] = Ytrain[:, count_dc * num_samples_per_dc + ii, 0]
                Y[start:end] = Y_train_pred[:, 0]
-               T[start:end] = Ttrain[:, count_dc*num_samples_per_dc+ii, 0]
+               T[start:end] = Ttrain[:, count_dc * num_samples_per_dc + ii, 0]
 
-         # Plot the target and predicted output signals
-         plt.rcParams.update({'font.size': 10})
-         plt.figure()
-         plt.plot(T, X, '-', linewidth = 1.0, markersize = 1.0, label = 'Target')
-         # plt.plot(T, Y, '-', linewidth = 1.0, markersize = 1.0, label = 'Reconstructed')
-         plt.xlabel('$Time (sec)$')
-         plt.ylabel('$a (\mu m/s^2)$')
-         plt.legend(frameon=False)
-         plt.suptitle('%s data set for dc=%s $\mu m$' % ('Training',dc))
-         plt.tight_layout()
-
+         self.plot_signals(T, X, Y, dc)
          count_dc += 1
+         del X, Y, T
 
-         # Free up memory by deleting the arrays
-         del X,Y,T
-         
-      return
-   
+   def initialize_arrays(self, n_train, window, num_samples_per_dc):
+      """
+      Initialize arrays for target, input, and output signals.
+
+      Returns:
+      Tuple of numpy.ndarrays: Initialized arrays X, Y, T.
+      """
+      array_size = int(n_train * window / self.num_dc)
+      return (np.zeros(array_size), np.zeros(array_size), np.zeros(array_size))
+
+   def plot_signals(self, T, X, Y, dc):
+      """
+      Plot the target and predicted output signals.
+
+      Parameters:
+      T (numpy.ndarray): Time data.
+      X (numpy.ndarray): Target signal data.
+      Y (numpy.ndarray): Predicted signal data.
+      dc (float): Displacement current.
+      """
+      plt.figure()
+      plt.plot(T, X, '-', linewidth=1.0, markersize=1.0, label='Target')
+      plt.plot(T, Y, '-', linewidth=1.0, markersize=1.0, label='Predicted')
+      plt.xlabel('Time (sec)')
+      plt.ylabel('a (μm/s²)')
+      plt.legend(frameon=False)
+      plt.suptitle(f'Training data set for dc={dc} μm')
+      plt.tight_layout()
+      plt.show()
+           
    @measure_execution_time
    def inference(self,data,nsamples,reduction=False):
       """ 
