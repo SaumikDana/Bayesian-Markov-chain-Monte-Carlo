@@ -1,3 +1,15 @@
+"""
+RSF Model Implementation
+
+Author: Saumik Dana
+Purpose: Implementation of the Rate-State Friction (RSF) model for Bayesian inference and LSTM-based data reduction.
+Last Modified: [Last Modification Date]
+
+Additional Notes:
+- This script includes a class for handling RSF models, data generation, plotting, and Bayesian inference.
+- It uses decorators for measuring execution time and follows Python best practices for readability and maintainability.
+"""
+
 import numpy as np
 import lstm_encoder_decoder
 from MCMC import MCMC
@@ -6,8 +18,10 @@ import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 import time
 
-# Function to measure the execution time of a function
 def measure_execution_time(func):
+    """
+    Decorator to measure the execution time of a function.
+    """
     def wrapper(*args, **kwargs):
         start_time = time.time()
         result = func(*args, **kwargs)
@@ -216,51 +230,39 @@ class rsf:
       return
 
    def plot_dist(self, qparams, dc):
+      """
+      Plot the distribution of MCMC samples and their probability density.
 
-      # Set up the plot layout with 1 row and 2 columns, 
-      # and adjust the width ratios and space between subplots
-      n_rows = 1
-      n_columns = 2
-      gridspec = {'width_ratios': [0.7, 0.15], 'wspace': 0.15}
+      Args:
+         qparams: MCMC sample parameters.
+         dc: Critical slip distance value.
+      """
+      # Constants
+      KDE_POINTS = 1000
+      PLOT_WIDTH_RATIO = [0.7, 0.15]
+      PLOT_SPACING = 0.15
+      PLOT_LINE_WIDTH = 1.0
+      PLOT_ALPHA = 0.3
 
-      # Create the subplots with the specified gridspec
-      fig, ax = plt.subplots(n_rows, n_columns, gridspec_kw=gridspec)
-
-      # Set the main plot title with the specified dc value
+      # Set up the plot layout
+      fig, axes = plt.subplots(1, 2, gridspec_kw={'width_ratios': PLOT_WIDTH_RATIO, 'wspace': PLOT_SPACING})
       fig.suptitle(f'$d_c={dc}\,\mu m$ with {self.format} formatting', fontsize=10)
 
-      # Plot the MCMC samples as a blue line in the first subplot
-      ax[0].plot(qparams[0, :], 'b-', linewidth=1.0)
+      # Plot MCMC samples
+      axes[0].plot(qparams[0, :], 'b-', linewidth=PLOT_LINE_WIDTH)
+      axes[0].set_ylabel('$d_c$', fontsize=10)
+      axes[0].set_xlabel('Sample number')
+      axes[0].set_xlim(0, qparams.shape[1])
 
-      # Get the limits of the y-axis
-      ylims = ax[0].get_ylim()
-
-      # Create an array of 1000 evenly spaced points between the y-axis limits
-      x = np.linspace(ylims[0], ylims[1], 1000)
-
-      # Calculate the probability density function using Gaussian Kernel Density Estimation
+      # Calculate and plot KDE
+      kde_x_values = np.linspace(*axes[0].get_ylim(), KDE_POINTS)
       kde = gaussian_kde(qparams[0, :])
+      axes[1].plot(kde.pdf(kde_x_values), kde_x_values, 'b-', linewidth=PLOT_LINE_WIDTH)
+      axes[1].fill_betweenx(kde_x_values, kde.pdf(kde_x_values), np.zeros(kde_x_values.shape), alpha=PLOT_ALPHA)
+      axes[1].set_xlim(0, None)
+      axes[1].set_xlabel('Prob. density')
+      axes[1].get_yaxis().set_visible(False)
+      axes[1].get_xaxis().set_visible(True)
+      axes[1].get_xaxis().set_ticks([])
 
-      # Plot the probability density function as a blue line in the second subplot
-      ax[1].plot(kde.pdf(x), x, 'b-')
-
-      # Fill the area under the probability density function with a light blue color
-      ax[1].fill_betweenx(x, kde.pdf(x), np.zeros(x.shape), alpha=0.3)
-
-      # Set the x-axis limits for the second subplot
-      ax[1].set_xlim(0, None)
-
-      # Set labels and axis limits for the first subplot
-      ax[0].set_ylabel('$d_c$', fontsize=10)
-      ax[0].set_xlim(0, qparams.shape[1])
-      ax[0].set_xlabel('Sample number')
-
-      # Set the x-axis label for the second subplot and hide the y-axis
-      ax[1].set_xlabel('Prob. density')
-      ax[1].get_yaxis().set_visible(False)
-      ax[1].get_xaxis().set_visible(True)
-      ax[1].get_xaxis().set_ticks([])
-
-      return 
-
-
+      return
