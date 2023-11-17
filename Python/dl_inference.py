@@ -1,3 +1,6 @@
+__author__ = 'Saumik Dana'
+__purpose__ = 'Bayesian inference problem using a Rate-State Friction (RSF) model'
+
 from rsf import rsf
 import matplotlib.pyplot as plt
 from RateStateModel import RateStateModel
