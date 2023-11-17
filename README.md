@@ -4,9 +4,15 @@ dl_inference is a Python script that implements a Rate State model and performs 
 
 ## *Usage*
 1. Install the required dependencies.
-2. Run the script using a Python interpreter.
+2. ```
+    brew services start mysql
+    ```
+3. Run the script using a Python interpreter.
     ```shell
     python dl_inference.py
+    ```
+4. ```
+    brew services stop mysql
     ```
 
 ## *Description*
