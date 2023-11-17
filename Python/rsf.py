@@ -1,5 +1,5 @@
 __author__ = 'Saumik Dana'
-__purpose__  = 'Rate-State Friction (RSF) model for Bayesian inference and LSTM-based data reduction'
+__purpose__ = 'Rate-State Friction (RSF) model for Bayesian inference and LSTM-based data reduction'
 
 
 import numpy as np
@@ -31,25 +31,32 @@ class rsf:
       number_slip_values=1, 
       lowest_slip_value=1.0, 
       largest_slip_value=1000.0,
-      qstart=10.,
-      qpriors=["Uniform",0.,10000.], 
-      plotfigs=False):
-      
-      # Define the range of values for the critical slip distance
-      self.num_dc       = number_slip_values
-      start_dc          = lowest_slip_value
-      end_dc            = largest_slip_value
-      self.dc_list      = np.linspace(start_dc,end_dc,self.num_dc)
+      qstart=10.0,
+      qpriors=["Uniform", 0.0, 10000.0], 
+      plotfigs=False
+   ):
+      """
+      Initialize the class with specified parameters.
+
+      :param number_slip_values: Number of slip values.
+      :param lowest_slip_value: The lowest value of slip.
+      :param largest_slip_value: The largest value of slip.
+      :param qstart: Starting value for a process (specify the process).
+      :param qpriors: Prior distributions for a process (specify the process).
+      :param plotfigs: Flag to indicate if figures should be plotted.
+      """
+
+      self.num_dc = number_slip_values
+      self.dc_list = np.linspace(lowest_slip_value, largest_slip_value, self.num_dc)
 
       self.num_features = 2
-      self.plotfigs     = plotfigs
+      self.plotfigs = plotfigs
 
-      # Bayesian inference      
-      self.qstart       = qstart
-      self.qpriors      = qpriors
+      self.qstart = qstart
+      self.qpriors = qpriors
 
       return
-
+   
    def generate_time_series(self):
       """
       Generates a time series for different values of dc in the dc_list.
@@ -78,19 +85,34 @@ class rsf:
 
       return acc_appended_noise
 
-   def plot_time_series(self, t, acc):
+   def plot_time_series(self, time, acceleration):
+      """
+      Plots the time series of acceleration.
 
-      # Generate plots if desired
-      if self.plotfigs:
-         plt.figure()
-         plt.title('$d_c$=' + str(self.model.Dc) + ' $\mu m$' + ' RSF solution')
-         plt.plot(t[:], acc[:], linewidth=1.0,label='True')
-         plt.xlim(self.model.t_start - 2.0, self.model.t_final)
-         plt.xlabel('Time (sec)')
-         plt.ylabel('Acceleration $(\mu m/s^2)$')
-         plt.grid('on')
-         plt.legend()        
-      return
+      :param time: Array of time values.
+      :param acceleration: Array of acceleration values.
+      """
+      if not self.plotfigs:
+         return
+
+      self._create_plot(time, acceleration)
+
+   def _create_plot(self, time, acceleration):
+      """
+      Helper method to create the plot.
+
+      :param time: Array of time values.
+      :param acceleration: Array of acceleration values.
+      """
+      plt.figure()
+      title = f'$d_c$={self.model.Dc} $\mu m$ RSF solution'
+      plt.title(title)
+      plt.plot(time, acceleration, linewidth=1.0, label='True')
+      plt.xlim(self.model.t_start - 2.0, self.model.t_final)
+      plt.xlabel('Time (sec)')
+      plt.ylabel('Acceleration $(\mu m/s^2)$')
+      plt.grid(True)
+      plt.legend()
 
    def _create_training_sequences(self, data, T, window, stride):
       """
@@ -196,68 +218,64 @@ class rsf:
       plt.show()
            
    @measure_execution_time
-   def inference(self,data,nsamples,reduction=False):
-      """ 
+   def inference(self, data, nsamples, reduction=False):
+      """
       Run the MCMC algorithm to estimate the posterior distribution of the model parameters
       Plot the posterior distribution of the model parameters   
       """
-      if self.format == 'json':
-         from json_save_load import save_object, load_object
+      data = self.prepare_data(data)
 
-         # Define file names for saving and loading data and LSTM model
-         self.lstm_file  = 'model_lstm.json'
-         self.data_file  = 'data.json'
+      # Return the LSTM model
+      model_lstm = self.build_lstm() if reduction else None 
 
-         # Save the data & then load the saved data file
-         save_object(data, self.data_file)
-         data = load_object(self.data_file)  
-
-      elif self.format == 'mysql':
-         from mysql_save_load import save_object, load_object
-
-         # MySQL connection details
-         mysql_host = 'localhost'  # replace with your MySQL host
-         mysql_user = 'my_user'    # replace with your MySQL user
-         mysql_password = 'my_password'  # replace with your MySQL password
-         mysql_database = 'my_database'   # replace with your MySQL database
-         
-         # Save the data & then load the saved data file
-         save_object(data, mysql_host, mysql_user, mysql_password, mysql_database)
-         data = load_object(mysql_host, mysql_user, mysql_password, mysql_database)  
-
-      if reduction:
-         model_lstm = self.build_lstm()  # Return the lSTM model
-         
-      for index, dc in enumerate(self.dc_list):
-         start = index*self.model.num_tsteps
-         end = start + self.model.num_tsteps
-         noisy_data = data[start:end]
-         print('--- Dc is %s ---' % dc)
-
-         # Perform MCMC sampling without reduction
-         MCMCobj = MCMC(
-            self.model,
-            noisy_data,
-            self.qpriors,
-            self.qstart,
-            nsamples=nsamples)
-         qparams = MCMCobj.sample()
-         self.plot_dist(qparams, dc)         
-
-         # Perform MCMC sampling with reduction using LSTM model
-         if reduction:
-            MCMCobj = MCMC(
-               self.model,
-               noisy_data,
-               self.qpriors,
-               self.qstart,
-               lstm_model=model_lstm,
-               nsamples=nsamples)
-            qparams = MCMCobj.sample()
-            self.plot_dist(qparams, dc)
+      for dc in self.dc_list:
+         self.perform_sampling_and_plotting(data, dc, nsamples, reduction, model_lstm)
 
       return
 
+   def prepare_data(self, data):
+      if self.format == 'json':
+         from json_save_load import save_object, load_object
+         self.lstm_file = 'model_lstm.json'
+         self.data_file = 'data.json'
+         save_object(data, self.data_file)
+         data = load_object(self.data_file)
+
+      elif self.format == 'mysql':
+         from mysql_save_load import save_object, load_object
+         # MySQL connection details
+         mysql_host = 'localhost'
+         mysql_user = 'my_user'
+         mysql_password = 'my_password'
+         mysql_database = 'my_database'
+         save_object(data, mysql_host, mysql_user, mysql_password, mysql_database)
+         data = load_object(mysql_host, mysql_user, mysql_password, mysql_database)
+
+      return data
+
+   def perform_sampling_and_plotting(self, data, dc, nsamples, reduction, model_lstm):
+      # Find the index of 'dc' in the NumPy array 'self.dc_list'
+      index = np.where(self.dc_list == dc)[0][0] if dc in self.dc_list else -1
+      if index == -1:
+         print(f"Error: dc value {dc} not found in dc_list.")
+         return
+
+      start = index * self.model.num_tsteps
+      end = start + self.model.num_tsteps
+      noisy_data = data[start:end]
+      print('--- Dc is %s ---' % dc)
+
+      # Perform MCMC sampling without reduction
+      MCMCobj = MCMC(self.model, noisy_data, self.qpriors, self.qstart, nsamples=nsamples)
+      qparams = MCMCobj.sample()
+      self.plot_dist(qparams, dc)
+
+      # Perform MCMC sampling with reduction using LSTM model
+      if reduction:
+         MCMCobj = MCMC(self.model, noisy_data, self.qpriors, self.qstart, lstm_model=model_lstm, nsamples=nsamples)
+         qparams = MCMCobj.sample()
+         self.plot_dist(qparams, dc)
+        
    def plot_dist(self, qparams, dc):
       """
       Plot the distribution of MCMC samples and their probability density.
