@@ -1,75 +1,57 @@
-__author__ = "Saumik Dana"
-__purpose__ = "Demonstrate Bayesian inference using RSF model"
-
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
 
-def plot_train_test_results(lstm_model, Ttrain, Xtrain, Ytrain, Ttest, Xtest, Ytest, num_rows = 4):
-  '''
-  plot examples of the lstm encoder-decoder evaluated on the training/test data
-  
-  : param lstm_model:     trained lstm encoder-decoder
-  : param Xtrain:         np.array of windowed training input data
-  : param Ytrain:         np.array of windowed training target data
-  : param Xtest:          np.array of windowed test input data
-  : param Ytest:          np.array of windowed test target data 
-  : param num_rows:       number of training/test examples to plot
-  : return:               num_rows x 2 plots; first column is training data predictions,
-  :                       second column is test data predictions
-  '''
+def plot_lstm_predictions(model, Ttrain, Ytrain, Ttest, Ytest, num_rows=4):
+    """
+    Plot predictions of the LSTM encoder-decoder on training and test data.
 
-  # input window size
-  iw = Xtrain.shape[0]
-  ow = Ytest.shape[0]
+    Parameters:
+    model (torch.nn.Module): Trained LSTM encoder-decoder model.
+    Ttrain, Ttest (np.array): Time arrays for training and test data.
+    Ytrain, Ytest (np.array): Target data arrays for training and test data.
+    num_rows (int): Number of rows of plots to display.
 
-  # figure setup 
-  num_cols = 2
-  num_plots = num_rows * num_cols
+    Returns:
+    None: Plots are displayed and saved to a file.
+    """
 
-  fig, ax = plt.subplots(num_rows, num_cols, figsize = (13, 15))
-  
-  # plot training/test predictions
-  for ii in range(num_rows):
-      # train set
-      X_train_plt = Xtrain[:, ii, :]
-      Y_train_pred = lstm_model.predict(torch.from_numpy(X_train_plt).type(torch.Tensor), target_len = ow)
+    # Validate input arrays
+    if not (Ttrain.ndim == Ttest.ndim == Ytrain.ndim == Ytest.ndim == 2):
+        raise ValueError("Input arrays must be 2-dimensional.")
 
-#      ax[ii, 0].plot(np.arange(0, iw), Xtrain[:, ii, 0], 'k', linewidth = 1, label = 'Input')
-#      ax[ii, 0].plot(np.arange(iw - 1, iw + ow), np.concatenate([[Xtrain[-1, ii, 0]], Ytrain[:, ii, 0]]), color = (0.2, 0.42, 0.72), linewidth = 1, label = 'Target')
-#      ax[ii, 0].plot(np.arange(iw - 1, iw + ow),  np.concatenate([[Xtrain[-1, ii, 0]], Y_train_pred[:, 0]]), color = (0.76, 0.01, 0.01), linewidth = 1, label = 'Prediction')
-#      ax[ii, 0].set_xlim([0, iw + ow - 1])
-#      ax[ii, 0].plot(Ttrain[0:iw, ii, 0], Xtrain[:, ii, 0], 'k', linewidth = 1, label = 'Input')
-      ax[ii, 0].plot(Ttrain[:, ii, 0], Ytrain[:, ii, 0], color = (0.2, 0.42, 0.72), linewidth = 1, label = 'Target')
-      ax[ii, 0].plot(Ttrain[:, ii, 0], Y_train_pred[:, 0], color = (0.76, 0.01, 0.01), linewidth = 1, label = 'Prediction')
-      ax[ii, 0].set_xlabel('$Time (sec)$')
-      ax[ii, 0].set_ylabel('$a (\mu m/s^2)$')
+    # Prepare figure for plotting
+    fig, axes = plt.subplots(num_rows, 2, figsize=(13, 15))
+    fig.suptitle('LSTM Encoder-Decoder Predictions', x=0.445, y=1.)
+    
+    for i in range(num_rows):
+        for j, (T, Y, title) in enumerate([(Ttrain, Ytrain, 'Train'), (Ttest, Ytest, 'Test')]):
+            # Validate array dimensions
+            if T.shape[0] != Y.shape[0]:
+                raise ValueError("Time and data arrays must have the same length.")
 
-      # test set
-      X_test_plt = Xtest[:, ii, :]
-      Y_test_pred = lstm_model.predict(torch.from_numpy(X_test_plt).type(torch.Tensor), target_len = ow)
+            # Select data for plotting
+            t = T[:, i] if T.shape[1] > i else T[:, 0]
+            y_true = Y[:, i] if Y.shape[1] > i else Y[:, 0]
+            
+            # Generate model predictions
+            y_pred = model.predict(torch.from_numpy(y_true[np.newaxis, :, np.newaxis]).type(torch.Tensor)).squeeze().numpy()
 
-#      ax[ii, 1].plot(np.arange(0, iw), Xtest[:, ii, 0], 'k', linewidth = 1, label = 'Input')
-#      ax[ii, 1].plot(np.arange(iw - 1, iw + ow), np.concatenate([[Xtest[-1, ii, 0]], Ytest[:, ii, 0]]), color = (0.2, 0.42, 0.72), linewidth = 1, label = 'Target')
-#      ax[ii, 1].plot(np.arange(iw - 1, iw + ow), np.concatenate([[Xtest[-1, ii, 0]], Y_test_pred[:, 0]]), color = (0.76, 0.01, 0.01), linewidth = 1, label = 'Prediction')
-#      ax[ii, 1].set_xlim([0, iw + ow - 1])
-#      ax[ii, 1].plot(Ttest[0:iw, ii, 0], Xtest[:, ii, 0], 'k', linewidth = 1, label = 'Input')
-      ax[ii, 1].plot(Ttest[:, ii, 0], Ytest[:, ii, 0], color = (0.2, 0.42, 0.72), linewidth = 1, label = 'Target')
-      ax[ii, 1].plot(Ttest[:, ii, 0], Y_test_pred[:, 0], color = (0.76, 0.01, 0.01), linewidth = 1, label = 'Prediction')
-      ax[ii, 1].set_xlabel('$Time (sec)$')
-      ax[ii, 1].set_ylabel('$a (\mu m/s^2)$')
+            # Plot data
+            ax = axes[i, j]
+            ax.plot(t, y_true, color=(0.2, 0.42, 0.72), label='Target')
+            ax.plot(t, y_pred, color=(0.76, 0.01, 0.01), label='Prediction')
+            ax.set_xlabel('$Time (sec)$')
+            ax.set_ylabel('$a (\mu m/s^2)$')
+            ax.set_title(title)
+            if i == 0 and j == 1:
+                ax.legend(bbox_to_anchor=(1, 1))
 
-      if ii == 0:
-        ax[ii, 0].set_title('Train')
-        
-        ax[ii, 1].legend(bbox_to_anchor=(1, 1))
-        ax[ii, 1].set_title('Test')
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.95)
+    plt.savefig('plots/predictions.png')
+    plt.show()
 
-  plt.suptitle('LSTM Encoder-Decoder Predictions', x = 0.445, y = 1.)
-  plt.tight_layout()
-  plt.subplots_adjust(top = 0.95)
-  plt.savefig('plots/predictions.png')
-  plt.show()
-  plt.close() 
-      
-  return 
+# Example usage:
+# plot_lstm_predictions(lstm_model, Ttrain, Ytrain, Ttest, Ytest, num_rows=4)
+
