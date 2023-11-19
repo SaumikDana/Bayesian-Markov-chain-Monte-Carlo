@@ -18,6 +18,7 @@ class MCMC:
         self.data           = data
         self.lstm_model     = lstm_model
         self.n0             = 0.01
+        self.qstart_limits  = np.array([[self.qpriors[1], self.qpriors[2]]])
 
         return
 
@@ -46,22 +47,8 @@ class MCMC:
         Vnew = np.linalg.cholesky(Vnew)
         return Vnew.copy()
 
-    def compute_initial_covariance(self, acc, acc_dq):
+    def compute_initial_covariance(self):
 
-        # Compute the variance of the noise
-        self.std2 = [np.sum((acc - self.data) ** 2, axis=1).item()/(acc.shape[1] - len(self.qpriors))]
-
-        # Compute the covariance matrix
-        X                  = ((acc_dq - acc) / (self.model.Dc * 1e-6)).T
-        X                  = np.linalg.inv(np.dot(X.T, X))
-        self.Vstart        = self.std2[-1] * X 
-
-    def sample(self):
-        """ 
-        The code provided seems to be part of a sampling algorithm 
-        that uses the Metropolis-Hastings algorithm to generate samples from a distribution. 
-        Markov Chain Monte Carlo (MCMC) method for parameter estimation.
-        """
         # Evaluate the model with the original dc value
         acc_ = self.evaluate_model()
 
@@ -75,56 +62,13 @@ class MCMC:
         acc = acc_.reshape(1, -1)
         acc_dq = acc_dq_.reshape(1, -1)
 
-        # Compute initial covariance
-        self.compute_initial_covariance(acc, acc_dq)
-        
-        self.qstart_limits = np.array([[self.qpriors[1], self.qpriors[2]]])
-        qparams            = np.copy(np.array([[self.qstart]])) # Array of sampled parameters
-        Vold               = np.copy(self.Vstart) # Covariance matrix of previously sampled parameters
-        SSqprev            = self.SSqcalc(qparams) # Squared error of previously sampled parameters
-        iaccept            = 0 # Counter for accepted samples
+        # Compute the variance of the noise
+        self.std2 = [np.sum((acc - self.data) ** 2, axis=1).item()/(acc.shape[1] - len(self.qpriors))]
 
-        for isample in np.arange(self.nsamples):
-            # Sample new parameters from a normal distribution with mean being the last element of qparams
-            q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
-
-            # Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
-            accept,SSqnew = self.acceptreject(q_new,SSqprev,self.std2[-1])
-
-            # Print some diagnostic information
-            print(isample,accept)
-            print("Generated sample ---- ",np.asscalar(q_new))
-
-            # If the new sample is accepted, 
-            # add it to the list of sampled parameters
-            if accept:
-                qparams    = np.concatenate((qparams,q_new),axis=1)
-                SSqprev    = SSqnew.copy()
-                iaccept    += 1
-            else:
-                # If the new sample is rejected, 
-                # add the previous sample to the list of sampled parameters
-                q_new      = np.reshape(qparams[:,-1],(-1,1))
-                qparams    = np.concatenate((qparams,q_new),axis=1)
-
-            self.update_standard_deviation(SSqprev)
-            # Update standard deviation
-
-            # Update the covariance matrix if it is time to adapt it
-            if (isample+1) % self.adapt_interval == 0:
-                try:
-                    Vold = self.update_covariance_matrix(qparams)
-                except:
-                    pass
-
-        # Print acceptance ratio
-        print("acceptance ratio:",iaccept/self.nsamples)
-
-       # Trim the estimate of the standard deviation to exclude burn-in samples  
-        self.std2 = np.asarray(self.std2)[self.nburn:] 
-        
-        # Return accepted samples
-        return qparams[:,self.nburn:]
+        # Compute the covariance matrix
+        X = ((acc_dq - acc) / (self.model.Dc * 1e-6)).T
+        X = np.linalg.inv(np.dot(X.T, X))
+        self.Vstart = self.std2[-1] * X 
 
     def acceptreject(self, q_new, SSqprev, std2):
         """ 
@@ -194,3 +138,61 @@ class MCMC:
         SSq = np.sum((acc.reshape(1, -1) - self.data)**2, axis=1, keepdims=True)
 
         return SSq
+
+    def sample(self):
+        """ 
+        The code provided seems to be part of a sampling algorithm 
+        that uses the Metropolis-Hastings algorithm to generate samples from a distribution. 
+        Markov Chain Monte Carlo (MCMC) method for parameter estimation.
+        """
+
+        # Compute initial covariance
+        self.compute_initial_covariance()
+        
+        qparams = np.copy(np.array([[self.qstart]])) # Array of sampled parameters
+        Vold = np.copy(self.Vstart) # Covariance matrix of previously sampled parameters
+        SSqprev = self.SSqcalc(qparams) # Squared error of previously sampled parameters
+        iaccept = 0 # Counter for accepted samples
+
+        for isample in np.arange(self.nsamples):
+            # Sample new parameters from a normal distribution 
+            # with mean being the last element of qparams
+            q_new = np.reshape(np.random.multivariate_normal(qparams[:,-1],Vold),(-1,1)) 
+
+            # Accept or reject the new sample based on the Metropolis-Hastings acceptance rule
+            accept,SSqnew = self.acceptreject(q_new,SSqprev,self.std2[-1])
+
+            # Print some diagnostic information
+            print(isample,accept)
+            print("Generated sample ---- ",np.asscalar(q_new))
+
+            if accept:
+                # If the new sample is accepted, 
+                # add it to the list of sampled parameters
+                qparams = np.concatenate((qparams,q_new),axis=1)
+                SSqprev = SSqnew.copy()
+                iaccept += 1
+            else:
+                # If the new sample is rejected, 
+                # add the previous sample to the list of sampled parameters
+                q_new = np.reshape(qparams[:,-1],(-1,1))
+                qparams = np.concatenate((qparams,q_new),axis=1)
+
+            self.update_standard_deviation(SSqprev)
+            # Update standard deviation
+
+            # Update the covariance matrix if it is time to adapt it
+            if (isample+1) % self.adapt_interval == 0:
+                try:
+                    Vold = self.update_covariance_matrix(qparams)
+                except:
+                    pass
+
+        # Print acceptance ratio
+        print("acceptance ratio:",iaccept/self.nsamples)
+
+       # Trim the estimate of the standard deviation to exclude burn-in samples  
+        self.std2 = np.asarray(self.std2)[self.nburn:] 
+        
+        # Return accepted samples
+        return qparams[:,self.nburn:]
