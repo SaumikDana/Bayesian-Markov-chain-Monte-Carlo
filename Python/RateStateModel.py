@@ -1,3 +1,6 @@
+__author__ = "Saumik Dana"
+__purpose__ = "Demonstrate Bayesian inference using RSF model"
+
 from scipy.misc import derivative
 import numpy as np
 from scipy import integrate

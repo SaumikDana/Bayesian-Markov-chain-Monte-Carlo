@@ -1,4 +1,5 @@
-# Author: Laura Kulowski
+__author__ = "Saumik Dana"
+__purpose__ = "Demonstrate Bayesian inference using RSF model"
 
 import numpy as np
 import matplotlib.pyplot as plt

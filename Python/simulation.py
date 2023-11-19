@@ -1,4 +1,6 @@
-# simulation.py
+__author__ = "Saumik Dana"
+__purpose__ = "Demonstrate Bayesian inference using RSF model"
+
 from rsf import rsf
 from RateStateModel import RateStateModel
 import matplotlib.pyplot as plt

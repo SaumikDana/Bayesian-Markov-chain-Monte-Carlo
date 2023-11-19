@@ -1,3 +1,6 @@
+__author__ = "Saumik Dana"
+__purpose__ = "Demonstrate Bayesian inference using RSF model"
+
 import mysql.connector
 import numpy as np
 

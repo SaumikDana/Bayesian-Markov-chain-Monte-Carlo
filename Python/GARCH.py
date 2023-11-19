@@ -1,3 +1,6 @@
+__author__ = "Saumik Dana"
+__purpose__ = "Demonstrate Bayesian inference using RSF model"
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from arch import arch_model

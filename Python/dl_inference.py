@@ -1,9 +1,5 @@
-"""
-Bayesian inference problem using a Rate-State Friction (RSF) model.
-
-Author: Saumik Dana
-Purpose: Demonstrate Bayesian inference using RSF model.
-"""
+__author__ = "Saumik Dana"
+__purpose__ = "Demonstrate Bayesian inference using RSF model"
 
 from rsf import rsf
 import matplotlib.pyplot as plt
