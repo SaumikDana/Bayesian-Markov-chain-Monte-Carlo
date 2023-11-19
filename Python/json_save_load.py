@@ -1,6 +1,3 @@
-__author__ = "Saumik Dana"
-__purpose__ = "Demonstrate Bayesian inference using RSF model"
-
 import json
 import numpy as np
 

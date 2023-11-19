@@ -1,24 +1,12 @@
-__author__ = "Saumik Dana"
-__purpose__ = "Demonstrate Bayesian inference using RSF model"
-
 import numpy as np
 from scipy.stats import gamma 
-
 
 class MCMC:
     """
     Class for MCMC sampling
     """
     def __init__(
-        self, 
-        model, 
-        data, 
-        qpriors, 
-        qstart, 
-        nsamples=100, 
-        lstm_model={}, 
-        adapt_interval=10, 
-        verbose=True):
+        self, model, data, qpriors, qstart, nsamples=100, lstm_model={}, adapt_interval=10, verbose=True):
 
         self.model          = model
         self.qstart         = qstart
@@ -33,30 +21,32 @@ class MCMC:
 
         return
 
-    def sample(self):
-        """ 
-        The code provided seems to be part of a sampling algorithm 
-        that uses the Metropolis-Hastings algorithm to generate samples from a distribution. 
-        Markov Chain Monte Carlo (MCMC) method for parameter estimation.
-        """
-        # Evaluate the model with the original dc value
+    def evaluate_model(self):
+
         if self.lstm_model:
-            acc_ = self.model.rom_evaluate(self.lstm_model)[1]
+            acc = self.model.rom_evaluate(self.lstm_model)[1]
         else:
-            acc_ = self.model.evaluate()[1]
+            acc = self.model.evaluate()[1]
 
-        # Perturb the dc value
-        self.model.Dc *= (1 + 1e-6)
+        return acc
 
-        # Evaluate the model with the perturbed dc value
-        if self.lstm_model:
-            acc_dq_ = self.model.rom_evaluate(self.lstm_model)[1]
-        else:
-            acc_dq_ = self.model.evaluate()[1]
+    def update_standard_deviation(self, SSqprev):
 
-        # Extract the values and reshape them to a 1D array
-        acc = acc_.reshape(1, -1)
-        acc_dq = acc_dq_.reshape(1, -1)
+        # Update the estimate of the standard deviation
+        aval           = 0.5*(self.n0+len(self.data))
+        bval           = 0.5*(self.n0*self.std2[-1]+SSqprev)
+        self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
+
+    def update_covariance_matrix(self, qparams):
+
+        # Update the estimate of the covariance matrix
+        Vnew = 2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
+        if qparams.shape[0]==1:
+            Vnew = np.reshape(Vnew,(-1,1))
+        Vnew = np.linalg.cholesky(Vnew)
+        return Vnew.copy()
+
+    def compute_initial_covariance(self, acc, acc_dq):
 
         # Compute the variance of the noise
         self.std2 = [np.sum((acc - self.data) ** 2, axis=1).item()/(acc.shape[1] - len(self.qpriors))]
@@ -65,11 +55,32 @@ class MCMC:
         X                  = ((acc_dq - acc) / (self.model.Dc * 1e-6)).T
         X                  = np.linalg.inv(np.dot(X.T, X))
         self.Vstart        = self.std2[-1] * X 
-        qstart_vect        = np.array([[self.qstart]])
+
+    def sample(self):
+        """ 
+        The code provided seems to be part of a sampling algorithm 
+        that uses the Metropolis-Hastings algorithm to generate samples from a distribution. 
+        Markov Chain Monte Carlo (MCMC) method for parameter estimation.
+        """
+        # Evaluate the model with the original dc value
+        acc_ = self.evaluate_model()
+
+        # Perturb the dc value
+        self.model.Dc *= (1 + 1e-6)
+
+        # Evaluate the model with the perturbed dc value
+        acc_dq_ = self.evaluate_model()
+
+        # Extract the values and reshape them to a 1D array
+        acc = acc_.reshape(1, -1)
+        acc_dq = acc_dq_.reshape(1, -1)
+
+        # Compute initial covariance
+        self.compute_initial_covariance(acc, acc_dq)
+        
         self.qstart_limits = np.array([[self.qpriors[1], self.qpriors[2]]])
-        qparams            = np.copy(qstart_vect) # Array of sampled parameters
+        qparams            = np.copy(np.array([[self.qstart]])) # Array of sampled parameters
         Vold               = np.copy(self.Vstart) # Covariance matrix of previously sampled parameters
-        Vnew               = np.copy(self.Vstart) # Covariance matrix of current sampled parameters
         SSqprev            = self.SSqcalc(qparams) # Squared error of previously sampled parameters
         iaccept            = 0 # Counter for accepted samples
 
@@ -96,19 +107,13 @@ class MCMC:
                 q_new      = np.reshape(qparams[:,-1],(-1,1))
                 qparams    = np.concatenate((qparams,q_new),axis=1)
 
-            # Update the estimate of the standard deviation
-            aval           = 0.5*(self.n0+len(self.data))
-            bval           = 0.5*(self.n0*self.std2[-1]+SSqprev)
-            self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
+            self.update_standard_deviation(SSqprev)
+            # Update standard deviation
 
             # Update the covariance matrix if it is time to adapt it
             if (isample+1) % self.adapt_interval == 0:
                 try:
-                    Vnew = 2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
-                    if qparams.shape[0]==1:
-                        Vnew = np.reshape(Vnew,(-1,1))
-                    Vnew = np.linalg.cholesky(Vnew)
-                    Vold = Vnew.copy()
+                    Vold = self.update_covariance_matrix(qparams)
                 except:
                     pass
 
@@ -128,9 +133,32 @@ class MCMC:
         based on the acceptance probability and a random number. 
         It returns a boolean value indicating acceptance 
         and the sum of squares error of the accepted or previous proposal.
+
+        The numpy function np.clip() is used to limit the values in an array. 
+        Here, it is being used to limit the acceptance probability calculated 
+        in the Adaptive Metropolis Algorithm.
+
+        In the provided Python code snippet, np.clip(0.5 * (SSqprev - SSqnew) / std2, -np.inf, 0) 
+        is used to ensure that the calculated acceptance probability value does not exceed 0 
+        and does not go below negative infinity. 
+        This is done by 'clipping' any calculated value below -np.inf to -np.inf, 
+        and any calculated value above 0 to 0.
+
+        The expression 0.5 * (SSqprev - SSqnew) / std2 is essentially the log 
+        of the acceptance probability used in the Metropolis-Hastings Algorithm. 
+        In the usual Metropolis-Hastings Algorithm, 
+        we use the ratio of the target densities evaluated at the new and old state. 
+        However, when we work with the log of the acceptance probability (as in this case), 
+        we subtract these log-densities instead of dividing them.
+
+        SSqprev and SSqnew represent the sum of squares errors for the old and new state, 
+        respectively. These are used to calculate the acceptance probability. 
+        std2 is a scaling factor.
         """
         # Check if the proposal values are within the limits
-        accept = np.all((q_new > self.qstart_limits[:, 0]) & (q_new < self.qstart_limits[:, 1]), axis=0)
+        condition1 = (q_new > self.qstart_limits[:, 0])
+        condition2 = (q_new < self.qstart_limits[:, 1])
+        accept = np.all(condition1 & condition2, axis=0)
 
         if accept:
             # Compute the sum of squares error of the new proposal
@@ -138,28 +166,6 @@ class MCMC:
 
             # Compute the acceptance probability
             accept_prob = np.clip(0.5 * (SSqprev - SSqnew) / std2, -np.inf, 0)
-            """ 
-            The numpy function np.clip() is used to limit the values in an array. 
-            Here, it is being used to limit the acceptance probability calculated 
-            in the Adaptive Metropolis Algorithm.
-
-            In the provided Python code snippet, np.clip(0.5 * (SSqprev - SSqnew) / std2, -np.inf, 0) 
-            is used to ensure that the calculated acceptance probability value does not exceed 0 
-            and does not go below negative infinity. 
-            This is done by 'clipping' any calculated value below -np.inf to -np.inf, 
-            and any calculated value above 0 to 0.
-
-            The expression 0.5 * (SSqprev - SSqnew) / std2 is essentially the log 
-            of the acceptance probability used in the Metropolis-Hastings Algorithm. 
-            In the usual Metropolis-Hastings Algorithm, 
-            we use the ratio of the target densities evaluated at the new and old state. 
-            However, when we work with the log of the acceptance probability (as in this case), 
-            we subtract these log-densities instead of dividing them.
-
-            SSqprev and SSqnew represent the sum of squares errors for the old and new state, 
-            respectively. These are used to calculate the acceptance probability. 
-            std2 is a scaling factor.
-            """
 
             # Check if the proposal is accepted 
             # based on the acceptance probability and a random number
@@ -182,13 +188,9 @@ class MCMC:
         self.model.Dc = q_new[0,]
 
         # Evaluate the model's performance on the problem type and LSTM model
-        if self.lstm_model:
-            acc = self.model.rom_evaluate(self.lstm_model)[1]
-        else:
-            acc = self.model.evaluate()[1]
-
+        acc = self.evaluate_model()
+        
         # Compute the sum of squares error between the model's accuracy and the data
         SSq = np.sum((acc.reshape(1, -1) - self.data)**2, axis=1, keepdims=True)
 
         return SSq
-

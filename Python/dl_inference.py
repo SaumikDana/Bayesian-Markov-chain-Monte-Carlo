@@ -1,6 +1,3 @@
-__author__ = "Saumik Dana"
-__purpose__ = "Demonstrate Bayesian inference using RSF model"
-
 from rsf import rsf
 import matplotlib.pyplot as plt
 from RateStateModel import RateStateModel

@@ -1,6 +1,3 @@
-__author__ = "Saumik Dana"
-__purpose__ = "Demonstrate Bayesian inference using RSF model"
-
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
