@@ -1,7 +1,3 @@
-__author__ = 'Saumik Dana'
-__purpose__ = 'Rate-State Friction (RSF) model for Bayesian inference and LSTM-based data reduction'
-
-
 import numpy as np
 import lstm_encoder_decoder
 from MCMC import MCMC
