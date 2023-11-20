@@ -1,5 +1,5 @@
 import numpy as np
-import lstm_encoder_decoder
+from lstm.lstm_encoder_decoder import lstm_seq2seq
 from mcmc import MCMC
 import torch
 import matplotlib.pyplot as plt
@@ -140,7 +140,7 @@ class rsf:
 
       # Define the parameters for the LSTM model      
       hidden_size  = window
-      lstm_model = lstm_encoder_decoder.lstm_seq2seq(T_train.shape[2], hidden_size, num_layers)
+      lstm_model = lstm_seq2seq(T_train.shape[2], hidden_size, num_layers)
 
       # Train the model
       _ = lstm_model.train_model(T_train, Y_train, epochs, window, batch_size)
@@ -231,14 +231,14 @@ class rsf:
 
    def prepare_data(self, data):
       if self.format == 'json':
-         from json_save_load import save_object, load_object
+         from utils.json_save_load import save_object, load_object
          self.lstm_file = 'model_lstm.json'
          self.data_file = 'data.json'
          save_object(data, self.data_file)
          data = load_object(self.data_file)
 
       elif self.format == 'mysql':
-         from mysql_save_load import save_object, load_object
+         from utils.mysql_save_load import save_object, load_object
          # MySQL connection details
          mysql_host = 'localhost'
          mysql_user = 'my_user'
@@ -262,13 +262,24 @@ class rsf:
       print('--- Dc is %s ---' % dc)
 
       # Perform MCMC sampling without reduction
-      MCMCobj = MCMC(self.model, noisy_data, self.qpriors, self.qstart, nsamples=nsamples)
+      MCMCobj = MCMC(
+         self.model, 
+         noisy_data, 
+         self.qpriors, 
+         self.qstart, 
+         nsamples=nsamples)
       qparams = MCMCobj.sample()
       self.plot_dist(qparams, dc)
 
       # Perform MCMC sampling with reduction using LSTM model
       if reduction:
-         MCMCobj = MCMC(self.model, noisy_data, self.qpriors, self.qstart, lstm_model=model_lstm, nsamples=nsamples)
+         MCMCobj = MCMC(
+            self.model, 
+            noisy_data, 
+            self.qpriors, 
+            self.qstart, 
+            lstm_model=model_lstm, 
+            nsamples=nsamples)
          qparams = MCMCobj.sample()
          self.plot_dist(qparams, dc)
         
