@@ -4,8 +4,8 @@ FROM python:3.8
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy the current directory contents into the container at /usr/src/app
-COPY . .
+# Copy only the Python directory contents into the container at /usr/src/app
+COPY Python/ .
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
@@ -16,5 +16,5 @@ EXPOSE 80
 # Define environment variable
 ENV NAME World
 
-# Run app.py when the container launches
+# Run dl_inference.py when the container launches
 CMD ["python", "./dl_inference.py"]
