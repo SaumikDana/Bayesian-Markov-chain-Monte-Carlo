@@ -7,3 +7,4 @@ executable
 *.db
 *.csv
 *.zip
+*.json

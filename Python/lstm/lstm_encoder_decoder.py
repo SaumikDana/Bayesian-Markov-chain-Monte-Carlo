@@ -1,6 +1,3 @@
-__author__ = "Saumik Dana"
-__purpose__ = "Demonstrate Bayesian inference using RSF model"
-
 import numpy as np
 import random
 from tqdm import trange
@@ -13,9 +10,7 @@ import torch.nn.functional as F
 
 class lstm_encoder(nn.Module):
     ''' Encodes time-series sequence '''
-
     def __init__(self, input_size, hidden_size, num_layers):
-        
         '''
         : param input_size:     the number of features in the input X
         : param hidden_size:    the number of features in the hidden state h
@@ -28,24 +23,27 @@ class lstm_encoder(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, nonlinearity = 'tanh')
+        self.lstm = nn.RNN(
+            input_size = input_size, 
+            hidden_size = hidden_size, 
+            num_layers = num_layers, 
+            nonlinearity = 'tanh')
 
-
-    def forward(self, x_input): # called internally by pytorch
-        
+    def forward(self, x_input):
         '''
         : param x_input:               input of shape (seq_len, # in batch, input_size)
         : return lstm_out, hidden:     lstm_out gives all the hidden states in the sequence;
         :                              hidden gives the hidden state and cell state for the last
         :                              element in the sequence 
         '''
-        lstm_out, self.hidden = self.lstm(x_input.view(x_input.shape[0], x_input.shape[1], self.input_size)) 
+        lstm_out, self.hidden = self.lstm(
+            x_input.view(x_input.shape[0], 
+                         x_input.shape[1], 
+                         self.input_size)) 
         
         return lstm_out, self.hidden     
-
     
     def init_hidden(self, batch_size):
-        
         '''
         initialize hidden state
         : param batch_size:    x_input.shape[1]
@@ -58,9 +56,7 @@ class lstm_encoder(nn.Module):
 
 class lstm_decoder(nn.Module):
     ''' Decodes hidden state output by encoder '''
-    
     def __init__(self, input_size, hidden_size, num_layers = 1):
-
         '''
         : param input_size:     the number of features in the input X
         : param hidden_size:    the number of features in the hidden state h
@@ -73,12 +69,14 @@ class lstm_decoder(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        self.lstm = nn.RNN(input_size = input_size, hidden_size = hidden_size, num_layers = num_layers, nonlinearity = 'tanh')
+        self.lstm = nn.RNN(
+            input_size = input_size, 
+            hidden_size = hidden_size, 
+            num_layers = num_layers, 
+            nonlinearity = 'tanh')
         self.linear = nn.Linear(hidden_size, input_size)           
 
-
-    def forward(self, x_input, encoder_hidden_states): # called internally by pytorch
-        
+    def forward(self, x_input, encoder_hidden_states):
         '''        
         : param x_input:                    should be 2D (batch_size, input_size)
         : param encoder_hidden_states:      hidden states
@@ -92,12 +90,9 @@ class lstm_decoder(nn.Module):
         
         return output, self.hidden
 
-
 class lstm_seq2seq(nn.Module):
-    ''' train LSTM encoder-decoder and make predictions '''
-    
+    ''' train LSTM encoder-decoder and make predictions '''    
     def __init__(self, input_size, hidden_size, num_layers,):
-
         '''
         : param input_size:     the number of expected features in the input X
         : param hidden_size:    the number of features in the hidden state h
@@ -114,7 +109,6 @@ class lstm_seq2seq(nn.Module):
 
 
     def train_model(self, input_tensor, target_tensor, n_epochs, target_len, batch_size):
-        
         '''
         train lstm encoder-decoder
         
@@ -155,9 +149,7 @@ class lstm_seq2seq(nn.Module):
                 
                 batch_loss = 0.
 
-                # shuffled list!!!
                 b_ = range(n_batches)
-                # random.shuffle(b_)
 
                 for b in b_:
                     # select data 
@@ -238,8 +230,7 @@ class lstm_seq2seq(nn.Module):
         return losses
 
 
-    def predict(self, input_tensor, target_len):
-        
+    def predict(self, input_tensor, target_len):        
         '''
         : param input_tensor:      input data (seq_len, input_size); PyTorch tensor 
         : param target_len:        number of target values to predict 
