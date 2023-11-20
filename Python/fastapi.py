@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List
 
 from rsf import rsf
-from RateStateModel import RateStateModel
+from ratestatemodel import RateStateModel
 import matplotlib.pyplot as plt
 
 app = FastAPI()
@@ -26,16 +26,20 @@ def visualize_endpoint():
     visualize_data()
     return {"message": "Data visualization initiated"}
 
+NUMBER_SLIP_VALUES = 5
+LOWEST_SLIP_VALUE = 100.
+LARGEST_SLIP_VALUE = 1000.
+QSTART = 10.
+NUMBER_TIME_STEPS = 500
+
 def run_simulation(qpriors, format, nsamples):
     # Inference problem setup
-    problem = rsf(number_slip_values=5,
-                  lowest_slip_value=100.,
-                  largest_slip_value=1000.,
-                  qstart=10.,
+    problem = rsf(number_slip_values=NUMBER_SLIP_VALUES,
+                  lowest_slip_value=LOWEST_SLIP_VALUE,
+                  largest_slip_value=LARGEST_SLIP_VALUE,
+                  qstart=QSTART,
                   qpriors=qpriors)
-
-    # RSF model setup
-    problem.model = RateStateModel(number_time_steps=500)
+    problem.model = RateStateModel(number_time_steps=NUMBER_TIME_STEPS)
 
     # Generate the time series for the RSF model
     data = problem.generate_time_series()

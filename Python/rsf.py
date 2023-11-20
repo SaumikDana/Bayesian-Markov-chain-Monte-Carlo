@@ -1,6 +1,6 @@
 import numpy as np
 import lstm_encoder_decoder
-from MCMC import MCMC
+from mcmc import MCMC
 import torch
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
@@ -183,7 +183,7 @@ class rsf:
          count_dc += 1
          del X, Y, T
 
-   def initialize_arrays(self, n_train, window, num_samples_per_dc):
+   def initialize_arrays(self, n_train, window):
       """
       Initialize arrays for target, input, and output signals.
 
