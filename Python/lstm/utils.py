@@ -3,10 +3,50 @@ import matplotlib.pyplot as plt
 import torch
 from .lstm_encoder_decoder import lstm_seq2seq
 
+class RateStateModel:
+    """ 
+    Class for rate and state model 
+    """
+
+    def reduced_order_model_evaluate(self,lstm_model):
+         
+        # Calculate the number of steps to take
+        num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))
+        window    = int(self.num_tsteps/20)
+
+        # Create arrays to store trajectory
+        t         = np.zeros((num_steps, 2))
+        acc       = np.zeros((num_steps, 2))
+        t[0, 0]   = self.t_start
+
+        # Calculate the time array
+        k = 1
+        while k < num_steps:
+            t[k, 0] = t[k-1, 0] + self.delta_t
+            k += 1
+
+        t[:, 1]    = self.Dc
+        num_steps  = int(num_steps / window)
+        train_plt  = np.zeros((window, 2))
+
+        # Predict acceleration using the LSTM model
+        for step_number in range(num_steps):
+            start                  = step_number * window
+            end                    = start + window
+            train_plt[0:window, 0] = t[start:end, 0]
+            train_plt[0:window, 1] = t[start:end, 1]
+            train_plt_torch        = torch.from_numpy(train_plt).type(torch.Tensor)
+            Y_train_pred           = lstm_model.predict(train_plt_torch, target_len=window)
+            acc[start:end, 0]      = Y_train_pred[:, 0]
+            acc[start:end, 1]      = Y_train_pred[:, 0]
+
+        # Return the time and acceleration arrays
+        return t, acc
+
 class rsf:
-   '''
+   """
    Driver class for RSF model
-   '''
+   """
 
    def _create_training_sequences(self, data, T, window, stride):
       """
@@ -23,7 +63,10 @@ class rsf:
             Y_train[:, i, feature_index] = data[start:end, feature_index]
             T_train[:, i, feature_index] = T[start:end, feature_index]
 
-      return n_train, torch.from_numpy(Y_train).type(torch.Tensor), torch.from_numpy(T_train).type(torch.Tensor)
+      Y_train_torch = torch.from_numpy(Y_train).type(torch.Tensor)
+      T_train_torch = torch.from_numpy(T_train).type(torch.Tensor)
+      
+      return n_train, Y_train_torch, T_train_torch
          
    def build_lstm(self, epochs=20, num_layers=1, batch_size=1):
       """
@@ -68,16 +111,16 @@ class rsf:
 
       for dc in self.dc_list:
          num_samples_per_dc = int(n_train / self.num_dc)
-         X, Y, T = self.initialize_arrays(n_train, window, num_samples_per_dc)
-
-         for ii in range(num_samples_per_dc):
-            start = ii * stride
-            end = start + window
-            train_plt = Ttrain[:, count_dc * num_samples_per_dc + ii, :]
-            Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len=window)
-            X[start:end] = Ytrain[:, count_dc * num_samples_per_dc + ii, 0]
-            Y[start:end] = Y_train_pred[:, 0]
-            T[start:end] = Ttrain[:, count_dc * num_samples_per_dc + ii, 0]
+         X, Y, T            = self.initialize_arrays(n_train, window, num_samples_per_dc)
+         for sample_number in range(num_samples_per_dc):
+            start           = sample_number * stride
+            end             = start + window
+            train_plt       = Ttrain[:, count_dc * num_samples_per_dc + sample_number, :]
+            train_plt_torch = torch.from_numpy(train_plt).type(torch.Tensor)
+            Y_train_pred    = lstm_model.predict(train_plt_torch, target_len=window)
+            X[start:end]    = Ytrain[:, count_dc * num_samples_per_dc + sample_number, 0]
+            Y[start:end]    = Y_train_pred[:, 0]
+            T[start:end]    = Ttrain[:, count_dc * num_samples_per_dc + sample_number, 0]
 
          self.plot_signals(T, X, Y, dc)
          count_dc += 1

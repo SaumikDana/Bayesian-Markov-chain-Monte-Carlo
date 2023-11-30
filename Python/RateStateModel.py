@@ -3,9 +3,18 @@ import numpy as np
 from scipy import integrate
 import matplotlib.pyplot as plt
 from math import exp, log, pi, sin, cos
-import torch
+from lstm.utils import RateStateModel as RateStateModel_base
 
-class RateStateModel:
+# Constants
+A = 0.011
+B = 0.014
+MU_REF = 0.6
+V_REF = 1.
+K1 = 1.E-7
+START_TIME = 0.0
+END_TIME = 50.0
+
+class RateStateModel(RateStateModel_base):
     """ 
     Class for rate and state model 
     """
@@ -13,15 +22,15 @@ class RateStateModel:
     def __init__(
         self, 
         number_time_steps=500, 
-        start_time=0.0, 
-        end_time=50.0):
+        start_time=START_TIME, 
+        end_time=END_TIME):
 
         # Define model constants
-        self.a = 0.011
-        self.b = 0.014
-        self.mu_ref = 0.6
-        self.V_ref = 1
-        self.k1 = 1e-7
+        self.a = A
+        self.b = B
+        self.mu_ref = MU_REF
+        self.V_ref = V_REF
+        self.k1 = K1
 
         # Define time range
         self.t_start = start_time
@@ -30,8 +39,7 @@ class RateStateModel:
         self.delta_t = (end_time - start_time) / number_time_steps
 
         # Define initial conditions
-        self.mu_t_zero = 0.6
-        self.V_ref = 1.0
+        self.mu_t_zero = MU_REF
 
         # Add additional model constants
         self.RadiationDamping = True
@@ -126,38 +134,3 @@ class RateStateModel:
 
         # Return the data for plotting and analysis
         return t, acc, acc_noise
-
-    def reduced_order_model_evaluate(self,lstm_model):
-         
-        # Calculate the number of steps to take
-        num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))
-        window  = int(self.num_tsteps/20)
-
-        # Create arrays to store trajectory
-        t = np.zeros((num_steps, 2))
-        acc = np.zeros((num_steps, 2))
-
-        t[0, 0] = self.t_start
-
-        # Calculate the time array
-        k = 1
-        while k < num_steps:
-            t[k, 0] = t[k-1, 0] + self.delta_t
-            k += 1
-
-        t[:, 1] = self.Dc
-        num_steps_ = int(num_steps / window)
-        train_plt = np.zeros((window, 2))
-
-        # Predict acceleration using the LSTM model
-        for ii in range(num_steps_):
-            start = ii * window
-            end = start + window
-            train_plt[0:window, 0] = t[start:end, 0]
-            train_plt[0:window, 1] = t[start:end, 1]
-            Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len=window)
-            acc[start:end, 0] = Y_train_pred[:, 0]
-            acc[start:end, 1] = Y_train_pred[:, 0]
-
-        # Return the time and acceleration arrays
-        return t, acc
