@@ -6,7 +6,16 @@ class MCMC:
     Class for MCMC sampling
     """
     def __init__(
-        self, model, data, qpriors, qstart, nsamples=100, lstm_model={}, adapt_interval=10, verbose=True):
+        self, 
+        model, 
+        data, 
+        qpriors, 
+        qstart, 
+        nsamples=100, 
+        lstm_model={}, 
+        adapt_interval=10, 
+        verbose=True
+        ):
 
         self.model          = model
         self.qstart         = qstart
@@ -25,12 +34,10 @@ class MCMC:
     def evaluate_model(self):
 
         if self.lstm_model:
-            acc = self.model.rom_evaluate(self.lstm_model)[1]
+            return self.model.reduced_order_model.evaluate(self.lstm_model)[1]
         else:
-            acc = self.model.evaluate()[1]
-
-        return acc
-
+            return self.model.evaluate()[1]
+            
     def update_standard_deviation(self, SSqprev):
 
         # Update the estimate of the standard deviation
@@ -115,12 +122,7 @@ class MCMC:
             # based on the acceptance probability and a random number
             accept = accept_prob > np.log(np.random.rand(1))[0]
 
-        if accept:
-            # If accepted, return the boolean True and the sum of squares error of the new proposal
-            return accept, SSqnew
-        else:
-            # If rejected, return the boolean False and the sum of squares error of the previous proposal
-            return accept, SSqprev
+        return accept, SSqnew if accept else SSqprev
 
     def SSqcalc(self, q_new):
         """ 
@@ -128,6 +130,7 @@ class MCMC:
         evaluates the model's performance, and computes the sum of squares error 
         between the model's accuracy and the data.
         """
+
         # Update the Dc parameter of the model with the new proposal
         self.model.Dc = q_new[0,]
 

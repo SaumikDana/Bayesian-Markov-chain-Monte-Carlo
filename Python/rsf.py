@@ -1,15 +1,15 @@
 import numpy as np
-from lstm.lstm_encoder_decoder import lstm_seq2seq
 from mcmc import MCMC
-import torch
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 import time
+from lstm.utils import rsf as rsf_base
 
 def measure_execution_time(func):
     """
     Decorator to measure the execution time of a function.
     """
+
     def wrapper(*args, **kwargs):
         start_time = time.time()
         result = func(*args, **kwargs)
@@ -18,19 +18,21 @@ def measure_execution_time(func):
         return execution_time
     return wrapper
 
-class rsf:
+class rsf(rsf_base):
    '''
    Driver class for RSF model
    '''
+
    def __init__(
       self, 
       number_slip_values=1, 
       lowest_slip_value=1.0, 
       largest_slip_value=1000.0,
       qstart=10.0,
-      qpriors=["Uniform", 0.0, 10000.0], 
+      qpriors=["Uniform", 0.0, 10000.0],
+      reduction=False, 
       plotfigs=False
-   ):
+      ):
       """
       Initialize the class with specified parameters.
 
@@ -42,14 +44,13 @@ class rsf:
       :param plotfigs: Flag to indicate if figures should be plotted.
       """
 
-      self.num_dc = number_slip_values
-      self.dc_list = np.linspace(lowest_slip_value, largest_slip_value, self.num_dc)
-
+      self.num_dc       = number_slip_values
+      self.dc_list      = np.linspace(lowest_slip_value, largest_slip_value, self.num_dc)
       self.num_features = 2
-      self.plotfigs = plotfigs
-
-      self.qstart = qstart
-      self.qpriors = qpriors
+      self.plotfigs     = plotfigs
+      self.qstart       = qstart
+      self.qpriors      = qpriors
+      self.reduction    = reduction
 
       return
    
@@ -88,18 +89,10 @@ class rsf:
       :param time: Array of time values.
       :param acceleration: Array of acceleration values.
       """
+
       if not self.plotfigs:
          return
 
-      self._create_plot(time, acceleration)
-
-   def _create_plot(self, time, acceleration):
-      """
-      Helper method to create the plot.
-
-      :param time: Array of time values.
-      :param acceleration: Array of acceleration values.
-      """
       plt.figure()
       title = f'$d_c$={self.model.Dc} $\mu m$ RSF solution'
       plt.title(title)
@@ -110,79 +103,6 @@ class rsf:
       plt.grid(True)
       plt.legend()
 
-   def _create_training_sequences(self, data, T, window, stride):
-      """
-      Create training sequences for the LSTM model.
-      """
-      n_train = (data.shape[0] - window) // stride + 1
-      Y_train = np.zeros([window, n_train, self.num_features])
-      T_train = np.zeros([window, n_train, self.num_features])
-
-      for feature_index in range(self.num_features):
-         for i in range(n_train):
-               start, end = stride * i, stride * i + window
-               Y_train[:, i, feature_index] = data[start:end, feature_index]
-               T_train[:, i, feature_index] = T[start:end, feature_index]
-
-      return n_train, torch.from_numpy(Y_train).type(torch.Tensor), torch.from_numpy(T_train).type(torch.Tensor)
-         
-   def build_lstm(self, epochs=20, num_layers=1, batch_size=1):
-      """
-      Build and train an LSTM model.
-      """
-      window  = int(self.model.num_tsteps/20)
-      stride  = int(window/5)
-      T       = self.t_appended.reshape(-1,self.num_features)
-      data    = self.acc_appended.reshape(-1,self.num_features)
-      
-      # Generate the sequences for training
-      n_train, Y_train, T_train = self._create_training_sequences(data, T, window, stride)
-
-      # Define the parameters for the LSTM model      
-      hidden_size  = window
-      lstm_model = lstm_seq2seq(T_train.shape[2], hidden_size, num_layers)
-
-      # Train the model
-      _ = lstm_model.train_model(T_train, Y_train, epochs, window, batch_size)
-
-      # Plot the results of the trained LSTM model
-      self.plot_lstm(n_train, window, stride, T_train.numpy(), Y_train.numpy(), lstm_model)
-
-      return lstm_model
-
-   def plot_lstm(self, n_train, window, stride, Ttrain, Ytrain, lstm_model):
-      """
-      Plot the results of the trained LSTM model.
-
-      Parameters:
-      n_train (int): Number of training samples.
-      window (int): Window size for LSTM.
-      stride (int): Stride for window.
-      Ttrain (numpy.ndarray): Training time data.
-      Ytrain (numpy.ndarray): Training target data.
-      lstm_model (Model): Trained LSTM model.
-      """
-
-      plt.rcParams.update({'font.size': 10})
-      count_dc = 0
-
-      for dc in self.dc_list:
-         num_samples_per_dc = int(n_train / self.num_dc)
-         X, Y, T = self.initialize_arrays(n_train, window, num_samples_per_dc)
-
-         for ii in range(num_samples_per_dc):
-               start = ii * stride
-               end = start + window
-               train_plt = Ttrain[:, count_dc * num_samples_per_dc + ii, :]
-               Y_train_pred = lstm_model.predict(torch.from_numpy(train_plt).type(torch.Tensor), target_len=window)
-               X[start:end] = Ytrain[:, count_dc * num_samples_per_dc + ii, 0]
-               Y[start:end] = Y_train_pred[:, 0]
-               T[start:end] = Ttrain[:, count_dc * num_samples_per_dc + ii, 0]
-
-         self.plot_signals(T, X, Y, dc)
-         count_dc += 1
-         del X, Y, T
-
    def initialize_arrays(self, n_train, window):
       """
       Initialize arrays for target, input, and output signals.
@@ -190,6 +110,7 @@ class rsf:
       Returns:
       Tuple of numpy.ndarrays: Initialized arrays X, Y, T.
       """
+
       array_size = int(n_train * window / self.num_dc)
       return (np.zeros(array_size), np.zeros(array_size), np.zeros(array_size))
 
@@ -203,6 +124,7 @@ class rsf:
       Y (numpy.ndarray): Predicted signal data.
       dc (float): Displacement current.
       """
+
       plt.figure()
       plt.plot(T, X, '-', linewidth=1.0, markersize=1.0, label='Target')
       plt.plot(T, Y, '-', linewidth=1.0, markersize=1.0, label='Predicted')
@@ -213,23 +135,11 @@ class rsf:
       plt.tight_layout()
       plt.show()
            
-   @measure_execution_time
-   def inference(self, data, nsamples, reduction=False):
-      """
-      Run the MCMC algorithm to estimate the posterior distribution of the model parameters
-      Plot the posterior distribution of the model parameters   
-      """
-      data = self.prepare_data(data)
-
-      # Return the LSTM model
-      model_lstm = self.build_lstm() if reduction else None 
-
-      for dc in self.dc_list:
-         self.perform_sampling_and_plotting(data, dc, nsamples, reduction, model_lstm)
-
-      return
-
    def prepare_data(self, data):
+      """
+      MySQL or JSON.
+      """
+
       if self.format == 'json':
          from utils.json_save_load import save_object, load_object
          self.lstm_file = 'model_lstm.json'
@@ -249,40 +159,6 @@ class rsf:
 
       return data
 
-   def perform_sampling_and_plotting(self, data, dc, nsamples, reduction, model_lstm):
-      # Find the index of 'dc' in the NumPy array 'self.dc_list'
-      index = np.where(self.dc_list == dc)[0][0] if dc in self.dc_list else -1
-      if index == -1:
-         print(f"Error: dc value {dc} not found in dc_list.")
-         return
-
-      start = index * self.model.num_tsteps
-      end = start + self.model.num_tsteps
-      noisy_data = data[start:end]
-      print('--- Dc is %s ---' % dc)
-
-      # Perform MCMC sampling without reduction
-      MCMCobj = MCMC(
-         self.model, 
-         noisy_data, 
-         self.qpriors, 
-         self.qstart, 
-         nsamples=nsamples)
-      qparams = MCMCobj.sample()
-      self.plot_dist(qparams, dc)
-
-      # Perform MCMC sampling with reduction using LSTM model
-      if reduction:
-         MCMCobj = MCMC(
-            self.model, 
-            noisy_data, 
-            self.qpriors, 
-            self.qstart, 
-            lstm_model=model_lstm, 
-            nsamples=nsamples)
-         qparams = MCMCobj.sample()
-         self.plot_dist(qparams, dc)
-        
    def plot_dist(self, qparams, dc):
       """
       Plot the distribution of MCMC samples and their probability density.
@@ -291,7 +167,7 @@ class rsf:
          qparams: MCMC sample parameters.
          dc: Critical slip distance value.
       """
-      # Constants
+
       KDE_POINTS = 1000
       PLOT_WIDTH_RATIO = [0.7, 0.15]
       PLOT_SPACING = 0.15
@@ -318,5 +194,65 @@ class rsf:
       axes[1].get_yaxis().set_visible(False)
       axes[1].get_xaxis().set_visible(True)
       axes[1].get_xaxis().set_ticks([])
+
+      return
+
+   def perform_sampling_and_plotting(self, data, dc, nsamples, model_lstm):
+      """
+      Perform the MCMC sampling   
+      """
+
+      # Find the index of 'dc' in the NumPy array 'self.dc_list'
+      index = np.where(self.dc_list == dc)[0][0] if dc in self.dc_list else -1
+      if index == -1:
+         print(f"Error: dc value {dc} not found in dc_list.")
+         return
+
+      # Start and End Indices for time series for that dc
+      start = index * self.model.num_tsteps
+      end = start + self.model.num_tsteps
+      noisy_data = data[start:end]
+      print(f'--- Dc is {dc} ---')
+
+      if self.reduction:
+         # With reduction using LSTM model
+         MCMCobj = MCMC(
+            self.model, 
+            noisy_data, 
+            self.qpriors, 
+            self.qstart, 
+            lstm_model=model_lstm, 
+            nsamples=nsamples
+            )
+      else:
+         # Without reduction
+         MCMCobj = MCMC(
+            self.model, 
+            noisy_data, 
+            self.qpriors, 
+            self.qstart, 
+            nsamples=nsamples
+            )
+
+      # Perform MCMC sampling
+      qparams = MCMCobj.sample()
+
+      # Plot final distribution
+      self.plot_dist(qparams, dc)
+        
+   @measure_execution_time
+   def inference(self, nsamples):
+      """
+      Run the MCMC algorithm to estimate the posterior distribution of the model parameters
+      Plot the posterior distribution of the model parameters   
+      """
+
+      data = self.prepare_data(self.data)
+
+      # Return the LSTM model
+      model_lstm = self.build_lstm() if self.reduction else None 
+
+      for dc in self.dc_list:
+         self.perform_sampling_and_plotting(data, dc, nsamples, model_lstm)
 
       return

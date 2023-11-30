@@ -18,12 +18,14 @@ def setup_problem():
     Returns:
         problem: Configured RSF problem instance.
     """
-    problem = rsf(number_slip_values=NUMBER_SLIP_VALUES,
-                  lowest_slip_value=LOWEST_SLIP_VALUE,
-                  largest_slip_value=LARGEST_SLIP_VALUE,
-                  qstart=QSTART,
-                  qpriors=QPRIORS)
+    problem       = rsf(number_slip_values=NUMBER_SLIP_VALUES,
+                        lowest_slip_value=LOWEST_SLIP_VALUE,
+                        largest_slip_value=LARGEST_SLIP_VALUE,
+                        qstart=QSTART,
+                        qpriors=QPRIORS
+                        )
     problem.model = RateStateModel(number_time_steps=NUMBER_TIME_STEPS)
+    problem.data  = problem.generate_time_series()
     return problem
 
 def perform_inference(problem, data_format, nsamples):
@@ -39,7 +41,7 @@ def perform_inference(problem, data_format, nsamples):
         Time taken for the inference process.
     """
     problem.format = data_format
-    return problem.inference(problem.generate_time_series(), nsamples=nsamples)
+    return problem.inference(nsamples=nsamples)
 
 def main():
     """

@@ -40,7 +40,7 @@ class RateStateModel:
         return
         
     def evaluate(self):
-
+        
         def friction(t, y):
 
             # Just to help readability
@@ -127,7 +127,7 @@ class RateStateModel:
         # Return the data for plotting and analysis
         return t, acc, acc_noise
 
-    def rom_evaluate(self,lstm_model):
+    def reduced_order_model_evaluate(self,lstm_model):
          
         # Calculate the number of steps to take
         num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))

@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 
-from rsf import rsf
-from ratestatemodel import RateStateModel
+from python.rsf import rsf
+from python.ratestatemodel import RateStateModel
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
