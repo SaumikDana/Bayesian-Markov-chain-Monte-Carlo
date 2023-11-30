@@ -1,6 +1,6 @@
 from rsf import rsf
 import matplotlib.pyplot as plt
-from ratestatemodel import RateStateModel
+from RateStateModel import RateStateModel
 
 # Constants
 NUMBER_SLIP_VALUES = 5

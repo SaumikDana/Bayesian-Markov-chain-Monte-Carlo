@@ -1,5 +1,5 @@
 import numpy as np
-from mcmc import MCMC
+from MCMC import MCMC
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 import time
