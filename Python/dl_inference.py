@@ -18,7 +18,7 @@ def setup_problem():
     Returns:
         problem: Configured RSF problem instance.
     """
-    problem       = rsf(number_slip_values=NUMBER_SLIP_VALUES,
+    problem       = RSF(number_slip_values=NUMBER_SLIP_VALUES,
                         lowest_slip_value=LOWEST_SLIP_VALUE,
                         largest_slip_value=LARGEST_SLIP_VALUE,
                         qstart=QSTART,
