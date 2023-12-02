@@ -1,4 +1,4 @@
-from rsf import rsf
+from RSF import RSF
 import matplotlib.pyplot as plt
 from RateStateModel import RateStateModel
 

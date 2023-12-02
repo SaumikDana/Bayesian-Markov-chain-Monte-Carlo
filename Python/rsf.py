@@ -3,7 +3,7 @@ from MCMC import MCMC
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 import time
-from lstm.utils import rsf as rsf_base
+from lstm.utils import RSF as RSF_base
 
 def measure_execution_time(func):
     """
@@ -18,7 +18,7 @@ def measure_execution_time(func):
         return execution_time
     return wrapper
 
-class rsf(rsf_base):
+class RSF(RSF_base):
    '''
    Driver class for RSF model
    '''

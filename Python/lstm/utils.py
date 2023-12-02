@@ -43,7 +43,7 @@ class RateStateModel:
         # Return the time and acceleration arrays
         return t, acc
 
-class rsf:
+class RSF:
    """
    Driver class for RSF model
    """
