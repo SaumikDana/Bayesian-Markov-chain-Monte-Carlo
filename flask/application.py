@@ -1,17 +1,11 @@
-# To allow my website to run the API!!!
-from flask import Flask
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
-# To allow my website to run the API!!!
-
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from ..Python.dl_inference import setup_problem, perform_inference
 
-app = Flask(__name__)
+application = Flask(__name__)
+CORS(application)
 
-@app.route('/setup', methods=['GET'])
+@application.route('/setup', methods=['GET'])
 def setup():
     # Set up the RSF problem and store the problem instance for later use
     problem = setup_problem()
@@ -19,7 +13,7 @@ def setup():
     # For simplicity, this example will not handle the storage
     return jsonify({"message": "Problem setup complete"})
 
-@app.route('/inference', methods=['GET'])
+@application.route('/inference', methods=['GET'])
 def inference():
     # Retrieve parameters from the request
     data_format = request.args.get('format', default='json', type=str)
@@ -44,4 +38,4 @@ def retrieve_problem():
     return None
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    application.run(debug=False)
