@@ -1,3 +1,11 @@
+# To allow my website to run the API!!!
+from flask import Flask
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+# To allow my website to run the API!!!
+
 from flask import Flask, jsonify, request
 from ..Python.dl_inference import setup_problem, perform_inference
 
