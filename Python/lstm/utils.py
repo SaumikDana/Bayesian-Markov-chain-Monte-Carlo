@@ -9,28 +9,8 @@ class RateStateModel:
     """
 
     def reduced_order_model_evaluate(self,lstm_model):
-         
-        # Calculate the number of steps to take
-        num_steps = int(np.floor((self.t_final - self.t_start) / self.delta_t))
-        window    = int(self.num_tsteps/20)
 
-        # Create arrays to store trajectory
-        t         = np.zeros((num_steps, 2))
-        acc       = np.zeros((num_steps, 2))
-        t[0, 0]   = self.t_start
-
-        # Calculate the time array
-        k = 1
-        while k < num_steps:
-            t[k, 0] = t[k-1, 0] + self.delta_t
-            k += 1
-
-        t[:, 1]    = self.Dc
-        num_steps  = int(num_steps / window)
-        train_plt  = np.zeros((window, 2))
-
-        # Predict acceleration using the LSTM model
-        for step_number in range(num_steps):
+        def get_acc_for_current_step(step_number, window, t):
             start                  = step_number * window
             end                    = start + window
             train_plt[0:window, 0] = t[start:end, 0]
@@ -39,6 +19,27 @@ class RateStateModel:
             Y_train_pred           = lstm_model.predict(train_plt_torch, target_len=window)
             acc[start:end, 0]      = Y_train_pred[:, 0]
             acc[start:end, 1]      = Y_train_pred[:, 0]
+            return acc 
+                
+        # Calculate the number of steps to take
+        num_steps   = int(np.floor((self.t_final - self.t_start) / self.delta_t))
+        window      = int(self.num_tsteps/20)
+        # Create arrays to store trajectory
+        t           = np.zeros((num_steps, 2))
+        acc         = np.zeros((num_steps, 2))
+        t[0, 0]     = self.t_start
+        # Calculate the time array
+        k = 1
+        while k < num_steps:
+            t[k, 0] = t[k-1, 0] + self.delta_t
+            k += 1
+        t[:, 1]     = self.Dc
+        num_steps   = int(num_steps / window)
+        train_plt   = np.zeros((window, 2))
+
+        # Predict acceleration using the LSTM model
+        for step_number in range(num_steps):
+            acc     = get_acc_for_current_step(step_number, window, t)
 
         # Return the time and acceleration arrays
         return t, acc
@@ -176,7 +177,4 @@ def plot_lstm_predictions(model, Ttrain, Ytrain, Ttest, Ytest, num_rows=4):
     plt.subplots_adjust(top=0.95)
     plt.savefig('plots/predictions.png')
     plt.show()
-
-# Example usage:
-# plot_lstm_predictions(lstm_model, Ttrain, Ytrain, Ttest, Ytest, num_rows=4)
 

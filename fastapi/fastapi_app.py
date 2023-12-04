@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 
-from python.rsf import rsf
-from python.ratestatemodel import RateStateModel
+from Python.RSF import RSF
+from Python.RateStateModel import RateStateModel
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -36,11 +36,12 @@ QPRIORS = ["Uniform", 0., 10000.]
 
 def run_simulation(format, nsamples):
     # Inference problem setup
-    problem = rsf(number_slip_values=NUMBER_SLIP_VALUES,
-                  lowest_slip_value=LOWEST_SLIP_VALUE,
-                  largest_slip_value=LARGEST_SLIP_VALUE,
-                  qstart=QSTART,
-                  qpriors=QPRIORS)
+    problem       = RSF(number_slip_values=NUMBER_SLIP_VALUES,
+                        lowest_slip_value=LOWEST_SLIP_VALUE,
+                        largest_slip_value=LARGEST_SLIP_VALUE,
+                        qstart=QSTART,
+                        qpriors=QPRIORS
+                        )
     problem.model = RateStateModel(number_time_steps=NUMBER_TIME_STEPS)
 
     # Generate the time series for the RSF model

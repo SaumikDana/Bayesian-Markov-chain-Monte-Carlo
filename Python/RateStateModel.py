@@ -1,8 +1,6 @@
-from scipy.misc import derivative
 import numpy as np
 from scipy import integrate
-import matplotlib.pyplot as plt
-from math import exp, log, pi, sin, cos
+from math import exp, log, sin
 from lstm.utils import RateStateModel as RateStateModel_base
 
 # Constants
@@ -23,7 +21,8 @@ class RateStateModel(RateStateModel_base):
         self, 
         number_time_steps=500, 
         start_time=START_TIME, 
-        end_time=END_TIME):
+        end_time=END_TIME
+    ):
 
         # Define model constants
         self.a = A
