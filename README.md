@@ -1,4 +1,4 @@
-# dl_inference: Bayesian MCMC in Rate State Models
+# Bayesian MCMC in Rate State Models
 
 ## Introduction
 `dl_inference` is a tool that implements a Rate State model and performs Bayesian inference using MCMC sampling, designed for Python and C++ environments.
@@ -40,5 +40,4 @@ For support or collaboration: dana.spk5@gmail.com
 Licensed under [LICENSE NAME](path/to/LICENSE).
 
 ---
-
-dl_inference © [Your Name or Organization]
+Copyright © [Saumik Dana]
