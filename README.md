@@ -27,12 +27,6 @@ Adjust parameters like `number_slip_values`, `lowest_slip_value`, `largest_slip_
 ## Paper Summary
 Based on "Bayesian Inference Framework for Rate and State Fault Friction Models", this tool estimates the critical slip distance in fault friction models.
 
-## How to Contribute
-See [CONTRIBUTING.md](path/to/CONTRIBUTING.md) for guidelines.
-
-## Troubleshooting
-Visit our [FAQ section](path/to/FAQ.md) for common issues and solutions.
-
 ## Contact
 For support or collaboration: dana.spk5@gmail.com
 
