@@ -96,7 +96,5 @@ api.add_resource(RunSimulation, '/run-simulation')
 api.add_resource(RunInference, '/run-inference')
 api.add_resource(Visualize, '/visualize')
 
-# Core functions (run_simulation, run_inference, visualize_data) remain the same
-
 if __name__ == '__main__':
     app.run(debug=True)

@@ -20,13 +20,18 @@
 - Time Series Generation and Bayesian Inference using MCMC.
 - Visualization with `matplotlib`.
 
-### Customization
-Adjust parameters like `number_slip_values`, `lowest_slip_value`, `largest_slip_value`, and `qstart` as needed.
-
 ## Running FastAPI
 1. Install uvicorn
 2. Navigate to fastapi_api folder
 3. Run the main script: `uvicorn main:app --reload`
+4. Go to 
+
+## Running Flask
+1. Navigate to flask_api folder
+2. `export FLASK_APP=main.py`
+3. `flask run`
+4. On a separate terminal: `python3 flask_api_tester.py`. This will fire up the terminal on which
+flask is running, and the print statements will attest to that
 
 ## Paper Summary
 Based on "Arriving at estimates of a rate and state fault friction model parameter using Bayesian inference and Markov chain Monte Carlo
