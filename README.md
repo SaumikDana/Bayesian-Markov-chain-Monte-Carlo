@@ -36,8 +36,5 @@ https://www.sciencedirect.com/science/article/pii/S266654412200003X
 ## Contact
 For support or collaboration: dana.spk5@gmail.com
 
-## License
-Licensed under [LICENSE NAME](path/to/LICENSE).
-
 ---
 Copyright © [Saumik Dana]
