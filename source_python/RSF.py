@@ -1,9 +1,9 @@
 import numpy as np
-from MCMC import MCMC
+from .MCMC import MCMC
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 import time
-from lstm.utils import RSF as RSF_base
+from .lstm.utils import RSF as RSF_base
 
 def measure_execution_time(func):
     """
@@ -141,14 +141,14 @@ class RSF(RSF_base):
       """
 
       if self.format == 'json':
-         from utils.json_save_load import save_object, load_object
+         from .utils.json_save_load import save_object, load_object
          self.lstm_file = 'model_lstm.json'
          self.data_file = 'data.json'
          save_object(data, self.data_file)
          data = load_object(self.data_file)
 
       elif self.format == 'mysql':
-         from utils.mysql_save_load import save_object, load_object
+         from .utils.mysql_save_load import save_object, load_object
          # MySQL connection details
          mysql_host = 'localhost'
          mysql_user = 'my_user'

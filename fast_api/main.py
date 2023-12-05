@@ -2,8 +2,14 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 
-from Python.RSF import RSF
-from Python.RateStateModel import RateStateModel
+import sys
+from pathlib import Path
+
+# Add the parent directory to the Python path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from source_python.RSF import RSF
+from source_python.RateStateModel import RateStateModel
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -13,6 +19,10 @@ app = FastAPI()
 class SimulationParams(BaseModel):
     format: str  # Including the format parameter
     nsamples: int
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to my FastAPI application!"}
 
 @app.post("/run-simulation")
 def run_simulation_endpoint(params: SimulationParams):

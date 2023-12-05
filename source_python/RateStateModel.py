@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import integrate
 from math import exp, log, sin
-from lstm.utils import RateStateModel as RateStateModel_base
+from .lstm.utils import RateStateModel as RateStateModel_base
 
 # Constants
 A = 0.011
