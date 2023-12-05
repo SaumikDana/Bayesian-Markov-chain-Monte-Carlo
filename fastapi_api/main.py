@@ -13,11 +13,17 @@ from source_python.RateStateModel import RateStateModel
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import pickle
+import os
 
 app = FastAPI()
 
 class SimulationParams(BaseModel):
-    format: str  # Including the format parameter
+    nslips: int
+    lowest: float
+    largest: float
+
+class InferenceParams(BaseModel):
     nsamples: int
 
 @app.get("/")
@@ -26,10 +32,12 @@ def read_root():
 
 @app.post("/run-simulation")
 def run_simulation_endpoint(params: SimulationParams):
-    if params.format not in ["json", "mysql"]:
-        return {"error": "Invalid format specified"}
+    run_simulation(params.nslips, params.lowest, params.largest)
+    return {"message": "Forward simulation Complete! Data generated"}
 
-    time_taken = run_simulation(params.format, params.nsamples)
+@app.post("/run-inference")
+def run_inference_endpoint(params: InferenceParams):
+    time_taken = run_inference(params.nsamples)
     return {"time_taken": time_taken}
 
 @app.get("/visualize")
@@ -38,30 +46,40 @@ def visualize_endpoint():
     return {"message": "Data visualization initiated"}
 
 # Constants
-NUMBER_SLIP_VALUES = 10
-LOWEST_SLIP_VALUE = 100.
-LARGEST_SLIP_VALUE = 5000.
 QSTART = 1000.
 QPRIORS = ["Uniform", 0., 10000.]
 NUMBER_TIME_STEPS = 500
-NSAMPLES = 500
 
-def run_simulation(format, nsamples):
-    # Inference problem setup
-    problem       = RSF(number_slip_values=NUMBER_SLIP_VALUES,
-                        lowest_slip_value=LOWEST_SLIP_VALUE,
-                        largest_slip_value=LARGEST_SLIP_VALUE,
-                        qstart=QSTART,
-                        qpriors=QPRIORS
-                        )
+def run_simulation(nslips, lowest, largest):
+    # Problem setup
+    problem = RSF(number_slip_values=nslips,
+                  lowest_slip_value=lowest,
+                  largest_slip_value=largest,
+                  qstart=QSTART,
+                  qpriors=QPRIORS
+                  )
     problem.model = RateStateModel(number_time_steps=NUMBER_TIME_STEPS)
+    problem.data = problem.generate_time_series()
 
-    # Generate the time series for the RSF model
-    data = problem.generate_time_series()
+    # Serialize and save the problem object using pickle
+    with open('problem_data.pkl', 'wb') as file:  # Note the 'wb' mode for binary write
+        pickle.dump(problem, file)
 
-    # Set the data format and perform Bayesian inference
-    problem.format = format  # Ensuring the format is used in the problem
-    time_taken = problem.inference(data, nsamples=nsamples)
+    return
+
+def run_inference(nsamples):
+    # Load the problem object using pickle
+    with open('problem_data.pkl', 'rb') as file:  # Note the 'rb' mode for binary read
+        problem = pickle.load(file)
+
+    # Delete the pickle file after loading
+    os.remove('problem_data.pkl')
+
+    # Json format for saving and loading Objects
+    problem.format = 'json'
+    
+    # Perform inference
+    time_taken = problem.inference(nsamples=nsamples)
 
     return time_taken
 
