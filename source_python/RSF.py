@@ -32,7 +32,7 @@ class RSF(RSF_base):
       qpriors=["Uniform", 0.0, 10000.0],
       reduction=False, 
       plotfigs=False
-      ):
+   ):
       """
       Initialize the class with specified parameters.
 
