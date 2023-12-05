@@ -37,12 +37,14 @@ def visualize_endpoint():
     visualize_data()
     return {"message": "Data visualization initiated"}
 
-NUMBER_SLIP_VALUES = 5
+# Constants
+NUMBER_SLIP_VALUES = 10
 LOWEST_SLIP_VALUE = 100.
-LARGEST_SLIP_VALUE = 1000.
-QSTART = 10.
-NUMBER_TIME_STEPS = 500
+LARGEST_SLIP_VALUE = 5000.
+QSTART = 1000.
 QPRIORS = ["Uniform", 0., 10000.]
+NUMBER_TIME_STEPS = 500
+NSAMPLES = 500
 
 def run_simulation(format, nsamples):
     # Inference problem setup

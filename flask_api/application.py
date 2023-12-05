@@ -1,6 +1,13 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from ..Python.dl_inference import setup_problem, perform_inference
+
+import sys
+from pathlib import Path
+
+# Add the parent directory to the Python path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from source_python.dl_inference import setup_problem, perform_inference
 
 application = Flask(__name__)
 CORS(application)
