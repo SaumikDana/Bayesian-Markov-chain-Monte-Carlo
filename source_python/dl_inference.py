@@ -49,10 +49,7 @@ def main():
     """
     problem = setup_problem()
 
-    mysql_time = perform_inference(problem, 'mysql', NSAMPLES)
     json_time = perform_inference(problem, 'json', NSAMPLES)
-
-    print(f'\nRun Time For Inference: {mysql_time} & {json_time} seconds with mysql & json respectively\n')
 
     plt.show()
     plt.close('all')

@@ -214,25 +214,16 @@ class RSF(RSF_base):
       noisy_data = data[start:end]
       print(f'--- Dc is {dc} ---')
 
-      if self.reduction:
-         # With reduction using LSTM model
-         MCMCobj = MCMC(
-            self.model, 
-            noisy_data, 
-            self.qpriors, 
-            self.qstart, 
-            lstm_model=model_lstm, 
-            nsamples=nsamples
-            )
-      else:
-         # Without reduction
-         MCMCobj = MCMC(
-            self.model, 
-            noisy_data, 
-            self.qpriors, 
-            self.qstart, 
-            nsamples=nsamples
-            )
+      # Initialize MCMC object
+      MCMCobj = MCMC(
+         self.model, 
+         noisy_data,
+         dc, 
+         self.qpriors, 
+         self.qstart, 
+         lstm_model=model_lstm, 
+         nsamples=nsamples
+      )
 
       # Perform MCMC sampling
       qparams = MCMCobj.sample()

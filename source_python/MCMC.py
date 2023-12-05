@@ -1,5 +1,7 @@
 import numpy as np
-from scipy.stats import gamma 
+from scipy.stats import gamma
+import matplotlib.pyplot as plt 
+from matplotlib.animation import FuncAnimation
 
 class MCMC:
     """
@@ -8,14 +10,15 @@ class MCMC:
     def __init__(
         self, 
         model, 
-        data, 
+        data,
+        dc_true, 
         qpriors, 
         qstart, 
         nsamples=100, 
         lstm_model={}, 
         adapt_interval=10, 
         verbose=True
-        ):
+    ):
 
         self.model          = model
         self.qstart         = qstart
@@ -28,6 +31,7 @@ class MCMC:
         self.lstm_model     = lstm_model
         self.n0             = 0.01
         self.qstart_limits  = np.array([[self.qpriors[1], self.qpriors[2]]])
+        self.dc_true        = dc_true
 
         return
 
@@ -39,15 +43,21 @@ class MCMC:
             return self.model.evaluate()[1]
             
     def update_standard_deviation(self, SSqprev):
+        """ 
+        Update standard deviation with every sample
+        Accept/Reject criterion depends on the standard devation
+        """
 
-        # Update the estimate of the standard deviation
-        aval           = 0.5*(self.n0+len(self.data))
-        bval           = 0.5*(self.n0*self.std2[-1]+SSqprev)
+        aval = 0.5*(self.n0+len(self.data))
+        bval = 0.5*(self.n0*self.std2[-1]+SSqprev)
         self.std2.append(1/gamma.rvs(aval,scale=1/bval,size=1)[0])
 
     def update_covariance_matrix(self, qparams):
+        """ 
+        Update covariance matrix after a certain number of samples regularly
+        This is what makes it "Adaptive" Metropolis
+        """
 
-        # Update the estimate of the covariance matrix
         Vnew = 2.38**2/len(self.qpriors.keys())*np.cov(qparams[:,-self.adapt_interval:])
         if qparams.shape[0]==1:
             Vnew = np.reshape(Vnew,(-1,1))
@@ -55,7 +65,11 @@ class MCMC:
         return Vnew.copy()
 
     def compute_initial_covariance(self):
-
+        """ 
+        Compute initial covariance matrix 
+        Perturb the initial guess for Dc to compute this initial covariance
+        """
+         
         # Evaluate the model with the original dc value
         acc_ = self.evaluate_model()
 
@@ -157,6 +171,28 @@ class MCMC:
         SSqprev = self.SSqcalc(qparams) # Squared error of previously sampled parameters
         iaccept = 0 # Counter for accepted samples
 
+        # Animation setup
+        fig, ax = plt.subplots()
+        line, = ax.plot([], [], lw=2)
+        # Set title and labels
+        ax.set_title(f"MCMC Sampling Evolution for dc = {self.dc_true} as True value")
+        ax.set_xlabel("Sample Index")
+        ax.set_ylabel("Sample Value")
+
+        def init():
+            ax.set_xlim(0, self.nsamples)  # Set x-axis limits to the number of samples
+            # Set y-axis limits to a range that covers the expected values of qparams
+            ax.set_ylim(np.min(qparams) - 1, np.max(qparams) + 1) 
+            return line,
+
+        def update(frame):
+            # Update the line data to reflect the current state of qparams
+            # x-axis: indices from 0 to frame, y-axis: qparams values up to current frame
+            line.set_data(np.arange(frame), qparams[0, :frame])
+            return line,
+
+        anim = FuncAnimation(fig, update, frames=self.nsamples, init_func=init, blit=True)
+
         for isample in np.arange(self.nsamples):
             # Sample new parameters from a normal distribution 
             # with mean being the last element of qparams
@@ -167,7 +203,7 @@ class MCMC:
 
             # Print some diagnostic information
             print(isample,accept)
-            print("Generated sample ---- ",np.asscalar(q_new))
+            print("Generated Sample ---- ",np.asscalar(q_new))
 
             if accept:
                 # If the new sample is accepted, 
@@ -196,6 +232,13 @@ class MCMC:
 
        # Trim the estimate of the standard deviation to exclude burn-in samples  
         self.std2 = np.asarray(self.std2)[self.nburn:] 
-        
+
+        # Save the animation with the extracted dc_value in the filename
+        filename = f'mcmc_animation_dc_{self.dc_true:.2f}.mp4'  # Formats the Dc value to 2 decimal places
+        anim.save(filename, fps=30, writer='ffmpeg')
+
+        # Close the figure to free up memory
+        plt.close(fig)
+
         # Return accepted samples
         return qparams[:,self.nburn:]
