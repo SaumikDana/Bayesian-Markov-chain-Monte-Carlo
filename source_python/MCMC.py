@@ -69,8 +69,11 @@ class MCMC:
         Compute initial covariance matrix 
         Perturb the initial guess for Dc to compute this initial covariance
         """
-         
-        # Evaluate the model with the original dc value
+
+        # Initial Guess
+        self.model.Dc = self.qstart
+
+        # Evaluate the model on the initial guess                 
         acc_ = self.evaluate_model()
 
         # Perturb the dc value
@@ -175,7 +178,7 @@ class MCMC:
         fig, ax = plt.subplots()
         line, = ax.plot([], [], lw=2)
         # Set title and labels
-        ax.set_title(f"MCMC Sampling Evolution for dc = {self.dc_true} as True value")
+        ax.set_title(f"MCMC Sampling Evolution for dc = {self.dc_true:.2f} as True value")
         ax.set_xlabel("Sample Index")
         ax.set_ylabel("Sample Value")
 

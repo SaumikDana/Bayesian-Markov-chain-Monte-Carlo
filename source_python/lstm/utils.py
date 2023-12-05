@@ -94,6 +94,38 @@ class RSF:
 
       return lstm_model
 
+   def initialize_arrays(self, n_train, window):
+      """
+      Initialize arrays for target, input, and output signals.
+
+      Returns:
+      Tuple of numpy.ndarrays: Initialized arrays X, Y, T.
+      """
+
+      array_size = int(n_train * window / self.num_dc)
+      return (np.zeros(array_size), np.zeros(array_size), np.zeros(array_size))
+
+   def plot_signals(self, T, X, Y, dc):
+      """
+      Plot the target and predicted output signals.
+
+      Parameters:
+      T (numpy.ndarray): Time data.
+      X (numpy.ndarray): Target signal data.
+      Y (numpy.ndarray): Predicted signal data.
+      dc (float): Displacement current.
+      """
+
+      plt.figure()
+      plt.plot(T, X, '-', linewidth=1.0, markersize=1.0, label='Target')
+      plt.plot(T, Y, '-', linewidth=1.0, markersize=1.0, label='Predicted')
+      plt.xlabel('Time (sec)')
+      plt.ylabel('a (μm/s²)')
+      plt.legend(frameon=False)
+      plt.suptitle(f'Training data set for dc={dc} μm')
+      plt.tight_layout()
+      plt.show()
+
    def plot_lstm(self, n_train, window, stride, Ttrain, Ytrain, lstm_model):
       """
       Plot the results of the trained LSTM model.

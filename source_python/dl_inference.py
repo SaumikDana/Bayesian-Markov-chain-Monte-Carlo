@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 from .RateStateModel import RateStateModel
 
 # Constants
-NUMBER_SLIP_VALUES = 5
+NUMBER_SLIP_VALUES = 10
 LOWEST_SLIP_VALUE = 100.
-LARGEST_SLIP_VALUE = 1000.
-QSTART = 10.
+LARGEST_SLIP_VALUE = 5000.
+QSTART = 1000.
 QPRIORS = ["Uniform", 0., 10000.]
 NUMBER_TIME_STEPS = 500
 NSAMPLES = 500

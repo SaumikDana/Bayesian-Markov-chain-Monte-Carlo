@@ -102,38 +102,6 @@ class RSF(RSF_base):
       plt.ylabel('Acceleration $(\mu m/s^2)$')
       plt.grid(True)
       plt.legend()
-
-   def initialize_arrays(self, n_train, window):
-      """
-      Initialize arrays for target, input, and output signals.
-
-      Returns:
-      Tuple of numpy.ndarrays: Initialized arrays X, Y, T.
-      """
-
-      array_size = int(n_train * window / self.num_dc)
-      return (np.zeros(array_size), np.zeros(array_size), np.zeros(array_size))
-
-   def plot_signals(self, T, X, Y, dc):
-      """
-      Plot the target and predicted output signals.
-
-      Parameters:
-      T (numpy.ndarray): Time data.
-      X (numpy.ndarray): Target signal data.
-      Y (numpy.ndarray): Predicted signal data.
-      dc (float): Displacement current.
-      """
-
-      plt.figure()
-      plt.plot(T, X, '-', linewidth=1.0, markersize=1.0, label='Target')
-      plt.plot(T, Y, '-', linewidth=1.0, markersize=1.0, label='Predicted')
-      plt.xlabel('Time (sec)')
-      plt.ylabel('a (μm/s²)')
-      plt.legend(frameon=False)
-      plt.suptitle(f'Training data set for dc={dc} μm')
-      plt.tight_layout()
-      plt.show()
            
    def prepare_data(self, data):
       """
@@ -175,8 +143,9 @@ class RSF(RSF_base):
       PLOT_ALPHA = 0.3
 
       # Set up the plot layout
-      fig, axes = plt.subplots(1, 2, gridspec_kw={'width_ratios': PLOT_WIDTH_RATIO, 'wspace': PLOT_SPACING})
-      fig.suptitle(f'$d_c={dc}\,\mu m$ with {self.format} formatting', fontsize=10)
+      fig, axes = plt.subplots(
+         1, 2, gridspec_kw={'width_ratios': PLOT_WIDTH_RATIO, 'wspace': PLOT_SPACING})
+      fig.suptitle(f'$d_c={dc:.2f}\,\mu m$ with {self.format} formatting', fontsize=10)
 
       # Plot MCMC samples
       axes[0].plot(qparams[0, :], 'b-', linewidth=PLOT_LINE_WIDTH)
@@ -188,7 +157,8 @@ class RSF(RSF_base):
       kde_x_values = np.linspace(*axes[0].get_ylim(), KDE_POINTS)
       kde = gaussian_kde(qparams[0, :])
       axes[1].plot(kde.pdf(kde_x_values), kde_x_values, 'b-', linewidth=PLOT_LINE_WIDTH)
-      axes[1].fill_betweenx(kde_x_values, kde.pdf(kde_x_values), np.zeros(kde_x_values.shape), alpha=PLOT_ALPHA)
+      axes[1].fill_betweenx(
+         kde_x_values, kde.pdf(kde_x_values), np.zeros(kde_x_values.shape), alpha=PLOT_ALPHA)
       axes[1].set_xlim(0, None)
       axes[1].set_xlabel('Prob. density')
       axes[1].get_yaxis().set_visible(False)
