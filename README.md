@@ -25,7 +25,7 @@ Adjust parameters like `number_slip_values`, `lowest_slip_value`, `largest_slip_
 
 ## Running FastAPI
 1. Install uvicorn
-2. Navigate to fast_api folder
+2. Navigate to fastapi_api folder
 3. Run the main script: `uvicorn main:app --reload`
 
 ## Paper Summary
