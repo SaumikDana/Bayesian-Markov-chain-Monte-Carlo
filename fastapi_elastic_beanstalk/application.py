@@ -2,12 +2,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 
-import sys
-from pathlib import Path
-
-# Add the parent directory to the Python path
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
 from source_python.RSF import RSF
 from source_python.RateStateModel import RateStateModel
 import matplotlib
@@ -16,7 +10,7 @@ import matplotlib.pyplot as plt
 import pickle
 import os
 
-app = FastAPI()
+application = FastAPI()
 
 class SimulationParams(BaseModel):
     nslips: int
@@ -26,21 +20,21 @@ class SimulationParams(BaseModel):
 class InferenceParams(BaseModel):
     nsamples: int
 
-@app.get("/")
+@application.get("/")
 def read_root():
     return {"message": "Welcome to my FastAPI application!"}
 
-@app.post("/run-simulation")
+@application.post("/run-simulation")
 def run_simulation_endpoint(params: SimulationParams):
     run_simulation(params.nslips, params.lowest, params.largest)
     return {"message": "Forward simulation Complete! Data generated"}
 
-@app.post("/run-inference")
+@application.post("/run-inference")
 def run_inference_endpoint(params: InferenceParams):
     time_taken = run_inference(params.nsamples)
     return {"time_taken": time_taken}
 
-@app.get("/visualize")
+@application.get("/visualize")
 def visualize_endpoint():
     visualize_data()
     return {"message": "Data visualization initiated"}
