@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pickle
 import os
 
-application = FastAPI()
+app = FastAPI()
 
 class SimulationParams(BaseModel):
     nslips: int
@@ -20,21 +20,21 @@ class SimulationParams(BaseModel):
 class InferenceParams(BaseModel):
     nsamples: int
 
-@application.get("/")
+@app.get("/")
 def read_root():
     return {"message": "Welcome to my FastAPI application!"}
 
-@application.post("/run-simulation")
+@app.post("/run-simulation")
 def run_simulation_endpoint(params: SimulationParams):
     run_simulation(params.nslips, params.lowest, params.largest)
     return {"message": "Forward simulation Complete! Data generated"}
 
-@application.post("/run-inference")
+@app.post("/run-inference")
 def run_inference_endpoint(params: InferenceParams):
     time_taken = run_inference(params.nsamples)
     return {"time_taken": time_taken}
 
-@application.get("/visualize")
+@app.get("/visualize")
 def visualize_endpoint():
     visualize_data()
     return {"message": "Data visualization initiated"}

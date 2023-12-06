@@ -22,7 +22,7 @@
 
 ## Running FastAPI
 1. Navigate to fastapi folder
-2. Run the main script: `uvicorn main:app --reload`
+2. Run the main script: `uvicorn application:app --reload`
 
 ## Running Flask
 1. Navigate to flask folder
