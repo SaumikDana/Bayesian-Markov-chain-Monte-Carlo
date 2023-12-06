@@ -3,14 +3,15 @@ from flask_restful import Api, Resource
 from pydantic import BaseModel
 from typing import List
 
-import sys
-from pathlib import Path
+# import sys
+# from pathlib import Path
 
-# Add the parent directory to the Python path
-sys.path.append(str(Path(__file__).resolve().parent.parent))
+# # Add the parent directory to the Python path
+# sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from source_python.RSF import RSF
 from source_python.RateStateModel import RateStateModel
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
