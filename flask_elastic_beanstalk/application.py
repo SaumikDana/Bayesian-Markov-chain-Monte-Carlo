@@ -3,12 +3,6 @@ from flask_restful import Api, Resource
 from pydantic import BaseModel
 from typing import List
 
-# import sys
-# from pathlib import Path
-
-# # Add the parent directory to the Python path
-# sys.path.append(str(Path(__file__).resolve().parent.parent))
-
 from source_python.RSF import RSF
 from source_python.RateStateModel import RateStateModel
 
@@ -18,8 +12,8 @@ import matplotlib.pyplot as plt
 import pickle
 import os
 
-app = Flask(__name__)
-api = Api(app)
+application = Flask(__name__)
+api = Api(application)
 
 class SimulationParams(BaseModel):
     nslips: int
@@ -98,4 +92,5 @@ api.add_resource(RunInference, '/run-inference')
 api.add_resource(Visualize, '/visualize')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    application.run(host='0.0.0.0', port=8000, debug=True)
+
