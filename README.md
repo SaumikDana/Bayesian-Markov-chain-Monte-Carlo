@@ -21,20 +21,17 @@
 - Visualization with `matplotlib`.
 
 ## Running FastAPI
-1. Install uvicorn
-2. Navigate to fastapi_api folder
-3. Run the main script: `uvicorn main:app --reload`
+1. Navigate to fastapi folder
+2. Run the main script: `uvicorn main:app --reload`
 
 ## Running Flask
-1. Navigate to flask_api folder
+1. Navigate to flask folder
 2. `export FLASK_APP=application.py`
 3. `flask run`
 4. On a separate terminal: `python3 flask_api_tester.py`. This will fire up the source code in terminal on which flask is running
 
 ## Paper Summary
-Based on "Arriving at estimates of a rate and state fault friction model parameter using Bayesian inference and Markov chain Monte Carlo
-Author links open overlay panel", 
-https://www.sciencedirect.com/science/article/pii/S266654412200003X
+Based on "Arriving at estimates of a rate and state fault friction model parameter using Bayesian inference and Markov chain Monte Carlo", https://www.sciencedirect.com/science/article/pii/S266654412200003X
 
 ## Contact
 For support or collaboration: dana.spk5@gmail.com
