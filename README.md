@@ -26,9 +26,8 @@
 
 ## Running Flask
 1. Navigate to flask folder
-2. Set environment variables and run the flask application
-`python3 start_flask.py`
-4. On a separate terminal: `python3 flask_api_tester.py`. This will fire up the source code in terminal on which flask is running
+2. Set environment variables and run the flask application: `python3 start_flask.py`
+3. On a separate terminal, test the API endpoints: `python3 flask_api_tester.py`. 
 
 ## Paper Summary
 Based on "Arriving at estimates of a rate and state fault friction model parameter using Bayesian inference and Markov chain Monte Carlo", https://www.sciencedirect.com/science/article/pii/S266654412200003X
