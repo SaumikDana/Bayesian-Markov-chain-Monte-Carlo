@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from .RateStateModel import RateStateModel
 
 # Constants
-NUMBER_SLIP_VALUES = 10
+NUMBER_SLIP_VALUES = 5
 LOWEST_SLIP_VALUE = 100.
 LARGEST_SLIP_VALUE = 5000.
 QSTART = 1000.

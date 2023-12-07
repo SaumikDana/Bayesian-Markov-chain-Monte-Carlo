@@ -6,7 +6,7 @@ def main():
 
     # For RunSimulation
     simulation_url = f'{base_url}/run-simulation'
-    simulation_data = {"nslips": 5, "lowest": 100.0, "largest": 1000.0}
+    simulation_data = {"nslips": 5, "lowest": 100.0, "largest": 5000.0}
     try:
         simulation_response = requests.post(simulation_url, json=simulation_data)
         if simulation_response.status_code == 200:
@@ -20,7 +20,7 @@ def main():
     inference_url = f'{base_url}/run-inference'
     inference_data = {"nsamples": 500}
     try:
-        inference_response = requests.post(inference_url, json=inference_data)
+        inference_response = requests.post(inference_url, json=inference_data, timeout=600)
         if inference_response.status_code == 200:
             print("Inference Response:", inference_response.json())
         else:
