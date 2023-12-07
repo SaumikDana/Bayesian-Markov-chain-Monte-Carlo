@@ -174,27 +174,27 @@ class MCMC:
         SSqprev = self.SSqcalc(qparams) # Squared error of previously sampled parameters
         iaccept = 0 # Counter for accepted samples
 
-        # Animation setup
-        fig, ax = plt.subplots()
-        line, = ax.plot([], [], lw=2)
-        # Set title and labels
-        ax.set_title(f"MCMC Sampling Evolution for dc = {self.dc_true:.2f} as True value")
-        ax.set_xlabel("Sample Index")
-        ax.set_ylabel("Sample Value")
+        # # Animation setup
+        # fig, ax = plt.subplots()
+        # line, = ax.plot([], [], lw=2)
+        # # Set title and labels
+        # ax.set_title(f"MCMC Sampling Evolution for dc = {self.dc_true:.2f} as True value")
+        # ax.set_xlabel("Sample Index")
+        # ax.set_ylabel("Sample Value")
 
-        def init():
-            ax.set_xlim(0, self.nsamples)  # Set x-axis limits to the number of samples
-            # Set y-axis limits to a range that covers the expected values of qparams
-            ax.set_ylim(np.min(qparams) - 1, np.max(qparams) + 1) 
-            return line,
+        # def init():
+        #     ax.set_xlim(0, self.nsamples)  # Set x-axis limits to the number of samples
+        #     # Set y-axis limits to a range that covers the expected values of qparams
+        #     ax.set_ylim(np.min(qparams) - 1, np.max(qparams) + 1) 
+        #     return line,
 
-        def update(frame):
-            # Update the line data to reflect the current state of qparams
-            # x-axis: indices from 0 to frame, y-axis: qparams values up to current frame
-            line.set_data(np.arange(frame), qparams[0, :frame])
-            return line,
+        # def update(frame):
+        #     # Update the line data to reflect the current state of qparams
+        #     # x-axis: indices from 0 to frame, y-axis: qparams values up to current frame
+        #     line.set_data(np.arange(frame), qparams[0, :frame])
+        #     return line,
 
-        anim = FuncAnimation(fig, update, frames=self.nsamples, init_func=init, blit=True)
+        # anim = FuncAnimation(fig, update, frames=self.nsamples, init_func=init, blit=True)
 
         for isample in np.arange(self.nsamples):
             # Sample new parameters from a normal distribution 
@@ -206,7 +206,8 @@ class MCMC:
 
             # Print some diagnostic information
             print(isample,accept)
-            print("Generated Sample ---- ",np.asscalar(q_new))
+            print("Generated Sample ---- ", q_new.item())
+            # print("Generated Sample ---- ",np.asscalar(q_new))
 
             if accept:
                 # If the new sample is accepted, 
@@ -236,12 +237,12 @@ class MCMC:
        # Trim the estimate of the standard deviation to exclude burn-in samples  
         self.std2 = np.asarray(self.std2)[self.nburn:] 
 
-        # Save the animation with the extracted dc_value in the filename
-        filename = f'mcmc_animation_dc_{self.dc_true:.2f}.mp4'  # Formats the Dc value to 2 decimal places
-        anim.save(filename, fps=30, writer='ffmpeg')
+        # # Save the animation with the extracted dc_value in the filename
+        # filename = f'mcmc_animation_dc_{self.dc_true:.2f}.mp4'  # Formats the Dc value to 2 decimal places
+        # anim.save(filename, fps=30, writer='ffmpeg')
 
-        # Close the figure to free up memory
-        plt.close(fig)
+        # # Close the figure to free up memory
+        # plt.close(fig)
 
         # Return accepted samples
         return qparams[:,self.nburn:]
