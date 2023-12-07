@@ -6,8 +6,7 @@
 ## Running the Source code Directly
 ### Python Version
 1. Install dependencies.
-2. Navigate to source_c++ folder
-3. Run Script: `python3 -m source_python.dl_inference`
+2. Run Script: `python3 -m source_python.dl_inference`
 
 ### C++ Version
 1. Install dependencies (boost, gsl, eigen)
