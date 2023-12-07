@@ -3,7 +3,6 @@ from .MCMC import MCMC
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 import time
-from .lstm.utils import RSF as RSF_base
 
 def measure_execution_time(func):
     """
@@ -17,6 +16,13 @@ def measure_execution_time(func):
         execution_time = end_time - start_time
         return execution_time
     return wrapper
+
+USE_DEEP_LEARNING =  False
+
+if USE_DEEP_LEARNING:
+   from .lstm.utils import RSF as RSF_base
+else:
+   RSF_base = object  # Fallback to a base object
 
 class RSF(RSF_base):
    '''
