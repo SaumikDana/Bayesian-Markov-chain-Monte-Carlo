@@ -3,3 +3,4 @@ flask-restful
 pydantic
 matplotlib
 scipy
+torch

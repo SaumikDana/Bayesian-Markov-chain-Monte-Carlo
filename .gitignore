@@ -9,3 +9,8 @@ executable
 *.zip
 *.json
 *.mp4
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

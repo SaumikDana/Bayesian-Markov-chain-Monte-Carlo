@@ -26,8 +26,8 @@
 
 ## Running Flask
 1. Navigate to flask folder
-2. `export FLASK_APP=application.py`
-3. `flask run`
+2. Set environment variables and run the flask application
+`python3 start_flask.py`
 4. On a separate terminal: `python3 flask_api_tester.py`. This will fire up the source code in terminal on which flask is running
 
 ## Paper Summary
