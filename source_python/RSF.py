@@ -18,6 +18,7 @@ def measure_execution_time(func):
     return wrapper
 
 USE_DEEP_LEARNING =  False
+MAKE_ANIMATIONS = False
 
 if USE_DEEP_LEARNING:
    from .lstm.utils import RSF as RSF_base
@@ -202,7 +203,7 @@ class RSF(RSF_base):
       )
 
       # Perform MCMC sampling
-      qparams = MCMCobj.sample()
+      qparams = MCMCobj.sample(MAKE_ANIMATIONS)
 
       # Plot final distribution
       self.plot_dist(qparams, dc)
