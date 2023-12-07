@@ -91,6 +91,10 @@ api.add_resource(RunSimulation, '/run-simulation')
 api.add_resource(RunInference, '/run-inference')
 api.add_resource(Visualize, '/visualize')
 
+# Condition to check if running locally or on Elastic Beanstalk
 if __name__ == '__main__':
-    application.run(host='0.0.0.0', port=8000, debug=True)
-
+    # Only run the application manually if it's not run by a WSGI server like on Elastic Beanstalk
+    port = int(os.environ.get("FLASK_RUN_PORT", 5000))
+    host = os.environ.get("FLASK_RUN_HOST", "127.0.0.1")
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() in ["true", "1", "t"]
+    application.run(host=host, port=port, debug=debug)
