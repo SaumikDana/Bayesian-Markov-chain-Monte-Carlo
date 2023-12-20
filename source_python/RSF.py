@@ -101,12 +101,12 @@ class RSF(RSF_base):
          return
 
       plt.figure()
-      title = f'$d_c$={self.model.Dc} $\mu m$ RSF solution'
+      title = rf'$d_c$={self.model.Dc} $\mu m$ RSF solution'
       plt.title(title)
       plt.plot(time, acceleration, linewidth=1.0, label='True')
       plt.xlim(self.model.t_start - 2.0, self.model.t_final)
       plt.xlabel('Time (sec)')
-      plt.ylabel('Acceleration $(\mu m/s^2)$')
+      plt.ylabel(rf'Acceleration $(\mu m/s^2)$')
       plt.grid(True)
       plt.legend()
            
@@ -152,7 +152,7 @@ class RSF(RSF_base):
       # Set up the plot layout
       fig, axes = plt.subplots(
          1, 2, gridspec_kw={'width_ratios': PLOT_WIDTH_RATIO, 'wspace': PLOT_SPACING})
-      fig.suptitle(f'$d_c={dc:.2f}\,\mu m$ with {self.format} formatting', fontsize=10)
+      fig.suptitle(rf'$d_c={dc:.2f}\,\mu m$ with {self.format} formatting', fontsize=10)
 
       # Plot MCMC samples
       axes[0].plot(qparams[0, :], 'b-', linewidth=PLOT_LINE_WIDTH)
