@@ -1,7 +1,7 @@
 # Bayesian MCMC in Rate State Models
 
 ## Directory Structure
-
+```
 Bayesian_MCMC_Deep-Learning/
 │
 ├── .github/
@@ -41,6 +41,7 @@ Bayesian_MCMC_Deep-Learning/
 ├── README.md
 ├── __init__.py
 └── requirements.txt
+```
 
 ## Introduction
 `dl_inference` is a tool that implements a Rate State model and performs Bayesian inference using MCMC sampling, designed for Python and C++ environments.
