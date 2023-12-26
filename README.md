@@ -4,43 +4,44 @@
 ```
 Bayesian_MCMC_Deep-Learning/
 │
-├── .github/
+├── .github/ - Contains GitHub Actions workflow files.
 │   └── workflows/
-│       └── python-app.yml
+│       └── python-app.yml - Configuration for Python application workflow.
 │
-├── .vscode/
-│   ├── launch.json
-│   ├── settings.json
-│   └── tasks.json
+├── .vscode/ - Contains settings for Visual Studio Code.
+│   ├── launch.json - Debugging configurations.
+│   ├── settings.json - VSCode settings.
+│   └── tasks.json - Task configurations for VSCode.
 │
-├── source_c++/
-│   ├── MCMC.cpp
+├── source_c++/ - C++ source files for MCMC and deep learning inference.
+│   ├── MCMC.cpp - Markov Chain Monte Carlo implementation.
 │   ├── MCMC.h
-│   ├── RateStateModel.cpp
+│   ├── RateStateModel.cpp - Rate state models for simulations.
 │   ├── RateStateModel.h
-│   └── dl_inference.cpp
+│   └── dl_inference.cpp - Deep learning inference related scripts.
 │
-├── source_python/
-│   ├── MCMC.py
-│   ├── RSF.py
-│   ├── RateStateModel.py
-│   ├── __init__.py
-│   ├── dl_inference.py
-│   ├── lstm/
+├── source_python/ - Python scripts for MCMC, deep learning, and utilities.
+│   ├── MCMC.py - Markov Chain Monte Carlo implementation in Python.
+│   ├── RSF.py - Related to rate state functions or models.
+│   ├── RateStateModel.py - Python implementation of rate state models.
+│   ├── __init__.py - Initializes the Python package.
+│   ├── __pycache__/ - Compiled Python files for faster loading.
+│   ├── dl_inference.py - Scripts for deep learning inference.
+│   ├── lstm/ - Contains LSTM related models and utilities.
 │   │   ├── lstm_encoder_decoder.py
 │   │   └── utils.py
-│   ├── tests/
+│   ├── tests/ - Test scripts for MCMC and other functionalities.
 │   │   ├── __init__.py
 │   │   ├── test_mcmc.py
 │   │   └── test_rsf.py
-│   └── utils/
+│   └── utils/ - Utility scripts for operations like JSON and MySQL interactions.
 │       ├── json_save_load.py
 │       └── mysql_save_load.py
 │
-├── .DS_Store
-├── README.md
-├── __init__.py
-└── requirements.txt
+├── .DS_Store - A file used by macOS to store custom attributes of a folder.
+├── README.md - The repository's readme file with an overview and instructions.
+├── __init__.py - An initialization script for Python packages.
+└── requirements.txt - Lists the Python dependencies for the project.
 ```
 
 ## Introduction
