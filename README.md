@@ -53,7 +53,10 @@ Bayesian_MCMC_Deep-Learning/
 ![metropolis_hastings](https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/6ea69476-448b-4e08-a524-9454615746a5)
 
 
-`dl_inference` is a tool that implements a Rate State model and performs Bayesian inference using MCMC sampling, designed for Python and C++ environments.
+## Adaptive Metropolis Algorithm in a nutshell
+
+<img width="870" alt="Screen Shot 2023-12-29 at 5 07 41 PM" src="https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/6b2445ef-5eca-41d0-8136-9d4be5fc7c2d">
+
 
 ## Running the Source code Directly
 ### Python Version
