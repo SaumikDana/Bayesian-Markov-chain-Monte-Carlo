@@ -50,8 +50,6 @@ Bayesian_MCMC_Deep-Learning/
 
 ![mcmc_target](https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/94ba3448-e8fe-42d0-8200-11dd06aed8d0)
 
-![metropolis_hastings](https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/6ea69476-448b-4e08-a524-9454615746a5)
-
 
 ## Adaptive Metropolis Algorithm in a nutshell
 
