@@ -45,6 +45,14 @@ Bayesian_MCMC_Deep-Learning/
 ```
 
 ## Introduction
+
+![bayesmcmc](https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/f755e7ea-3ee5-4684-8337-55454f8a7d76)
+
+![mcmc_target](https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/94ba3448-e8fe-42d0-8200-11dd06aed8d0)
+
+![metropolis_hastings](https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/6ea69476-448b-4e08-a524-9454615746a5)
+
+
 `dl_inference` is a tool that implements a Rate State model and performs Bayesian inference using MCMC sampling, designed for Python and C++ environments.
 
 ## Running the Source code Directly
