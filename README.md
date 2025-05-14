@@ -1,3 +1,5 @@
+You can read about this work at https://saumikdana.github.io/bayesian.html
+
 # Bayesian MCMC in Rate State Models
 
 ## Directory Structure
