@@ -45,16 +45,11 @@ Bayesian_MCMC_Deep-Learning/
 └── requirements.txt - Lists the Python dependencies for the project.
 ```
 
-## Bayesian MCMC
+## Bayesian MCMC in a nutshell
 
 ![bayesmcmc](https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/f755e7ea-3ee5-4684-8337-55454f8a7d76)
 
 ![mcmc_target](https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/94ba3448-e8fe-42d0-8200-11dd06aed8d0)
-
-
-## Adaptive Metropolis Algorithm in a nutshell
-
-<img width="870" alt="Screen Shot 2023-12-29 at 5 07 41 PM" src="https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/6b2445ef-5eca-41d0-8136-9d4be5fc7c2d">
 
 
 ## Running the Source code Directly
