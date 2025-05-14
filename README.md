@@ -1,8 +1,6 @@
 We present a computational framework to estimate the critical slip distance (dc) in the rate and state friction (RSF) model, which is essential for understanding earthquake behavior. Using Bayesian inference combined with Markov Chain Monte Carlo (MCMC) methods, we infer dc from noisy synthetic acceleration data generated through a spring-slider-damper model. Our results show that the method reliably recovers accurate estimates of dc, although the performance depends on the initial guess and improves with techniques like burn-in. Ultimately, our goal is to develop a robust tool that can estimate fault properties directly from real seismogram data.
 To read more about this, refer to https://www.sciencedirect.com/science/article/pii/S266654412200003X. You can see some animations at https://saumikdana.github.io/bayesian.html
 
-# Bayesian MCMC in Rate State Models
-
 ## Directory Structure
 ```
 Bayesian_MCMC_Deep-Learning/
@@ -47,7 +45,7 @@ Bayesian_MCMC_Deep-Learning/
 └── requirements.txt - Lists the Python dependencies for the project.
 ```
 
-## Introduction
+## Bayesian MCMC
 
 ![bayesmcmc](https://github.com/SaumikDana/Bayesian-Markov-chain-Monte-Carlo/assets/9474631/f755e7ea-3ee5-4684-8337-55454f8a7d76)
 
