@@ -11,12 +11,7 @@ K1 = 1.E-7
 START_TIME = 0.0
 END_TIME = 50.0
 
-USE_DEEP_LEARNING =  False
-
-if USE_DEEP_LEARNING:
-    from .lstm.utils import RateStateModel as RateStateModel_base
-else:
-    RateStateModel_base = object  # Fallback to a base object
+RateStateModel_base = object  # Fallback to a base object
 
 class RateStateModel(RateStateModel_base):
     """ 

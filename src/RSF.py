@@ -1,5 +1,6 @@
 import setup_path
 from src.imports import *
+from src.MCMC import MCMC
 
 
 def measure_execution_time(func):
@@ -15,13 +16,7 @@ def measure_execution_time(func):
         return execution_time
     return wrapper
 
-USE_DEEP_LEARNING =  False
-MAKE_ANIMATIONS = False
-
-if USE_DEEP_LEARNING:
-   from .lstm.utils import RSF as RSF_base
-else:
-   RSF_base = object  # Fallback to a base object
+RSF_base = object  # Fallback to a base object
 
 class RSF(RSF_base):
    '''
@@ -114,14 +109,14 @@ class RSF(RSF_base):
       """
 
       if self.format == 'json':
-         from .utils.json_save_load import save_object, load_object
+         from src.json_save_load import save_object, load_object
          self.lstm_file = 'model_lstm.json'
          self.data_file = 'data.json'
          save_object(data, self.data_file)
          data = load_object(self.data_file)
 
       elif self.format == 'mysql':
-         from .utils.mysql_save_load import save_object, load_object
+         from src.mysql_save_load import save_object, load_object
          # MySQL connection details
          mysql_host = 'localhost'
          mysql_user = 'my_user'
@@ -201,7 +196,7 @@ class RSF(RSF_base):
       )
 
       # Perform MCMC sampling
-      qparams = MCMCobj.sample(MAKE_ANIMATIONS)
+      qparams = MCMCobj.sample(True)
 
       # Plot final distribution
       self.plot_dist(qparams, dc)
@@ -215,10 +210,8 @@ class RSF(RSF_base):
 
       data = self.prepare_data(self.data)
 
-      # Return the LSTM model
-      model_lstm = self.build_lstm() if self.reduction else None 
-
       for dc in self.dc_list:
-         self.perform_sampling_and_plotting(data, dc, nsamples, model_lstm)
+
+         self.perform_sampling_and_plotting(data, dc, nsamples, None)
 
       return
