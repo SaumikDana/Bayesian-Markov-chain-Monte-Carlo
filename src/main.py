@@ -1,5 +1,7 @@
 import setup_path
 from src.imports import *
+from src.RSF import RSF
+from src.RateStateModel import RateStateModel
 
 
 # Constants
