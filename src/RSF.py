@@ -1,8 +1,6 @@
-import numpy as np
-from .MCMC import MCMC
-import matplotlib.pyplot as plt
-from scipy.stats import gaussian_kde
-import time
+import setup_path
+from src.imports import *
+
 
 def measure_execution_time(func):
     """

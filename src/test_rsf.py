@@ -1,6 +1,6 @@
-import pytest
-import numpy as np
-from ..RSF import RSF  # Adjust the import path as needed
+import setup_path
+from src.imports import *
+
 
 class TestRSF:
     @pytest.fixture

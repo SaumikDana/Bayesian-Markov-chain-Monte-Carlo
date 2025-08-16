@@ -1,6 +1,6 @@
-import numpy as np
-from scipy import integrate
-from math import exp, log, sin
+import setup_path
+from src.imports import *
+
 
 # Constants
 A = 0.011

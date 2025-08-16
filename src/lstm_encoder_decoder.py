@@ -1,11 +1,5 @@
-import numpy as np
-import random
-from tqdm import trange
-
-import torch
-import torch.nn as nn
-from torch import optim
-import torch.nn.functional as F
+import setup_path
+from src.imports import *
 
 
 class lstm_encoder(nn.Module):

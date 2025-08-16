@@ -1,6 +1,6 @@
-import pytest
-import numpy as np
-from ..MCMC import MCMC  # Adjust the import path as needed
+import setup_path
+from src.imports import *
+
 
 class MockModel:
     def evaluate(self):

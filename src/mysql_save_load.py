@@ -1,8 +1,6 @@
-__author__ = "Saumik Dana"
-__purpose__ = "Demonstrate Bayesian inference using RSF model"
+import setup_path
+from src.imports import *
 
-import mysql.connector
-import numpy as np
 
 def save_object(data, host, user, password, database, chunk_size=5000):
     # Connect to the MySQL server

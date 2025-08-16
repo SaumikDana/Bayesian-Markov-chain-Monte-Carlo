@@ -1,7 +1,6 @@
-import numpy as np
-from scipy.stats import gamma
-import matplotlib.pyplot as plt 
-from matplotlib.animation import FuncAnimation
+import setup_path
+from src.imports import *
+
 
 class MCMC:
     """
