@@ -75,12 +75,9 @@ import torch.nn.functional as F
 
 import numpy as np
 from scipy.stats import gamma
-import matplotlib.pyplot as plt 
 from matplotlib.animation import FuncAnimation
 
-import numpy as np
 
-import numpy as np
 from scipy import integrate
 from math import exp, log, sin
 
