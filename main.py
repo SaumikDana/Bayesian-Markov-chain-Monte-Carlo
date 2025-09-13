@@ -39,15 +39,11 @@ Dependencies:
 Example Usage:
     python main.py
 
-Author: [Your Name]
-Date: [Current Date]
-Version: 1.0
 """
 
-import setup_path
-from src.imports import *
-from src.RSF import RSF
-from src.RateStateModel import RateStateModel
+from imports import *
+from RSF import RSF
+from RateStateModel import RateStateModel
 
 
 # Constants

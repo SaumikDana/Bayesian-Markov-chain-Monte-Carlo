@@ -1,5 +1,4 @@
-import setup_path
-from src.imports import *
+from imports import *
 
 
 def save_object(data, host, user, password, database, chunk_size=5000):

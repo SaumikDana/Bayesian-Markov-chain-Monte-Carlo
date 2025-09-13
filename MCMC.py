@@ -1,5 +1,4 @@
-import setup_path
-from src.imports import *
+from imports import *
 
 
 class MCMC:

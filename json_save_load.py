@@ -1,5 +1,4 @@
-import setup_path
-from src.imports import *
+from imports import *
 
 
 def numpy_array_encoder(obj):

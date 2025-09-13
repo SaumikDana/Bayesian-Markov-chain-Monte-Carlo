@@ -1,8 +1,7 @@
-import setup_path
-from src.imports import *
-from src.MCMC import MCMC
-from src.json_save_load import save_object, load_object
-from src.mysql_save_load import save_object, load_object
+from imports import *
+from MCMC import MCMC
+from json_save_load import save_object, load_object
+from mysql_save_load import save_object, load_object
 
 
 def measure_execution_time(func):
