@@ -1,0 +1,472 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RateStateModel module &mdash; Bayesian Inference Framework 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="imports module" href="imports.html" />
+    <link rel="prev" title="RSF module" href="RSF.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Bayesian Inference Framework
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Python API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="MCMC.html">MCMC module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RSF.html">RSF module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">RateStateModel module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#RateStateModel.RateStateModel"><code class="docutils literal notranslate"><span class="pre">RateStateModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.a"><code class="docutils literal notranslate"><span class="pre">RateStateModel.a</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.b"><code class="docutils literal notranslate"><span class="pre">RateStateModel.b</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.mu_ref"><code class="docutils literal notranslate"><span class="pre">RateStateModel.mu_ref</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.V_ref"><code class="docutils literal notranslate"><span class="pre">RateStateModel.V_ref</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.k1"><code class="docutils literal notranslate"><span class="pre">RateStateModel.k1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.t_start"><code class="docutils literal notranslate"><span class="pre">RateStateModel.t_start</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.t_final"><code class="docutils literal notranslate"><span class="pre">RateStateModel.t_final</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.num_tsteps"><code class="docutils literal notranslate"><span class="pre">RateStateModel.num_tsteps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.delta_t"><code class="docutils literal notranslate"><span class="pre">RateStateModel.delta_t</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.mu_t_zero"><code class="docutils literal notranslate"><span class="pre">RateStateModel.mu_t_zero</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.RadiationDamping"><code class="docutils literal notranslate"><span class="pre">RateStateModel.RadiationDamping</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.Dc"><code class="docutils literal notranslate"><span class="pre">RateStateModel.Dc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RateStateModel.RateStateModel.evaluate"><code class="docutils literal notranslate"><span class="pre">RateStateModel.evaluate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="imports.html">imports module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="json_save_load.html">json_save_load module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mysql_save_load.html">mysql_save_load module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Bayesian Inference Framework</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a></li>
+      <li class="breadcrumb-item active">RateStateModel module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/RateStateModel.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-RateStateModel">
+<span id="ratestatemodel-module"></span><h1>RateStateModel module<a class="headerlink" href="#module-RateStateModel" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RateStateModel.</span></span><span class="sig-name descname"><span class="pre">RateStateModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_time_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/RateStateModel.html#RateStateModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RateStateModel.RateStateModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Rate and State Friction Model for earthquake fault mechanics simulation.</p>
+<p>This class implements the rate and state friction law, a widely used constitutive
+model in earthquake mechanics that describes the evolution of friction on fault
+surfaces. The model captures the velocity dependence of friction and the time-
+dependent healing of fault surfaces through a state variable.</p>
+<p>The rate and state friction law is governed by:
+μ = μ₀ + a*ln(V/V_ref) + b*ln(V_ref*θ/Dc)
+dθ/dt = 1 - V*θ/Dc</p>
+<p>Where:
+- μ is the friction coefficient
+- V is the sliding velocity
+- θ is the state variable (characteristic healing time)
+- a, b are material parameters
+- Dc is the characteristic slip distance
+- μ₀ is the reference friction coefficient</p>
+<p>The model includes:
+- Dynamic loading with time-varying velocity
+- Spring-block system dynamics with effective stiffness
+- Optional radiation damping for realistic energy dissipation
+- Numerical integration using adaptive ODE solvers
+- Synthetic noise addition to simulate experimental conditions</p>
+<p>Physical Interpretation:
+- a &gt; 0: velocity strengthening (direct effect)
+- b &gt; 0: velocity weakening when combined with state evolution
+- a-b &lt; 0: potentially unstable sliding (stick-slip behavior)
+- a-b &gt; 0: stable sliding
+- Dc controls the distance scale over which state evolves</p>
+<p>Applications:
+- Earthquake fault mechanics modeling
+- Laboratory friction experiments simulation
+- Seismic cycle studies
+- Fault stability analysis
+- Parameter estimation from experimental data</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.a">
+<span class="sig-name descname"><span class="pre">a</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.a" title="Link to this definition"></a></dt>
+<dd><p>Direct effect parameter (velocity dependence)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.b">
+<span class="sig-name descname"><span class="pre">b</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.b" title="Link to this definition"></a></dt>
+<dd><p>Evolution effect parameter (state dependence)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.mu_ref">
+<span class="sig-name descname"><span class="pre">mu_ref</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.mu_ref" title="Link to this definition"></a></dt>
+<dd><p>Reference friction coefficient</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.V_ref">
+<span class="sig-name descname"><span class="pre">V_ref</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.V_ref" title="Link to this definition"></a></dt>
+<dd><p>Reference sliding velocity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.k1">
+<span class="sig-name descname"><span class="pre">k1</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.k1" title="Link to this definition"></a></dt>
+<dd><p>Radiation damping coefficient</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.t_start">
+<span class="sig-name descname"><span class="pre">t_start</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.t_start" title="Link to this definition"></a></dt>
+<dd><p>Simulation start time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.t_final">
+<span class="sig-name descname"><span class="pre">t_final</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.t_final" title="Link to this definition"></a></dt>
+<dd><p>Simulation end time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.num_tsteps">
+<span class="sig-name descname"><span class="pre">num_tsteps</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.num_tsteps" title="Link to this definition"></a></dt>
+<dd><p>Number of time steps for integration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.delta_t">
+<span class="sig-name descname"><span class="pre">delta_t</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.delta_t" title="Link to this definition"></a></dt>
+<dd><p>Time step size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.mu_t_zero">
+<span class="sig-name descname"><span class="pre">mu_t_zero</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.mu_t_zero" title="Link to this definition"></a></dt>
+<dd><p>Initial friction coefficient</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.RadiationDamping">
+<span class="sig-name descname"><span class="pre">RadiationDamping</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.RadiationDamping" title="Link to this definition"></a></dt>
+<dd><p>Whether to include radiation damping</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.Dc">
+<span class="sig-name descname"><span class="pre">Dc</span></span><a class="headerlink" href="#RateStateModel.RateStateModel.Dc" title="Link to this definition"></a></dt>
+<dd><p>Characteristic slip distance (must be set before evaluation)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Basic usage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">RateStateModel</span><span class="p">(</span><span class="n">number_time_steps</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">Dc</span> <span class="o">=</span> <span class="mf">0.02</span>  <span class="c1"># Set characteristic distance</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">acc_noise</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Custom parameters</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">RateStateModel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="mf">0.015</span>  <span class="c1"># Modify direct effect</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="mf">0.020</span>  <span class="c1"># Modify evolution effect</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">Dc</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">RadiationDamping</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Disable damping</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Analysis of results</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">acceleration</span><span class="p">,</span> <span class="n">noisy_acceleration</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">acceleration</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Clean signal&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">noisy_acceleration</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;With noise&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Acceleration&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>Dieterich, J. H. (1979). Modeling of rock friction</p></li>
+<li><p>Ruina, A. (1983). Slip instability and state variable friction laws</p></li>
+<li><p>Marone, C. (1998). Laboratory-derived friction laws and their application</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Dc parameter must be set before calling evaluate()</p></li>
+<li><p>The model uses adaptive ODE integration for numerical stability</p></li>
+<li><p>Radiation damping is enabled by default for physical realism</p></li>
+<li><p>Time units are arbitrary but should be consistent throughout</p></li>
+<li><p>Acceleration output includes synthetic noise for realism</p></li>
+</ul>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="RateStateModel.RateStateModel.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/RateStateModel.html#RateStateModel.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RateStateModel.RateStateModel.evaluate" title="Link to this definition"></a></dt>
+<dd><p>Solve the rate and state friction model using numerical integration.</p>
+<p>This method performs the complete simulation of the rate and state friction
+system by solving the coupled differential equations numerically. The system
+includes the friction evolution, state variable evolution, and dynamic loading
+with optional radiation damping.</p>
+<p>The method solves the system:
+dμ/dt = k’<a href="#id1"><span class="problematic" id="id2">*</span></a>(V_l - V) - k1*dV/dt  (with radiation damping)
+dθ/dt = 1 - V*θ/Dc
+dV/dt = (V/a)*(dμ/dt - b/θ*dθ/dt)</p>
+<p>Where:
+- V is computed from the rate and state law: V = V_ref * exp((μ-μ₀-b*ln(V_ref*θ/Dc))/a)
+- V_l is the loading velocity: V_ref * (1 + exp(-t/a1) * sin(a2*t))
+- k’ is the effective stiffness: 1e-2 * 10 / Dc</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>A 3-element tuple containing:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>t (np.ndarray): Time array with shape (num_steps,). Time values</dt><dd><p>from t_start to t_final with delta_t spacing.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>acc (np.ndarray): Clean acceleration array with shape (num_steps,).</dt><dd><p>Computed as numerical derivative of velocity.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>acc_noise (np.ndarray): Noisy acceleration array with shape (num_steps,).</dt><dd><p>Clean acceleration plus 100% relative Gaussian noise.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If Dc is None (characteristic distance must be set before evaluation)</p></li>
+<li><p><strong>RuntimeError</strong> – If ODE integration fails or becomes unstable</p></li>
+<li><p><strong>FloatingPointError</strong> – If numerical overflow/underflow occurs during integration</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Algorithm Details:</dt><dd><ol class="arabic simple">
+<li><p>Sets up the differential equation system with nested friction function</p></li>
+<li><p>Initializes arrays for state variables (μ, θ, V) and outputs</p></li>
+<li><p>Uses Dormand-Prince 8(5,3) ODE solver with adaptive step size</p></li>
+<li><p>Integrates over the specified time range with fixed output intervals</p></li>
+<li><p>Computes acceleration via finite differences</p></li>
+<li><p>Adds synthetic noise to acceleration for realism</p></li>
+</ol>
+</dd>
+<dt>Physical Interpretation:</dt><dd><ul class="simple">
+<li><p>Loading function creates time-varying driving velocity</p></li>
+<li><p>Effective stiffness couples system dynamics to Dc parameter</p></li>
+<li><p>Radiation damping models energy dissipation during rapid sliding</p></li>
+<li><p>State variable evolution controls friction memory effects</p></li>
+<li><p>Acceleration output represents measurable seismic signal</p></li>
+</ul>
+</dd>
+<dt>Numerical Considerations:</dt><dd><ul class="simple">
+<li><p>Uses high-precision ODE solver (rtol=1e-6, atol=1e-10)</p></li>
+<li><p>Adaptive time stepping for numerical stability</p></li>
+<li><p>Handles stiff systems through implicit methods</p></li>
+<li><p>Acceleration computed via backward differences for stability</p></li>
+</ul>
+</dd>
+<dt>Noise Model:</dt><dd><ul class="simple">
+<li><p>Multiplicative Gaussian noise: acc_noise = acc + 1.0 * <a href="#id3"><span class="problematic" id="id4">|acc|</span></a> * N(0,1)</p></li>
+<li><p>100% relative noise level (signal-dependent)</p></li>
+<li><p>Models experimental measurement uncertainty</p></li>
+<li><p>Preserves sign of acceleration signal</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">RateStateModel</span><span class="p">(</span><span class="n">number_time_steps</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">Dc</span> <span class="o">=</span> <span class="mf">0.02</span>  <span class="c1"># Required: set characteristic distance</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Run simulation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span><span class="p">,</span> <span class="n">clean_acc</span><span class="p">,</span> <span class="n">noisy_acc</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Analyze results</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Simulation duration: </span><span class="si">{</span><span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Max acceleration: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">clean_acc</span><span class="p">))</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RMS noise level: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">noisy_acc</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">clean_acc</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check for stick-slip behavior</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">velocity_proxy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">clean_acc</span><span class="p">)</span>  <span class="c1"># Rough velocity estimate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">velocity_proxy</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">velocity_proxy</span><span class="p">)):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Stick-slip behavior detected&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Performance Notes:</dt><dd><ul class="simple">
+<li><p>Computation time scales linearly with number_time_steps</p></li>
+<li><p>Memory usage is O(number_time_steps) for storing trajectories</p></li>
+<li><p>ODE solver may slow down for stiff systems (small Dc, large a-b)</p></li>
+<li><p>Consider reducing tolerance for faster computation if high precision not needed</p></li>
+</ul>
+</dd>
+<dt>Validation:</dt><dd><ul class="simple">
+<li><p>Check energy conservation (if radiation damping disabled)</p></li>
+<li><p>Verify friction bounds: μ should remain physically reasonable</p></li>
+<li><p>Monitor state variable: θ &gt; 0 always (physical constraint)</p></li>
+<li><p>Compare with analytical solutions for simple loading cases</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="RSF.html" class="btn btn-neutral float-left" title="RSF module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="imports.html" class="btn btn-neutral float-right" title="imports module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saumik Dana.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

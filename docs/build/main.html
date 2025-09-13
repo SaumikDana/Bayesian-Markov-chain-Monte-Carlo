@@ -1,0 +1,548 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>main module &mdash; Bayesian Inference Framework 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mysql_save_load module" href="mysql_save_load.html" />
+    <link rel="prev" title="json_save_load module" href="json_save_load.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Bayesian Inference Framework
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Python API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="MCMC.html">MCMC module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RSF.html">RSF module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RateStateModel.html">RateStateModel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imports.html">imports module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="json_save_load.html">json_save_load module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">main module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#main.perform_inference"><code class="docutils literal notranslate"><span class="pre">perform_inference()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#main.setup_problem"><code class="docutils literal notranslate"><span class="pre">setup_problem()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mysql_save_load.html">mysql_save_load module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Bayesian Inference Framework</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a></li>
+      <li class="breadcrumb-item active">main module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/main.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-main">
+<span id="main-module"></span><h1>main module<a class="headerlink" href="#module-main" title="Link to this heading"></a></h1>
+<p>Rate and State Friction Model Parameter Estimation using Bayesian Inference.</p>
+<p>This script demonstrates a complete workflow for analyzing earthquake fault mechanics
+using Rate and State Friction (RSF) models and Markov Chain Monte Carlo (MCMC)
+parameter estimation. The analysis includes forward modeling, synthetic data
+generation, and Bayesian inference of characteristic slip distance parameters.</p>
+<p>The workflow encompasses:
+1. Forward modeling of rate and state friction physics
+2. Synthetic time series generation across parameter space
+3. Data persistence using configurable storage backends
+4. MCMC-based Bayesian parameter estimation
+5. Posterior distribution analysis and visualization</p>
+<p>This implementation serves as both a research tool for earthquake mechanics
+studies and a demonstration of advanced Bayesian computational methods for
+inverse problems in geophysics.</p>
+<p>Key Features:
+- Multi-parameter sensitivity analysis across Dc values
+- Configurable data storage (JSON/MySQL backends)
+- Comprehensive visualization and diagnostics
+- Performance monitoring and optimization
+- Modular design for easy extension and modification</p>
+<p>Scientific Applications:
+- Earthquake fault parameter estimation from seismic data
+- Laboratory friction experiment analysis and interpretation
+- Model validation and uncertainty quantification studies
+- Computational method development and benchmarking</p>
+<p>Dependencies:
+- NumPy/SciPy for numerical computations
+- Matplotlib for visualization
+- Custom modules: RSF, RateStateModel, MCMC
+- Optional: MySQL connector for database storage</p>
+<dl class="simple">
+<dt>Example Usage:</dt><dd><p>python main.py</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="main.main">
+<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.main" title="Link to this definition"></a></dt>
+<dd><p>Main execution function for Rate and State Friction parameter estimation.</p>
+<p>This function orchestrates the complete workflow for Bayesian analysis of
+earthquake fault mechanics using Rate and State Friction models. It provides
+a comprehensive demonstration of advanced computational methods for parameter
+estimation in geophysical inverse problems.</p>
+<p>The function executes the full analysis pipeline:
+1. Problem initialization and forward model setup
+2. Synthetic data generation with realistic noise
+3. Bayesian inference using adaptive MCMC methods
+4. Results visualization and performance assessment</p>
+<dl>
+<dt>Workflow Overview:</dt><dd><p>The main function demonstrates a typical research workflow for earthquake
+fault parameter estimation:</p>
+<p>Setup Phase:
+- Initialize RSF analysis framework with parameter space
+- Configure Rate and State friction forward model
+- Generate synthetic time series data across Dc values</p>
+<p>Analysis Phase:
+- Perform Bayesian inference using JSON data storage
+- Execute MCMC sampling for each characteristic slip distance
+- Generate posterior distributions and convergence diagnostics</p>
+<p>Visualization Phase:
+- Display all generated plots and analysis results
+- Clean up figure resources for memory management</p>
+</dd>
+<dt>Configuration:</dt><dd><p>The analysis uses module-level constants for easy customization:
+- Parameter space: 5 Dc values from 100-5000 μm
+- Temporal resolution: 500 time steps over 50 seconds
+- MCMC sampling: 500 samples per Dc value
+- Data storage: JSON format for demonstration
+- Prior distribution: Uniform [0, 10000] μm</p>
+</dd>
+<dt>Performance Monitoring:</dt><dd><p>The function tracks computational performance:
+- JSON inference execution time measurement
+- Memory usage through visualization management
+- Computational efficiency assessment</p>
+</dd>
+<dt>Output and Visualization:</dt><dd><p>Generated results include:
+- Time series plots for each Dc value (if plotting enabled)
+- MCMC trace plots showing parameter evolution
+- Posterior probability density plots
+- Convergence diagnostics and acceptance statistics
+- Performance metrics and timing information</p>
+</dd>
+<dt>Example Execution:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Run complete analysis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">python</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Expected output:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># --- Dc is 100.0 ---</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># [MCMC progress indicators]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># --- Dc is 1350.0 ---</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># [MCMC progress indicators]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ... (for all Dc values)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># [Posterior distribution plots displayed]</span>
+</pre></div>
+</div>
+</dd>
+<dt>Customization Options:</dt><dd><p>To modify the analysis:</p>
+<p>Parameter Space:
+- Adjust NUMBER_SLIP_VALUES for different resolution
+- Change LOWEST/LARGEST_SLIP_VALUE for different ranges
+- Modify QPRIORS for different prior assumptions</p>
+<p>Computational Settings:
+- Increase NSAMPLES for better posterior resolution
+- Adjust NUMBER_TIME_STEPS for temporal resolution
+- Change QSTART for different MCMC initialization</p>
+<p>Analysis Options:
+- Enable plotting in RSF initialization (plotfigs=True)
+- Add MySQL analysis for storage comparison
+- Include reduced-order modeling for efficiency</p>
+</dd>
+<dt>Extended Analysis Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">problem</span> <span class="o">=</span> <span class="n">setup_problem</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="c1"># Enable visualization</span>
+<span class="gp">... </span>    <span class="n">problem</span><span class="o">.</span><span class="n">plotfigs</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="c1"># Compare storage formats</span>
+<span class="gp">... </span>    <span class="n">json_time</span> <span class="o">=</span> <span class="n">perform_inference</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="n">NSAMPLES</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">mysql_time</span> <span class="o">=</span> <span class="n">perform_inference</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="s1">&#39;mysql&#39;</span><span class="p">,</span> <span class="n">NSAMPLES</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="c1"># Performance analysis</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;JSON: </span><span class="si">{</span><span class="n">json_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, MySQL: </span><span class="si">{</span><span class="n">mysql_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Speedup: </span><span class="si">{</span><span class="n">mysql_time</span><span class="o">/</span><span class="n">json_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="c1"># Save results</span>
+<span class="gp">... </span>    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;rsf_posterior_analysis.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>Resource Management:</dt><dd><p>The function includes proper resource cleanup:
+- plt.show() displays all generated figures
+- plt.close(‘all’) releases figure memory
+- Prevents memory accumulation in batch processing</p>
+</dd>
+<dt>Error Handling:</dt><dd><p>Common issues and their resolution:
+- Import errors: Verify module path setup
+- Model convergence: Check parameter bounds and initialization
+- Memory issues: Reduce NSAMPLES or NUMBER_SLIP_VALUES
+- Visualization: Ensure matplotlib backend is configured</p>
+</dd>
+<dt>Integration with External Tools:</dt><dd><p>The results can be used for:
+- Further statistical analysis with SciPy/StatsModels
+- Parameter sensitivity studies
+- Model comparison and validation
+- Publication-quality figure generation
+- Database storage of inference results</p>
+</dd>
+<dt>Scientific Impact:</dt><dd><p>This analysis framework enables:
+- Quantitative earthquake fault parameter estimation
+- Uncertainty quantification in geophysical models
+- Validation of laboratory friction experiments
+- Development of improved earthquake forecasting models</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Execution time varies with parameter space size and sample count</p></li>
+<li><p>Visualization quality depends on matplotlib configuration</p></li>
+<li><p>Consider parallel execution for large parameter studies</p></li>
+<li><p>Results are displayed but not automatically saved</p></li>
+<li><p>Memory usage scales with problem size and visualization</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="main.perform_inference">
+<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">perform_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_format</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#perform_inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.perform_inference" title="Link to this definition"></a></dt>
+<dd><p>Execute Bayesian parameter estimation using MCMC methods.</p>
+<p>This function performs the complete Bayesian inference workflow for Rate and
+State Friction parameter estimation. It configures data persistence, executes
+MCMC sampling across the parameter space, and generates comprehensive
+posterior analysis and visualization.</p>
+<p>The function orchestrates the inference process by setting up data storage,
+running systematic MCMC analysis for each characteristic slip distance,
+and measuring performance for computational assessment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problem</strong> (<a class="reference internal" href="RSF.html#RSF.RSF" title="RSF.RSF"><em>RSF</em></a>) – Configured RSF problem instance containing:
+- Parameter space and forward model
+- Generated synthetic time series data
+- MCMC configuration and prior specifications</p></li>
+<li><p><strong>data_format</strong> (<em>str</em>) – Data storage format specification:
+- ‘json’: JSON file storage for small to medium datasets
+- ‘mysql’: MySQL database storage for large datasets
+Must be supported by RSF data persistence layer.</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of MCMC samples per parameter value:
+- Should be sufficient for convergence (typically 1000-10000)
+- Includes automatic burn-in period (50% of samples)
+- Higher values improve posterior accuracy but increase time</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Total execution time in seconds for complete inference analysis.</dt><dd><p>Includes data preparation, MCMC sampling, and visualization.
+Useful for performance analysis and computational benchmarking.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<dl>
+<dt>Inference Workflow:</dt><dd><ol class="arabic simple">
+<li><p>Data Format Configuration:
+- Sets problem.format to specified storage backend
+- Configures persistence layer for data handling</p></li>
+<li><p>MCMC Execution:
+- Calls problem.inference() with sample count specification
+- Performs systematic analysis across all Dc values
+- Generates posterior distributions and convergence diagnostics</p></li>
+<li><p>Performance Monitoring:
+- Measures total execution time via &#64;measure_execution_time decorator
+- Enables computational performance assessment</p></li>
+</ol>
+</dd>
+<dt>Storage Format Details:</dt><dd><p>JSON Format:
+- File-based storage in current directory
+- Human-readable format, good for version control
+- Suitable for datasets &lt; 100MB
+- Fast for small to medium problem sizes
+- Platform-independent storage</p>
+<p>MySQL Format:
+- Database storage with chunked insertion
+- Suitable for large datasets and concurrent access
+- Requires MySQL server configuration
+- Better scalability for extensive parameter studies
+- Supports advanced querying and data management</p>
+</dd>
+<dt>MCMC Analysis Details:</dt><dd><p>For each Dc value in the parameter space:
+- Extracts relevant data segment from concatenated time series
+- Initializes adaptive Metropolis-Hastings sampler
+- Performs nsamples iterations with automatic burn-in
+- Generates convergence diagnostics and acceptance statistics
+- Creates posterior distribution visualizations</p>
+</dd>
+<dt>Performance Characteristics:</dt><dd><ul class="simple">
+<li><p>Execution time scales as O(num_dc * nsamples * model_evaluation_time)</p></li>
+<li><p>Memory usage depends on sample storage and plotting</p></li>
+<li><p>I/O overhead varies significantly between storage formats</p></li>
+<li><p>Parallel execution potential for multiple Dc values</p></li>
+</ul>
+</dd>
+<dt>Output Generation:</dt><dd><p>The function produces comprehensive analysis results:
+- MCMC trace plots showing parameter evolution
+- Posterior probability density plots
+- Convergence diagnostics and acceptance rates
+- Animation files (if enabled) showing sampling evolution
+- Console output with progress and performance metrics</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Setup and run inference</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">problem</span> <span class="o">=</span> <span class="n">setup_problem</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># JSON storage analysis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json_time</span> <span class="o">=</span> <span class="n">perform_inference</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;JSON analysis: </span><span class="si">{</span><span class="n">json_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># MySQL storage analysis (if database available)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mysql_time</span> <span class="o">=</span> <span class="n">perform_inference</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="s1">&#39;mysql&#39;</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MySQL analysis: </span><span class="si">{</span><span class="n">mysql_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Performance comparison</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">speedup</span> <span class="o">=</span> <span class="n">mysql_time</span> <span class="o">/</span> <span class="n">json_time</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Storage format speedup: </span><span class="si">{</span><span class="n">speedup</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Quality Assessment:</dt><dd><p>Monitor these metrics for successful inference:
+- Acceptance rates: typically 20-50% for good mixing
+- Trace plot convergence: no obvious trends or drift
+- Posterior smoothness: well-defined probability distributions
+- Parameter recovery: posterior means near true values</p>
+</dd>
+<dt>Error Handling:</dt><dd><p>Potential issues and their handling:
+- Data format errors: Invalid storage backend specification
+- MCMC convergence failures: Poor mixing or divergence
+- Storage backend errors: File permissions or database connectivity
+- Memory issues: Large parameter spaces or sample counts</p>
+</dd>
+<dt>Optimization Strategies:</dt><dd><p>For large-scale analyses:
+- Use MySQL storage for datasets &gt; 100MB
+- Consider model reduction for faster evaluation
+- Implement parallel MCMC for multiple Dc values
+- Monitor memory usage and adjust sample counts
+- Use preliminary runs to optimize MCMC parameters</p>
+</dd>
+<dt>Results Interpretation:</dt><dd><p>The analysis produces posterior distributions that quantify:
+- Parameter estimation uncertainty
+- Model sensitivity to different Dc values
+- Quality of data fit and model adequacy
+- Computational efficiency metrics</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Requires problem.data to be set before calling</p></li>
+<li><p>Visualization windows may remain open after completion</p></li>
+<li><p>Consider automated figure saving for batch processing</p></li>
+<li><p>Results quality depends on nsamples and problem conditioning</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="main.setup_problem">
+<span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">setup_problem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#setup_problem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.setup_problem" title="Link to this definition"></a></dt>
+<dd><p>Initialize and configure the Rate and State Friction analysis problem.</p>
+<p>This function creates a comprehensive RSF analysis setup by initializing
+the parameter space, configuring the forward model, and generating synthetic
+time series data. The setup represents a complete earthquake fault mechanics
+problem ready for Bayesian parameter estimation.</p>
+<p>The function coordinates multiple components:
+- RSF driver class with parameter space configuration
+- Rate and State friction forward model
+- Synthetic data generation with realistic noise</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Fully configured RSF problem instance containing:</dt><dd><ul class="simple">
+<li><p>Parameter space (Dc values from LOWEST_SLIP_VALUE to LARGEST_SLIP_VALUE)</p></li>
+<li><p>Initialized forward model (RateStateModel)</p></li>
+<li><p>Generated synthetic time series data with noise</p></li>
+<li><p>MCMC configuration (priors, starting values)</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="RSF.html#RSF.RSF" title="RSF.RSF">RSF</a></p>
+</dd>
+</dl>
+<dl>
+<dt>Configuration Details:</dt><dd><p>Parameter Space:
+- NUMBER_SLIP_VALUES (5): Number of characteristic slip distances to analyze
+- LOWEST_SLIP_VALUE (100 μm): Minimum Dc value for parameter sweep
+- LARGEST_SLIP_VALUE (5000 μm): Maximum Dc value for parameter sweep
+- Linear spacing between bounds for systematic coverage</p>
+<p>Forward Model:
+- NUMBER_TIME_STEPS (500): Temporal resolution for ODE integration
+- Default rate and state parameters (a=0.011, b=0.014)
+- Radiation damping enabled for physical realism
+- Time range: 0-50 seconds with adaptive ODE solver</p>
+<p>Bayesian Configuration:
+- QSTART (1000 μm): Initial parameter value for MCMC chains
+- QPRIORS: Uniform prior distribution [0, 10000] μm
+- Prior bounds encompass expected parameter range</p>
+</dd>
+<dt>Data Generation Process:</dt><dd><ol class="arabic simple">
+<li><p>Creates RSF driver with specified parameter configuration</p></li>
+<li><p>Initializes RateStateModel with temporal discretization</p></li>
+<li><p>Generates synthetic time series for each Dc value</p></li>
+<li><p>Adds realistic noise to simulate experimental conditions</p></li>
+<li><p>Concatenates data for systematic analysis</p></li>
+</ol>
+</dd>
+<dt>Physical Interpretation:</dt><dd><p>The parameter range (100-5000 μm) represents realistic characteristic
+slip distances for earthquake faults:
+- Small Dc (100-500 μm): Velocity strengthening behavior
+- Medium Dc (500-2000 μm): Transitional regime
+- Large Dc (2000-5000 μm): Velocity weakening, stick-slip potential</p>
+</dd>
+<dt>Performance Characteristics:</dt><dd><ul class="simple">
+<li><p>Data generation time: ~5-30 seconds (depends on NUMBER_SLIP_VALUES)</p></li>
+<li><p>Memory usage: ~50-500 MB (scales with problem size)</p></li>
+<li><p>Computation scales linearly with NUMBER_SLIP_VALUES</p></li>
+<li><p>Forward model evaluation dominates computation time</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">problem</span> <span class="o">=</span> <span class="n">setup_problem</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter space: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">dc_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> Dc values&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data shape: </span><span class="si">{</span><span class="n">problem</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dc range: </span><span class="si">{</span><span class="n">problem</span><span class="o">.</span><span class="n">dc_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">problem</span><span class="o">.</span><span class="n">dc_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> μm&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Inspect generated data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment_length</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">num_tsteps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">dc_list</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">start_idx</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">segment_length</span>
+<span class="gp">... </span>    <span class="n">segment</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">start_idx</span> <span class="o">+</span> <span class="n">segment_length</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dc=</span><span class="si">{</span><span class="n">dc</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">: RMS=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">segment</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Customization:</dt><dd><p>To modify the problem setup:
+- Adjust constants at module level for different parameter ranges
+- Modify RateStateModel parameters (a, b, time range)
+- Change temporal resolution via NUMBER_TIME_STEPS
+- Update prior bounds for different parameter exploration</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Forward model initialization errors propagate to caller</p></li>
+<li><p>Data generation failures will raise exceptions</p></li>
+<li><p>Parameter validation handled by RSF class</p></li>
+<li><p>Consider wrapping in try-catch for production use</p></li>
+</ul>
+</dd>
+<dt>Validation:</dt><dd><p>Quality checks for generated problem:
+- Verify data array dimensions match expected size
+- Check parameter bounds are physically reasonable
+- Ensure forward model converges for all Dc values
+- Validate noise characteristics in synthetic data</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Generated data represents “ground truth” with known parameters</p></li>
+<li><p>Same random seed produces identical synthetic datasets</p></li>
+<li><p>Problem instance is ready for immediate inference analysis</p></li>
+<li><p>Memory usage scales with NUMBER_SLIP_VALUES * NUMBER_TIME_STEPS</p></li>
+</ul>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="json_save_load.html" class="btn btn-neutral float-left" title="json_save_load module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mysql_save_load.html" class="btn btn-neutral float-right" title="mysql_save_load module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saumik Dana.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

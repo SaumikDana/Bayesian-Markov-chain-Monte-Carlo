@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mysql_save_load module &mdash; Bayesian Inference Framework 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="main module" href="main.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Bayesian Inference Framework
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Python API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="MCMC.html">MCMC module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RSF.html">RSF module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RateStateModel.html">RateStateModel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imports.html">imports module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="json_save_load.html">json_save_load module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">mysql_save_load module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mysql_save_load.load_object"><code class="docutils literal notranslate"><span class="pre">load_object()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mysql_save_load.save_object"><code class="docutils literal notranslate"><span class="pre">save_object()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Bayesian Inference Framework</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a></li>
+      <li class="breadcrumb-item active">mysql_save_load module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mysql_save_load.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mysql_save_load">
+<span id="mysql-save-load-module"></span><h1>mysql_save_load module<a class="headerlink" href="#module-mysql_save_load" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="mysql_save_load.load_object">
+<span class="sig-prename descclassname"><span class="pre">mysql_save_load.</span></span><span class="sig-name descname"><span class="pre">load_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mysql_save_load.html#load_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mysql_save_load.load_object" title="Link to this definition"></a></dt>
+<dd><p>Load numerical data from a MySQL database and return as a NumPy array.</p>
+<p>This function retrieves all numerical data previously stored using the save_object
+function from the MySQL database. The data is returned as a flattened NumPy array
+maintaining the original insertion order based on the sequential ID field.</p>
+<p>The function connects to the specified MySQL database, executes a SELECT query
+to retrieve all values from the ‘my_table’ table, and processes the results
+into a convenient NumPy array format for further analysis or computation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<em>str</em>) – MySQL server hostname or IP address (e.g., ‘localhost’, ‘192.168.1.100’).
+Must be the same server where data was previously saved.</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – MySQL username with SELECT privileges on the specified database.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password for the MySQL user account.</p></li>
+<li><p><strong>database</strong> (<em>str</em>) – Name of the MySQL database containing the stored data.
+Must be the same database used in save_object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A 1D NumPy array containing all numerical values from the database,</dt><dd><p>ordered by their sequential ID (insertion order). Returns an empty
+array if no data exists in the table.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>mysql.connector.Error</strong> – If database connection fails, authentication is invalid,
+    table doesn’t exist, or SQL execution encounters errors.</p></li>
+<li><p><strong>mysql.connector.ProgrammingError</strong> – If the ‘my_table’ table doesn’t exist in the database.</p></li>
+<li><p><strong>MemoryError</strong> – If the dataset is too large to fit in available memory.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Data Format:</dt><dd><ul class="simple">
+<li><p>Returns data as numpy.float64 array by default</p></li>
+<li><p>Maintains the original order of data insertion (sorted by ID)</p></li>
+<li><p>Flattened to 1D array regardless of original data structure</p></li>
+<li><p>Missing or NULL values are handled according to NumPy’s default behavior</p></li>
+</ul>
+</dd>
+<dt>Performance Considerations:</dt><dd><ul class="simple">
+<li><p>Loads entire dataset into memory at once</p></li>
+<li><p>For very large datasets, consider implementing pagination or streaming</p></li>
+<li><p>Query performance depends on table size and database indexing</p></li>
+<li><p>Network transfer time increases with data volume</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load previously saved data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loaded_data</span> <span class="o">=</span> <span class="n">load_object</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="s1">&#39;myuser&#39;</span><span class="p">,</span> <span class="s1">&#39;mypass&#39;</span><span class="p">,</span> <span class="s1">&#39;mydb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">loaded_data</span><span class="p">)</span><span class="si">}</span><span class="s2"> data points&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data type: </span><span class="si">{</span><span class="n">loaded_data</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load and analyze data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">measurements</span> <span class="o">=</span> <span class="n">load_object</span><span class="p">(</span><span class="s1">&#39;db.example.com&#39;</span><span class="p">,</span> <span class="s1">&#39;analyst&#39;</span><span class="p">,</span> <span class="s1">&#39;secure123&#39;</span><span class="p">,</span> <span class="s1">&#39;experiments&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">measurements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">measurements</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Std Dev: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">measurements</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Range: [</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">measurements</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">measurements</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No data found in database&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check for empty table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_object</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;pass&#39;</span><span class="p">,</span> <span class="s1">&#39;testdb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Table is empty or doesn&#39;t exist&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl>
+<dt>Security Notes:</dt><dd><ul class="simple">
+<li><p>Uses read-only SELECT queries (safe for data integrity)</p></li>
+<li><p>Credentials are passed directly; consider using environment variables</p></li>
+<li><p>Ensure proper database user permissions (SELECT on target table)</p></li>
+<li><p>Connection uses default MySQL encryption settings</p></li>
+</ul>
+</dd>
+<dt>Database Compatibility:</dt><dd><ul class="simple">
+<li><p>Expects table structure created by save_object function</p></li>
+<li><p>Compatible with MySQL 5.7+ and MariaDB 10.2+</p></li>
+<li><p>Requires ‘my_table’ table with ‘value’ column</p></li>
+<li><p>ID column is used for ordering but not returned in results</p></li>
+</ul>
+</dd>
+<dt>Memory Management:</dt><dd><ul class="simple">
+<li><p>Fetches all data at once using fetchall()</p></li>
+<li><p>For large datasets, monitor memory usage</p></li>
+<li><p>Consider using fetchmany() for memory-constrained environments</p></li>
+<li><p>NumPy array creation may temporarily double memory usage</p></li>
+</ul>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Connection errors are propagated to caller</p></li>
+<li><p>Empty tables return empty NumPy array (not None)</p></li>
+<li><p>Database connection is always properly closed</p></li>
+<li><p>Cursor cleanup ensures no resource leaks</p></li>
+</ul>
+</dd>
+<dt>Usage Patterns:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Complete save/load cycle</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">original_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="mf">3.3</span><span class="p">,</span> <span class="mf">4.4</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_object</span><span class="p">(</span><span class="n">original_data</span><span class="p">,</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;pass&#39;</span><span class="p">,</span> <span class="s1">&#39;mydb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">retrieved_data</span> <span class="o">=</span> <span class="n">load_object</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;pass&#39;</span><span class="p">,</span> <span class="s1">&#39;mydb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">original_data</span><span class="p">,</span> <span class="n">retrieved_data</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">original_data</span><span class="p">):])</span>  <span class="c1"># True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Data validation after loading</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_object</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;pass&#39;</span><span class="p">,</span> <span class="s1">&#39;mydb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Data should be 1-dimensional&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="s2">&quot;Data should be float64&quot;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mysql_save_load.save_object">
+<span class="sig-prename descclassname"><span class="pre">mysql_save_load.</span></span><span class="sig-name descname"><span class="pre">save_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mysql_save_load.html#save_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mysql_save_load.save_object" title="Link to this definition"></a></dt>
+<dd><p>Save numerical data to a MySQL database in batched chunks for efficient storage.</p>
+<p>This function stores numerical data (typically NumPy arrays or lists) into a MySQL
+database table with automatic chunking for memory efficiency and performance optimization.
+The function creates the table if it doesn’t exist and automatically assigns sequential
+IDs to maintain data order and integrity.</p>
+<p>The chunking mechanism is particularly useful for large datasets that might exceed
+MySQL’s maximum packet size or cause memory issues. Each chunk is inserted as a
+single transaction for better performance compared to individual row insertions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array-like</em>) – Numerical data to be saved. Can be a NumPy array, list,
+or any iterable containing numerical values. Will be converted
+to float type during insertion.</p></li>
+<li><p><strong>host</strong> (<em>str</em>) – MySQL server hostname or IP address (e.g., ‘localhost’, ‘192.168.1.100’).</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – MySQL username with INSERT privileges on the specified database.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password for the MySQL user account.</p></li>
+<li><p><strong>database</strong> (<em>str</em>) – Name of the MySQL database where data will be stored.
+Database must exist before calling this function.</p></li>
+<li><p><strong>chunk_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of data points to insert per batch operation.
+Larger chunks improve performance but use more memory.
+Defaults to 5000. Adjust based on data size and memory constraints.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mysql.connector.Error</strong> – If database connection fails, authentication is invalid,
+    or SQL execution encounters errors.</p></li>
+<li><p><strong>ValueError</strong> – If data contains non-numerical values that cannot be converted to float.</p></li>
+<li><p><strong>MemoryError</strong> – If chunk_size is too large for available memory.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Database Schema:</dt><dd><p>Creates table ‘my_table’ with the following structure:
+- id (INT PRIMARY KEY): Sequential identifier starting from 1
+- value (FLOAT): The numerical data value</p>
+</dd>
+<dt>Performance Considerations:</dt><dd><ul class="simple">
+<li><p>Uses batched INSERT statements to minimize database round trips</p></li>
+<li><p>Automatically determines starting ID to append to existing data</p></li>
+<li><p>Commits all changes in a single transaction for consistency</p></li>
+<li><p>Chunk size can be tuned for optimal performance vs. memory trade-off</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save a NumPy array</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_object</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="s1">&#39;myuser&#39;</span><span class="p">,</span> <span class="s1">&#39;mypass&#39;</span><span class="p">,</span> <span class="s1">&#39;mydb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save with custom chunk size for large datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">large_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1000000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_object</span><span class="p">(</span><span class="n">large_data</span><span class="p">,</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="s1">&#39;myuser&#39;</span><span class="p">,</span> <span class="s1">&#39;mypass&#39;</span><span class="p">,</span> <span class="s1">&#39;mydb&#39;</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save a simple list</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">measurements</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">3.4</span><span class="p">,</span> <span class="mf">5.6</span><span class="p">,</span> <span class="mf">7.8</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_object</span><span class="p">(</span><span class="n">measurements</span><span class="p">,</span> <span class="s1">&#39;db.example.com&#39;</span><span class="p">,</span> <span class="s1">&#39;analyst&#39;</span><span class="p">,</span> <span class="s1">&#39;secure123&#39;</span><span class="p">,</span> <span class="s1">&#39;experiments&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Security Notes:</dt><dd><ul class="simple">
+<li><p>Uses parameterized queries to prevent SQL injection</p></li>
+<li><p>Credentials are passed directly; consider using environment variables</p></li>
+<li><p>Ensure proper database user permissions (INSERT, SELECT on target table)</p></li>
+<li><p>Connection uses default MySQL encryption settings</p></li>
+</ul>
+</dd>
+<dt>Data Integrity:</dt><dd><ul class="simple">
+<li><p>Each save operation appends to existing data (preserves previous records)</p></li>
+<li><p>Sequential IDs maintain insertion order for data retrieval</p></li>
+<li><p>Single transaction ensures all-or-nothing behavior for each function call</p></li>
+<li><p>Existing data is never modified, only new records are added</p></li>
+</ul>
+</dd>
+<dt>Troubleshooting:</dt><dd><ul class="simple">
+<li><p>Verify database exists and user has appropriate permissions</p></li>
+<li><p>Check network connectivity to MySQL server</p></li>
+<li><p>Ensure chunk_size doesn’t exceed MySQL’s max_allowed_packet setting</p></li>
+<li><p>Monitor memory usage for very large datasets</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="main.html" class="btn btn-neutral float-left" title="main module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saumik Dana.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1172 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSF &mdash; Bayesian Inference Framework 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Bayesian Inference Framework
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Python API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Bayesian-Markov-chain-Monte-Carlo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Bayesian Inference Framework</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">RSF</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for RSF</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">imports</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">MCMC</span> <span class="kn">import</span> <span class="n">MCMC</span>
+<span class="kn">from</span> <span class="nn">json_save_load</span> <span class="kn">import</span> <span class="n">save_object</span><span class="p">,</span> <span class="n">load_object</span>
+<span class="kn">from</span> <span class="nn">mysql_save_load</span> <span class="kn">import</span> <span class="n">save_object</span><span class="p">,</span> <span class="n">load_object</span>
+
+
+<div class="viewcode-block" id="measure_execution_time">
+<a class="viewcode-back" href="../RSF.html#RSF.measure_execution_time">[docs]</a>
+<span class="k">def</span> <span class="nf">measure_execution_time</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator to measure and return the execution time of a function.</span>
+<span class="sd">    </span>
+<span class="sd">    This decorator wraps a function to automatically measure its execution time</span>
+<span class="sd">    using high-precision timing. It&#39;s particularly useful for performance analysis</span>
+<span class="sd">    and benchmarking of computational methods like MCMC sampling.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        func (callable): The function to be timed. Can be any callable object</span>
+<span class="sd">                        including methods, lambda functions, or regular functions.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        callable: A wrapper function that returns the execution time in seconds</span>
+<span class="sd">                 instead of the original function&#39;s return value.</span>
+<span class="sd">    </span>
+<span class="sd">    Usage:</span>
+<span class="sd">        The decorator is applied using the @ syntax above function definitions.</span>
+<span class="sd">        When the decorated function is called, it returns execution time rather</span>
+<span class="sd">        than the original return value.</span>
+<span class="sd">    </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; @measure_execution_time</span>
+<span class="sd">        ... def slow_computation():</span>
+<span class="sd">        ...     time.sleep(2)</span>
+<span class="sd">        ...     return &quot;done&quot;</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; exec_time = slow_computation()</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;Function took {exec_time:.3f} seconds&quot;)</span>
+<span class="sd">        Function took 2.001 seconds</span>
+<span class="sd">    </span>
+<span class="sd">    Note:</span>
+<span class="sd">        - Uses time.time() for cross-platform compatibility</span>
+<span class="sd">        - Returns execution time, not the original function&#39;s return value</span>
+<span class="sd">        - Suitable for timing functions that don&#39;t need their return values</span>
+<span class="sd">        - For functions where return values are needed, consider a different approach</span>
+<span class="sd">    </span>
+<span class="sd">    Performance Considerations:</span>
+<span class="sd">        - Minimal overhead (&lt; 1 microsecond typically)</span>
+<span class="sd">        - Uses wall-clock time, not CPU time</span>
+<span class="sd">        - Resolution depends on system clock (usually microsecond precision)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">execution_time</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="k">return</span> <span class="n">execution_time</span>
+    <span class="k">return</span> <span class="n">wrapper</span></div>
+
+
+<span class="n">RSF_base</span> <span class="o">=</span> <span class="nb">object</span>  <span class="c1"># Fallback to a base object</span>
+
+<div class="viewcode-block" id="RSF">
+<a class="viewcode-back" href="../RSF.html#RSF.RSF">[docs]</a>
+<span class="k">class</span> <span class="nc">RSF</span><span class="p">(</span><span class="n">RSF_base</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Driver class for Rate and State Friction (RSF) model analysis and parameter estimation.</span>
+<span class="sd">    </span>
+<span class="sd">    This class provides a comprehensive framework for analyzing rate and state friction</span>
+<span class="sd">    models through forward modeling, data generation, and Bayesian parameter estimation</span>
+<span class="sd">    using Markov Chain Monte Carlo (MCMC) methods. It handles multiple characteristic</span>
+<span class="sd">    slip distances (Dc values) and supports various data storage formats.</span>
+<span class="sd">    </span>
+<span class="sd">    The class integrates several key components:</span>
+<span class="sd">    - Forward modeling with rate and state friction physics</span>
+<span class="sd">    - Synthetic data generation with realistic noise models</span>
+<span class="sd">    - Bayesian parameter estimation using adaptive MCMC</span>
+<span class="sd">    - Data persistence through JSON and MySQL backends</span>
+<span class="sd">    - Comprehensive visualization and analysis tools</span>
+<span class="sd">    - Performance monitoring and optimization</span>
+<span class="sd">    </span>
+<span class="sd">    Key Features:</span>
+<span class="sd">    - Multi-parameter sweep capabilities across Dc values</span>
+<span class="sd">    - Flexible prior specification for Bayesian inference</span>
+<span class="sd">    - Automated plotting and visualization</span>
+<span class="sd">    - Data format abstraction (JSON/MySQL)</span>
+<span class="sd">    - Execution time monitoring</span>
+<span class="sd">    - Model reduction options for computational efficiency</span>
+<span class="sd">    </span>
+<span class="sd">    Workflow:</span>
+<span class="sd">    1. Initialize with parameter ranges and inference settings</span>
+<span class="sd">    2. Generate synthetic time series data across parameter space</span>
+<span class="sd">    3. Store data using preferred backend (JSON/MySQL)</span>
+<span class="sd">    4. Perform MCMC parameter estimation for each Dc value</span>
+<span class="sd">    5. Visualize posterior distributions and convergence diagnostics</span>
+<span class="sd">    </span>
+<span class="sd">    Applications:</span>
+<span class="sd">    - Earthquake fault parameter estimation from seismic data</span>
+<span class="sd">    - Laboratory friction experiment analysis</span>
+<span class="sd">    - Model validation and uncertainty quantification</span>
+<span class="sd">    - Parameter sensitivity studies</span>
+<span class="sd">    - Computational method benchmarking</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        num_dc (int): Number of characteristic slip distance values to analyze</span>
+<span class="sd">        dc_list (np.ndarray): Array of Dc values for parameter sweep</span>
+<span class="sd">        num_features (int): Number of features for model reduction (if enabled)</span>
+<span class="sd">        plotfigs (bool): Whether to generate visualization plots</span>
+<span class="sd">        qstart (float): Initial parameter value for MCMC chains</span>
+<span class="sd">        qpriors (list): Prior distribution specification [type, lower, upper]</span>
+<span class="sd">        reduction (bool): Whether to use model reduction techniques</span>
+<span class="sd">        model: Forward model object (set externally)</span>
+<span class="sd">        data: Generated or loaded time series data</span>
+<span class="sd">        format (str): Data storage format (&#39;json&#39; or &#39;mysql&#39;)</span>
+<span class="sd">    </span>
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; # Basic usage for single parameter estimation</span>
+<span class="sd">        &gt;&gt;&gt; rsf = RSF(number_slip_values=1, </span>
+<span class="sd">        ...           lowest_slip_value=0.01, </span>
+<span class="sd">        ...           largest_slip_value=0.01,</span>
+<span class="sd">        ...           qstart=0.015,</span>
+<span class="sd">        ...           qpriors=[&quot;Uniform&quot;, 0.005, 0.05])</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Set up model and generate data</span>
+<span class="sd">        &gt;&gt;&gt; rsf.model = RateStateModel(number_time_steps=1000)</span>
+<span class="sd">        &gt;&gt;&gt; rsf.format = &#39;json&#39;</span>
+<span class="sd">        &gt;&gt;&gt; rsf.data = rsf.generate_time_series()</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Perform Bayesian inference</span>
+<span class="sd">        &gt;&gt;&gt; execution_time = rsf.inference(nsamples=2000)</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;Analysis completed in {execution_time:.2f} seconds&quot;)</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; # Multi-parameter sensitivity study</span>
+<span class="sd">        &gt;&gt;&gt; rsf_multi = RSF(number_slip_values=5,</span>
+<span class="sd">        ...                 lowest_slip_value=0.01,</span>
+<span class="sd">        ...                 largest_slip_value=0.05,</span>
+<span class="sd">        ...                 plotfigs=True)</span>
+<span class="sd">        &gt;&gt;&gt; # ... run analysis across parameter range</span>
+<span class="sd">    </span>
+<span class="sd">    Mathematical Background:</span>
+<span class="sd">        The class performs Bayesian inference on the rate and state friction model:</span>
+<span class="sd">        </span>
+<span class="sd">        Likelihood: p(data|Dc) ∝ exp(-SSE/(2σ²))</span>
+<span class="sd">        Prior: p(Dc) ~ Uniform(lower, upper) or other specified distribution</span>
+<span class="sd">        Posterior: p(Dc|data) ∝ p(data|Dc) * p(Dc)</span>
+<span class="sd">        </span>
+<span class="sd">        Where SSE is the sum of squared errors between model predictions and observations.</span>
+<span class="sd">    </span>
+<span class="sd">    Performance Notes:</span>
+<span class="sd">        - Computation time scales with num_dc * nsamples * model_complexity</span>
+<span class="sd">        - Memory usage scales with num_dc * num_tsteps for data storage</span>
+<span class="sd">        - MCMC convergence depends on parameter ranges and data quality</span>
+<span class="sd">        - Consider model reduction for very large parameter spaces</span>
+<span class="sd">    </span>
+<span class="sd">    Dependencies:</span>
+<span class="sd">        - MCMC class for Bayesian inference</span>
+<span class="sd">        - RateStateModel class for forward modeling</span>
+<span class="sd">        - JSON/MySQL save/load utilities</span>
+<span class="sd">        - Matplotlib for visualization</span>
+<span class="sd">        - NumPy/SciPy for numerical computations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> 
+        <span class="n">number_slip_values</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+        <span class="n">lowest_slip_value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+        <span class="n">largest_slip_value</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
+        <span class="n">qstart</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">qpriors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Uniform&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">10000.0</span><span class="p">],</span>
+        <span class="n">reduction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+        <span class="n">plotfigs</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the RSF driver with parameter ranges and analysis settings.</span>
+<span class="sd">        </span>
+<span class="sd">        Sets up the parameter space for characteristic slip distance (Dc) analysis,</span>
+<span class="sd">        configures Bayesian inference settings, and prepares the computational</span>
+<span class="sd">        framework for rate and state friction model analysis.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            number_slip_values (int, optional): Number of Dc values to analyze in the</span>
+<span class="sd">                                              parameter sweep. More values provide</span>
+<span class="sd">                                              better parameter space coverage but</span>
+<span class="sd">                                              increase computation time. Defaults to 1.</span>
+<span class="sd">            lowest_slip_value (float, optional): Minimum characteristic slip distance</span>
+<span class="sd">                                                in micrometers. Should be physically</span>
+<span class="sd">                                                reasonable (typically 0.001-1.0).</span>
+<span class="sd">                                                Defaults to 1.0.</span>
+<span class="sd">            largest_slip_value (float, optional): Maximum characteristic slip distance</span>
+<span class="sd">                                                 in micrometers. Should represent</span>
+<span class="sd">                                                 upper bound of expected values</span>
+<span class="sd">                                                 (typically 1.0-1000.0). Defaults to 1000.0.</span>
+<span class="sd">            qstart (float, optional): Initial parameter value for MCMC chains in</span>
+<span class="sd">                                    micrometers. Should be within [lowest_slip_value,</span>
+<span class="sd">                                    largest_slip_value] and represent a reasonable</span>
+<span class="sd">                                    initial guess. Defaults to 10.0.</span>
+<span class="sd">            qpriors (list, optional): Prior distribution specification as</span>
+<span class="sd">                                    [distribution_type, lower_bound, upper_bound].</span>
+<span class="sd">                                    Currently supports &quot;Uniform&quot; distribution.</span>
+<span class="sd">                                    Bounds define the parameter space for inference.</span>
+<span class="sd">                                    Defaults to [&quot;Uniform&quot;, 0.0, 10000.0].</span>
+<span class="sd">            reduction (bool, optional): Whether to enable model reduction techniques</span>
+<span class="sd">                                      for computational efficiency. Useful for</span>
+<span class="sd">                                      large parameter spaces or high-dimensional</span>
+<span class="sd">                                      models. Defaults to False.</span>
+<span class="sd">            plotfigs (bool, optional): Whether to generate visualization plots</span>
+<span class="sd">                                     during analysis. Includes time series plots,</span>
+<span class="sd">                                     MCMC diagnostics, and posterior distributions.</span>
+<span class="sd">                                     Defaults to False.</span>
+<span class="sd">        </span>
+<span class="sd">        Initializes:</span>
+<span class="sd">            - Parameter space discretization (dc_list)</span>
+<span class="sd">            - Analysis configuration flags</span>
+<span class="sd">            - Bayesian inference settings</span>
+<span class="sd">            - Visualization options</span>
+<span class="sd">            - Placeholder for model and data objects</span>
+<span class="sd">        </span>
+<span class="sd">        Parameter Space:</span>
+<span class="sd">            The Dc values are linearly spaced between lowest_slip_value and</span>
+<span class="sd">            largest_slip_value. For logarithmically spaced values, modify</span>
+<span class="sd">            dc_list after initialization using np.logspace().</span>
+<span class="sd">        </span>
+<span class="sd">        Prior Specification:</span>
+<span class="sd">            Currently supports uniform priors specified as:</span>
+<span class="sd">            [&quot;Uniform&quot;, lower_bound, upper_bound]</span>
+<span class="sd">            </span>
+<span class="sd">            Future extensions could include:</span>
+<span class="sd">            - [&quot;Normal&quot;, mean, std]</span>
+<span class="sd">            - [&quot;LogNormal&quot;, mu, sigma]</span>
+<span class="sd">            - [&quot;Gamma&quot;, shape, scale]</span>
+<span class="sd">        </span>
+<span class="sd">        Note:</span>
+<span class="sd">            - The model object must be set externally before analysis</span>
+<span class="sd">            - Data format (&#39;json&#39; or &#39;mysql&#39;) must be specified before data operations</span>
+<span class="sd">            - num_features is fixed at 2 for current implementation</span>
+<span class="sd">            - All distance units should be consistent (typically micrometers)</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; # Single parameter analysis</span>
+<span class="sd">            &gt;&gt;&gt; rsf = RSF(number_slip_values=1, </span>
+<span class="sd">            ...           lowest_slip_value=0.02, </span>
+<span class="sd">            ...           largest_slip_value=0.02)</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Parameter sweep analysis</span>
+<span class="sd">            &gt;&gt;&gt; rsf = RSF(number_slip_values=10,</span>
+<span class="sd">            ...           lowest_slip_value=0.01,</span>
+<span class="sd">            ...           largest_slip_value=0.1,</span>
+<span class="sd">            ...           qstart=0.05,</span>
+<span class="sd">            ...           qpriors=[&quot;Uniform&quot;, 0.005, 0.2],</span>
+<span class="sd">            ...           plotfigs=True)</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Check parameter space</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Analyzing Dc values: {rsf.dc_list}&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Prior bounds: {rsf.qpriors[1]:.3f} to {rsf.qpriors[2]:.3f}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_dc</span>       <span class="o">=</span> <span class="n">number_slip_values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dc_list</span>      <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lowest_slip_value</span><span class="p">,</span> <span class="n">largest_slip_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_dc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_features</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotfigs</span>     <span class="o">=</span> <span class="n">plotfigs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qstart</span>       <span class="o">=</span> <span class="n">qstart</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qpriors</span>      <span class="o">=</span> <span class="n">qpriors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span>    <span class="o">=</span> <span class="n">reduction</span>
+
+        <span class="k">return</span>
+   
+<div class="viewcode-block" id="RSF.generate_time_series">
+<a class="viewcode-back" href="../RSF.html#RSF.RSF.generate_time_series">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_time_series</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate synthetic time series data for all characteristic slip distances.</span>
+<span class="sd">        </span>
+<span class="sd">        This method performs forward modeling across the entire parameter space</span>
+<span class="sd">        defined by dc_list, generating synthetic acceleration time series with</span>
+<span class="sd">        realistic noise for each Dc value. The data is concatenated into a single</span>
+<span class="sd">        array suitable for subsequent Bayesian analysis.</span>
+<span class="sd">        </span>
+<span class="sd">        The method iterates through each Dc value, evaluates the rate and state</span>
+<span class="sd">        friction model, optionally generates plots for visualization, and</span>
+<span class="sd">        concatenates the noisy acceleration data into a comprehensive dataset.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Concatenated noisy acceleration data with shape </span>
+<span class="sd">                       (num_dc * num_tsteps,). Each segment of length num_tsteps</span>
+<span class="sd">                       corresponds to one Dc value in dc_list. The data includes</span>
+<span class="sd">                       synthetic noise to simulate experimental conditions.</span>
+<span class="sd">        </span>
+<span class="sd">        Process:</span>
+<span class="sd">            1. Calculate total array size for all Dc values</span>
+<span class="sd">            2. Initialize output array with zeros</span>
+<span class="sd">            3. For each Dc value:</span>
+<span class="sd">               - Set model parameter (model.Dc)</span>
+<span class="sd">               - Evaluate forward model to get time series</span>
+<span class="sd">               - Generate optional visualization plots</span>
+<span class="sd">               - Extract noisy acceleration data</span>
+<span class="sd">               - Store in appropriate array segment</span>
+<span class="sd">            4. Return concatenated data array</span>
+<span class="sd">        </span>
+<span class="sd">        Data Structure:</span>
+<span class="sd">            The returned array has segments arranged as:</span>
+<span class="sd">            [dc_1_data, dc_2_data, ..., dc_n_data]</span>
+<span class="sd">            where each dc_i_data has length model.num_tsteps</span>
+<span class="sd">        </span>
+<span class="sd">        Model Requirements:</span>
+<span class="sd">            - self.model must be set before calling this method</span>
+<span class="sd">            - model must have Dc attribute that can be modified</span>
+<span class="sd">            - model.evaluate() must return (time, acceleration, noisy_acceleration)</span>
+<span class="sd">            - model.num_tsteps must be defined for array sizing</span>
+<span class="sd">        </span>
+<span class="sd">        Visualization:</span>
+<span class="sd">            If self.plotfigs is True, generates individual time series plots</span>
+<span class="sd">            for each Dc value showing acceleration vs. time with appropriate</span>
+<span class="sd">            titles and labels.</span>
+<span class="sd">        </span>
+<span class="sd">        Error Handling:</span>
+<span class="sd">            - If model is not set, will raise AttributeError</span>
+<span class="sd">            - If model.evaluate() fails, exception will propagate</span>
+<span class="sd">            - Array indexing is safe due to pre-calculated dimensions</span>
+<span class="sd">        </span>
+<span class="sd">        Performance:</span>
+<span class="sd">            - Time complexity: O(num_dc * model_evaluation_time)</span>
+<span class="sd">            - Space complexity: O(num_dc * num_tsteps)</span>
+<span class="sd">            - Memory allocation done once upfront for efficiency</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; # Setup model and RSF driver</span>
+<span class="sd">            &gt;&gt;&gt; from src.RateStateModel import RateStateModel</span>
+<span class="sd">            &gt;&gt;&gt; model = RateStateModel(number_time_steps=1000, end_time=50.0)</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; rsf = RSF(number_slip_values=3,</span>
+<span class="sd">            ...           lowest_slip_value=0.01,</span>
+<span class="sd">            ...           largest_slip_value=0.03,</span>
+<span class="sd">            ...           plotfigs=True)</span>
+<span class="sd">            &gt;&gt;&gt; rsf.model = model</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Generate synthetic data</span>
+<span class="sd">            &gt;&gt;&gt; data = rsf.generate_time_series()</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Generated data shape: {data.shape}&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Expected shape: {(len(rsf.dc_list) * model.num_tsteps,)}&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Analyze data segments</span>
+<span class="sd">            &gt;&gt;&gt; segment_length = model.num_tsteps</span>
+<span class="sd">            &gt;&gt;&gt; for i, dc in enumerate(rsf.dc_list):</span>
+<span class="sd">            ...     start_idx = i * segment_length</span>
+<span class="sd">            ...     end_idx = start_idx + segment_length</span>
+<span class="sd">            ...     segment_data = data[start_idx:end_idx]</span>
+<span class="sd">            ...     print(f&quot;Dc={dc:.3f}: RMS acceleration = {np.sqrt(np.mean(segment_data**2)):.4f}&quot;)</span>
+<span class="sd">        </span>
+<span class="sd">        Usage in Analysis Pipeline:</span>
+<span class="sd">            &gt;&gt;&gt; # Complete workflow</span>
+<span class="sd">            &gt;&gt;&gt; rsf.format = &#39;json&#39;  # Set storage format</span>
+<span class="sd">            &gt;&gt;&gt; synthetic_data = rsf.generate_time_series()</span>
+<span class="sd">            &gt;&gt;&gt; rsf.data = rsf.prepare_data(synthetic_data)  # Store/load data</span>
+<span class="sd">            &gt;&gt;&gt; execution_time = rsf.inference(nsamples=1000)  # Run MCMC</span>
+<span class="sd">        </span>
+<span class="sd">        Note:</span>
+<span class="sd">            - Each model evaluation generates independent noise realizations</span>
+<span class="sd">            - The same random seed will produce identical results</span>
+<span class="sd">            - Consider setting numpy random seed for reproducibility</span>
+<span class="sd">            - Large parameter spaces may require significant computation time</span>
+<span class="sd">            - Generated data represents &quot;ground truth&quot; with known parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Calculate the total number of entries</span>
+        <span class="n">total_entries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dc_list</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">num_tsteps</span>
+        <span class="n">acc_appended_noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">total_entries</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">dc_value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dc_list</span><span class="p">):</span>
+            <span class="c1"># Evaluate the model for the current value of dc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Dc</span> <span class="o">=</span> <span class="n">dc_value</span>
+            <span class="n">time_series</span><span class="p">,</span> <span class="n">acceleration</span><span class="p">,</span> <span class="n">acc_noise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_time_series</span><span class="p">(</span><span class="n">time_series</span><span class="p">,</span> <span class="n">acceleration</span><span class="p">)</span>  <span class="c1"># Generate plots</span>
+
+            <span class="c1"># Calculate the start and end indices for the current segment</span>
+            <span class="n">start_index</span> <span class="o">=</span> <span class="n">index</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">num_tsteps</span>
+            <span class="n">end_index</span> <span class="o">=</span> <span class="n">start_index</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">num_tsteps</span>
+
+            <span class="c1"># Append the noise-adjusted acceleration data</span>
+            <span class="n">acc_appended_noise</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">acc_noise</span>
+
+        <span class="k">return</span> <span class="n">acc_appended_noise</span></div>
+
+
+<div class="viewcode-block" id="RSF.plot_time_series">
+<a class="viewcode-back" href="../RSF.html#RSF.RSF.plot_time_series">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_time_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">acceleration</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate time series visualization plots for rate and state friction data.</span>
+<span class="sd">        </span>
+<span class="sd">        This method creates publication-quality plots of acceleration time series</span>
+<span class="sd">        with proper formatting, labels, and styling. The plots help visualize</span>
+<span class="sd">        the temporal evolution of the rate and state friction system and are</span>
+<span class="sd">        essential for understanding model behavior and validating results.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            time (np.ndarray): Time array with shape (num_tsteps,) containing</span>
+<span class="sd">                             time values from model evaluation. Units should</span>
+<span class="sd">                             be consistent with model setup (typically seconds).</span>
+<span class="sd">            acceleration (np.ndarray): Acceleration array with shape (num_tsteps,)</span>
+<span class="sd">                                     containing the clean (non-noisy) acceleration</span>
+<span class="sd">                                     time series from the rate and state model.</span>
+<span class="sd">                                     Units typically in μm/s².</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None: Creates and displays matplotlib figure but does not return it.</span>
+<span class="sd">                 The figure is not saved automatically.</span>
+<span class="sd">        </span>
+<span class="sd">        Plot Features:</span>
+<span class="sd">            - Professional formatting with LaTeX-style mathematical notation</span>
+<span class="sd">            - Grid lines for easier data reading</span>
+<span class="sd">            - Proper axis labels with units</span>
+<span class="sd">            - Title showing current Dc parameter value</span>
+<span class="sd">            - Legend indicating this is the &quot;True&quot; (non-noisy) signal</span>
+<span class="sd">            - Time axis limits set to model bounds with small buffer</span>
+<span class="sd">        </span>
+<span class="sd">        Styling:</span>
+<span class="sd">            - Line width: 1.0 for clear visibility</span>
+<span class="sd">            - Grid: Enabled for professional appearance</span>
+<span class="sd">            - Title: Shows Dc value in scientific notation</span>
+<span class="sd">            - Labels: Use proper mathematical formatting with LaTeX</span>
+<span class="sd">        </span>
+<span class="sd">        Conditional Execution:</span>
+<span class="sd">            The method only generates plots if self.plotfigs is True, allowing</span>
+<span class="sd">            for batch processing without visual output when desired.</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; # Single plot generation</span>
+<span class="sd">            &gt;&gt;&gt; rsf = RSF(plotfigs=True)</span>
+<span class="sd">            &gt;&gt;&gt; rsf.model = RateStateModel()</span>
+<span class="sd">            &gt;&gt;&gt; rsf.model.Dc = 0.02</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; t, acc, acc_noise = rsf.model.evaluate()</span>
+<span class="sd">            &gt;&gt;&gt; rsf.plot_time_series(t, acc)</span>
+<span class="sd">            &gt;&gt;&gt; plt.show()  # Display the plot</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; # Batch plotting (automatically called in generate_time_series)</span>
+<span class="sd">            &gt;&gt;&gt; rsf = RSF(number_slip_values=5, plotfigs=True)</span>
+<span class="sd">            &gt;&gt;&gt; # ... setup model ...</span>
+<span class="sd">            &gt;&gt;&gt; data = rsf.generate_time_series()  # Creates 5 plots automatically</span>
+<span class="sd">        </span>
+<span class="sd">        Mathematical Notation:</span>
+<span class="sd">            - Uses LaTeX formatting for proper mathematical symbols</span>
+<span class="sd">            - Dc parameter shown in micrometers (μm)</span>
+<span class="sd">            - Acceleration units shown as μm/s²</span>
+<span class="sd">            - Subscripts and Greek letters properly formatted</span>
+<span class="sd">        </span>
+<span class="sd">        Performance Considerations:</span>
+<span class="sd">            - Each plot creation takes ~0.1-0.5 seconds depending on data size</span>
+<span class="sd">            - Memory usage minimal for typical time series lengths</span>
+<span class="sd">            - No automatic saving; manually save if needed</span>
+<span class="sd">            - Consider plt.close() for batch processing to manage memory</span>
+<span class="sd">        </span>
+<span class="sd">        Integration with Analysis:</span>
+<span class="sd">            The plots are particularly useful for:</span>
+<span class="sd">            - Visual validation of model behavior</span>
+<span class="sd">            - Identifying stick-slip events and patterns</span>
+<span class="sd">            - Comparing different Dc parameter effects</span>
+<span class="sd">            - Quality control of synthetic data generation</span>
+<span class="sd">            - Presentation and publication figures</span>
+<span class="sd">        </span>
+<span class="sd">        Customization:</span>
+<span class="sd">            To modify plot appearance, extend this method or create custom</span>
+<span class="sd">            plotting functions. Common modifications include:</span>
+<span class="sd">            - Different line styles or colors</span>
+<span class="sd">            - Logarithmic scales for specific analyses</span>
+<span class="sd">            - Subplots for multiple variables</span>
+<span class="sd">            - Animation for temporal evolution</span>
+<span class="sd">            - Statistical overlays (mean, confidence intervals)</span>
+<span class="sd">        </span>
+<span class="sd">        Note:</span>
+<span class="sd">            - Plots are created in separate figure windows</span>
+<span class="sd">            - No automatic figure management (closing, saving)</span>
+<span class="sd">            - Uses current matplotlib backend settings</span>
+<span class="sd">            - Figure size uses matplotlib defaults</span>
+<span class="sd">            - Consider plot density for large parameter sweeps</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">plotfigs</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="sa">rf</span><span class="s1">&#39;$d_c$=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Dc</span><span class="si">}</span><span class="s1"> $\mu m$ RSF solution&#39;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">acceleration</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_start</span> <span class="o">-</span> <span class="mf">2.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_final</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (sec)&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">rf</span><span class="s1">&#39;Acceleration $(\mu m/s^2)$&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span></div>
+
+           
+<div class="viewcode-block" id="RSF.prepare_data">
+<a class="viewcode-back" href="../RSF.html#RSF.RSF.prepare_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare and persist data using specified storage format (JSON or MySQL).</span>
+<span class="sd">        </span>
+<span class="sd">        This method provides data persistence abstraction, allowing seamless</span>
+<span class="sd">        switching between JSON file storage and MySQL database storage for</span>
+<span class="sd">        time series data. It handles the complete save/load cycle to ensure</span>
+<span class="sd">        data integrity and format consistency across different storage backends.</span>
+<span class="sd">        </span>
+<span class="sd">        The method performs a round-trip operation (save then load) to verify</span>
+<span class="sd">        data integrity and ensure the returned data matches the stored format</span>
+<span class="sd">        exactly. This is particularly important for numerical precision and</span>
+<span class="sd">        array structure preservation.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            data (np.ndarray): Time series data to be stored and retrieved.</span>
+<span class="sd">                             Typically the output from generate_time_series()</span>
+<span class="sd">                             with shape (num_dc * num_tsteps,). Should contain</span>
+<span class="sd">                             numerical values (floats) representing acceleration</span>
+<span class="sd">                             measurements with synthetic noise.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The same data after save/load round-trip, potentially</span>
+<span class="sd">                       with format-specific transformations applied (e.g.,</span>
+<span class="sd">                       precision changes, type conversions). Shape and values</span>
+<span class="sd">                       should match input data within numerical precision limits.</span>
+<span class="sd">        </span>
+<span class="sd">        Storage Formats:</span>
+<span class="sd">            JSON Format (self.format == &#39;json&#39;):</span>
+<span class="sd">            - Saves to &#39;data.json&#39; in current directory</span>
+<span class="sd">            - Uses custom JSON encoder for NumPy array handling</span>
+<span class="sd">            - Preserves array structure and numerical precision</span>
+<span class="sd">            - Human-readable format, suitable for small to medium datasets</span>
+<span class="sd">            - Platform-independent, version control friendly</span>
+<span class="sd">            </span>
+<span class="sd">            MySQL Format (self.format == &#39;mysql&#39;):</span>
+<span class="sd">            - Saves to MySQL database with predefined connection parameters</span>
+<span class="sd">            - Uses chunked insertion for memory efficiency</span>
+<span class="sd">            - Suitable for large datasets and concurrent access</span>
+<span class="sd">            - Requires MySQL server setup and proper credentials</span>
+<span class="sd">            - Supports database operations and queries</span>
+<span class="sd">        </span>
+<span class="sd">        Prerequisites:</span>
+<span class="sd">            - self.format must be set to either &#39;json&#39; or &#39;mysql&#39;</span>
+<span class="sd">            - For MySQL: database server must be running and accessible</span>
+<span class="sd">            - For MySQL: connection parameters must be valid</span>
+<span class="sd">            - Required save/load modules must be imported</span>
+<span class="sd">        </span>
+<span class="sd">        File Management:</span>
+<span class="sd">            JSON files are created in the current working directory:</span>
+<span class="sd">            - &#39;data.json&#39;: Contains the time series data</span>
+<span class="sd">            - &#39;model_lstm.json&#39;: Placeholder for LSTM model data (future use)</span>
+<span class="sd">        </span>
+<span class="sd">        Database Configuration:</span>
+<span class="sd">            MySQL connection uses hardcoded parameters:</span>
+<span class="sd">            - Host: &#39;localhost&#39;</span>
+<span class="sd">            - User: &#39;my_user&#39;</span>
+<span class="sd">            - Password: &#39;my_password&#39;</span>
+<span class="sd">            - Database: &#39;my_database&#39;</span>
+<span class="sd">            </span>
+<span class="sd">            Note: Consider moving to configuration file or environment variables</span>
+<span class="sd">        </span>
+<span class="sd">        Error Handling:</span>
+<span class="sd">            - File permission errors for JSON format</span>
+<span class="sd">            - Database connection errors for MySQL format</span>
+<span class="sd">            - Invalid data format or type errors</span>
+<span class="sd">            - Network connectivity issues for remote databases</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; # JSON storage workflow</span>
+<span class="sd">            &gt;&gt;&gt; rsf = RSF()</span>
+<span class="sd">            &gt;&gt;&gt; rsf.format = &#39;json&#39;</span>
+<span class="sd">            &gt;&gt;&gt; original_data = rsf.generate_time_series()</span>
+<span class="sd">            &gt;&gt;&gt; stored_data = rsf.prepare_data(original_data)</span>
+<span class="sd">            &gt;&gt;&gt; np.allclose(original_data, stored_data)  # Should be True</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # MySQL storage workflow</span>
+<span class="sd">            &gt;&gt;&gt; rsf.format = &#39;mysql&#39;</span>
+<span class="sd">            &gt;&gt;&gt; # Ensure MySQL server is running with correct credentials</span>
+<span class="sd">            &gt;&gt;&gt; stored_data = rsf.prepare_data(original_data)</span>
+<span class="sd">        </span>
+<span class="sd">        Performance Considerations:</span>
+<span class="sd">            JSON Format:</span>
+<span class="sd">            - Fast for small to medium datasets (&lt; 100MB)</span>
+<span class="sd">            - Memory usage during save: ~2x data size</span>
+<span class="sd">            - Disk space: ~1.5x memory size (text format overhead)</span>
+<span class="sd">            </span>
+<span class="sd">            MySQL Format:</span>
+<span class="sd">            - Scales well for large datasets</span>
+<span class="sd">            - Network latency affects performance</span>
+<span class="sd">            - Chunked insertion optimizes memory usage</span>
+<span class="sd">            - Database indexing can improve query performance</span>
+<span class="sd">        </span>
+<span class="sd">        Data Integrity:</span>
+<span class="sd">            - Round-trip verification ensures data consistency</span>
+<span class="sd">            - Numerical precision preserved within format limits</span>
+<span class="sd">            - Array structure and ordering maintained</span>
+<span class="sd">            - Consider checksums for critical applications</span>
+<span class="sd">        </span>
+<span class="sd">        Security Notes:</span>
+<span class="sd">            - JSON files stored in plaintext (consider encryption for sensitive data)</span>
+<span class="sd">            - MySQL credentials hardcoded (security risk in production)</span>
+<span class="sd">            - File permissions should be set appropriately</span>
+<span class="sd">            - Database access should use principle of least privilege</span>
+<span class="sd">        </span>
+<span class="sd">        Future Enhancements:</span>
+<span class="sd">            - Configuration file for database parameters</span>
+<span class="sd">            - Additional storage formats (HDF5, Parquet)</span>
+<span class="sd">            - Compression options for large datasets</span>
+<span class="sd">            - Metadata storage (timestamps, model parameters)</span>
+<span class="sd">            - Data validation and checksum verification</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lstm_file</span> <span class="o">=</span> <span class="s1">&#39;model_lstm.json&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span> <span class="o">=</span> <span class="s1">&#39;data.json&#39;</span>
+            <span class="n">save_object</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">load_object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s1">&#39;mysql&#39;</span><span class="p">:</span>
+            <span class="c1"># MySQL connection details</span>
+            <span class="n">mysql_host</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span>
+            <span class="n">mysql_user</span> <span class="o">=</span> <span class="s1">&#39;my_user&#39;</span>
+            <span class="n">mysql_password</span> <span class="o">=</span> <span class="s1">&#39;my_password&#39;</span>
+            <span class="n">mysql_database</span> <span class="o">=</span> <span class="s1">&#39;my_database&#39;</span>
+            <span class="n">save_object</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mysql_host</span><span class="p">,</span> <span class="n">mysql_user</span><span class="p">,</span> <span class="n">mysql_password</span><span class="p">,</span> <span class="n">mysql_database</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">load_object</span><span class="p">(</span><span class="n">mysql_host</span><span class="p">,</span> <span class="n">mysql_user</span><span class="p">,</span> <span class="n">mysql_password</span><span class="p">,</span> <span class="n">mysql_database</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="RSF.plot_dist">
+<a class="viewcode-back" href="../RSF.html#RSF.RSF.plot_dist">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qparams</span><span class="p">,</span> <span class="n">dc</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate comprehensive visualization of MCMC posterior distribution.</span>
+<span class="sd">        </span>
+<span class="sd">        This method creates a dual-panel plot showing both the MCMC sample trace</span>
+<span class="sd">        and the corresponding probability density estimate. The visualization is</span>
+<span class="sd">        essential for assessing convergence, understanding posterior structure,</span>
+<span class="sd">        and presenting Bayesian inference results.</span>
+<span class="sd">        </span>
+<span class="sd">        The plot combines a trace plot (left panel) showing the evolution of</span>
+<span class="sd">        parameter samples over iterations with a kernel density estimate (right panel)</span>
+<span class="sd">        showing the posterior probability distribution. This dual view provides</span>
+<span class="sd">        both convergence diagnostics and distributional information.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            qparams (np.ndarray): MCMC parameter samples with shape (n_params, n_samples).</span>
+<span class="sd">                                For this implementation, expects shape (1, n_samples)</span>
+<span class="sd">                                where the single parameter is the Dc value.</span>
+<span class="sd">                                Samples should be post-burn-in values.</span>
+<span class="sd">            dc (float): True characteristic slip distance value used for comparison</span>
+<span class="sd">                       and plot labeling. Displayed in the plot title for reference</span>
+<span class="sd">                       and validation purposes.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None: Creates and displays a matplotlib figure with two subplots.</span>
+<span class="sd">                 The figure is not returned or saved automatically.</span>
+<span class="sd">        </span>
+<span class="sd">        Plot Layout:</span>
+<span class="sd">            Left Panel (70% width):</span>
+<span class="sd">            - Trace plot showing parameter evolution vs. sample number</span>
+<span class="sd">            - Blue line with specified line width</span>
+<span class="sd">            - Y-axis: Parameter value (Dc)</span>
+<span class="sd">            - X-axis: Sample number (iteration)</span>
+<span class="sd">            - Shows mixing and convergence behavior</span>
+<span class="sd">            </span>
+<span class="sd">            Right Panel (15% width):</span>
+<span class="sd">            - Kernel density estimate of posterior distribution</span>
+<span class="sd">            - Filled area under curve with transparency</span>
+<span class="sd">            - Y-axis: Parameter value (shared with left panel)</span>
+<span class="sd">            - X-axis: Probability density</span>
+<span class="sd">            - No tick marks for cleaner appearance</span>
+<span class="sd">        </span>
+<span class="sd">        Styling Parameters:</span>
+<span class="sd">            - KDE_POINTS = 1000: Resolution of density estimate</span>
+<span class="sd">            - PLOT_WIDTH_RATIO = [0.7, 0.15]: Panel width proportions</span>
+<span class="sd">            - PLOT_SPACING = 0.15: Spacing between panels</span>
+<span class="sd">            - PLOT_LINE_WIDTH = 1.0: Line thickness</span>
+<span class="sd">            - PLOT_ALPHA = 0.3: Fill transparency</span>
+<span class="sd">        </span>
+<span class="sd">        Statistical Analysis:</span>
+<span class="sd">            The kernel density estimation uses Gaussian kernels with automatic</span>
+<span class="sd">            bandwidth selection via Scott&#39;s rule. The density is evaluated over</span>
+<span class="sd">            the range defined by the trace plot&#39;s y-axis limits.</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; # After MCMC sampling</span>
+<span class="sd">            &gt;&gt;&gt; mcmc_obj = MCMC(model, data, dc_true, qpriors, qstart, nsamples=2000)</span>
+<span class="sd">            &gt;&gt;&gt; posterior_samples = mcmc_obj.sample(False)</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Generate distribution plot</span>
+<span class="sd">            &gt;&gt;&gt; rsf = RSF()</span>
+<span class="sd">            &gt;&gt;&gt; rsf.format = &#39;json&#39;  # Required for title formatting</span>
+<span class="sd">            &gt;&gt;&gt; rsf.plot_dist(posterior_samples, dc_true)</span>
+<span class="sd">            &gt;&gt;&gt; plt.show()</span>
+<span class="sd">        </span>
+<span class="sd">        Interpretation Guide:</span>
+<span class="sd">            Trace Plot (Left):</span>
+<span class="sd">            - Horizontal lines suggest good mixing</span>
+<span class="sd">            - Trends indicate lack of convergence</span>
+<span class="sd">            - Oscillations show exploration of parameter space</span>
+<span class="sd">            - Stable variance suggests adequate burn-in</span>
+<span class="sd">            </span>
+<span class="sd">            Density Plot (Right):</span>
+<span class="sd">            - Peak location: Posterior mode (most likely value)</span>
+<span class="sd">            - Width: Posterior uncertainty</span>
+<span class="sd">            - Shape: Distribution characteristics (skewness, multimodality)</span>
+<span class="sd">            - Area under curve: Should integrate to 1.0</span>
+<span class="sd">        </span>
+<span class="sd">        Convergence Diagnostics:</span>
+<span class="sd">            Visual signs of good convergence:</span>
+<span class="sd">            - Trace plot shows random fluctuation around mean</span>
+<span class="sd">            - No obvious trends or drift in trace</span>
+<span class="sd">            - Density plot shows smooth, well-defined peak</span>
+<span class="sd">            - Multiple modes may indicate complex posterior structure</span>
+<span class="sd">        </span>
+<span class="sd">        Title Information:</span>
+<span class="sd">            The plot title shows:</span>
+<span class="sd">            - True Dc value for comparison with posterior</span>
+<span class="sd">            - Data storage format used in analysis</span>
+<span class="sd">            - Mathematical notation using LaTeX formatting</span>
+<span class="sd">        </span>
+<span class="sd">        Performance Notes:</span>
+<span class="sd">            - KDE computation scales as O(n*m) where n=samples, m=grid points</span>
+<span class="sd">            - Memory usage minimal for typical sample sizes (&lt; 10^6 samples)</span>
+<span class="sd">            - Plot rendering time depends on sample size and grid resolution</span>
+<span class="sd">        </span>
+<span class="sd">        Customization Options:</span>
+<span class="sd">            Common modifications:</span>
+<span class="sd">            - Adjust KDE_POINTS for smoother/faster density estimates</span>
+<span class="sd">            - Change width ratios for different emphasis</span>
+<span class="sd">            - Add reference lines for true parameter values</span>
+<span class="sd">            - Overlay multiple chains for comparison</span>
+<span class="sd">            - Add summary statistics annotations</span>
+<span class="sd">        </span>
+<span class="sd">        Note:</span>
+<span class="sd">            - Assumes single parameter (Dc) analysis</span>
+<span class="sd">            - Uses first row of qparams array (qparams[0, :])</span>
+<span class="sd">            - Figure is created but not saved automatically</span>
+<span class="sd">            - Consider plt.savefig() for permanent storage</span>
+<span class="sd">            - Panel spacing and sizing optimized for typical screen viewing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">KDE_POINTS</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="n">PLOT_WIDTH_RATIO</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">]</span>
+        <span class="n">PLOT_SPACING</span> <span class="o">=</span> <span class="mf">0.15</span>
+        <span class="n">PLOT_LINE_WIDTH</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">PLOT_ALPHA</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+        <span class="c1"># Set up the plot layout</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width_ratios&#39;</span><span class="p">:</span> <span class="n">PLOT_WIDTH_RATIO</span><span class="p">,</span> <span class="s1">&#39;wspace&#39;</span><span class="p">:</span> <span class="n">PLOT_SPACING</span><span class="p">})</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">rf</span><span class="s1">&#39;$d_c=</span><span class="si">{</span><span class="n">dc</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">\,\mu m$ with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="si">}</span><span class="s1"> formatting&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="c1"># Plot MCMC samples</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">qparams</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">PLOT_LINE_WIDTH</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;$d_c$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Sample number&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">qparams</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Calculate and plot KDE</span>
+        <span class="n">kde_x_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">*</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">(),</span> <span class="n">KDE_POINTS</span><span class="p">)</span>
+        <span class="n">kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">qparams</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kde</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">kde_x_values</span><span class="p">),</span> <span class="n">kde_x_values</span><span class="p">,</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">PLOT_LINE_WIDTH</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span>
+            <span class="n">kde_x_values</span><span class="p">,</span> <span class="n">kde</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">kde_x_values</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">kde_x_values</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="n">PLOT_ALPHA</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Prob. density&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([])</span>
+
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="RSF.perform_sampling_and_plotting">
+<a class="viewcode-back" href="../RSF.html#RSF.RSF.perform_sampling_and_plotting">[docs]</a>
+    <span class="k">def</span> <span class="nf">perform_sampling_and_plotting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dc</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">model_lstm</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute MCMC parameter estimation and generate posterior visualizations.</span>
+<span class="sd">        </span>
+<span class="sd">        This method performs the core Bayesian inference workflow for a specific</span>
+<span class="sd">        characteristic slip distance (Dc) value. It extracts the relevant data</span>
+<span class="sd">        segment, initializes the MCMC sampler, runs the sampling algorithm,</span>
+<span class="sd">        and generates comprehensive posterior distribution plots.</span>
+<span class="sd">        </span>
+<span class="sd">        The method handles data segmentation to isolate the time series corresponding</span>
+<span class="sd">        to the specified Dc value, configures the MCMC algorithm with appropriate</span>
+<span class="sd">        priors and starting values, and produces both sampling diagnostics and</span>
+<span class="sd">        final posterior visualizations.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            data (np.ndarray): Complete concatenated time series data from all Dc values</span>
+<span class="sd">                             with shape (num_dc * num_tsteps,). Contains noisy acceleration</span>
+<span class="sd">                             measurements for the entire parameter space.</span>
+<span class="sd">            dc (float): Specific characteristic slip distance value to analyze.</span>
+<span class="sd">                       Must be present in self.dc_list for proper data extraction.</span>
+<span class="sd">                       Units should be consistent with model setup (typically μm).</span>
+<span class="sd">            nsamples (int): Number of MCMC samples to generate for this Dc value.</span>
+<span class="sd">                          Should be sufficient for convergence (typically 1000-10000).</span>
+<span class="sd">                          Includes burn-in period (automatically handled by MCMC class).</span>
+<span class="sd">            model_lstm (dict or None): LSTM model configuration for reduced-order modeling.</span>
+<span class="sd">                                     If None, uses full forward model evaluation.</span>
+<span class="sd">                                     If provided, should contain LSTM model parameters.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None: Performs analysis and generates plots but does not return values.</span>
+<span class="sd">                 Results are visualized through plot_dist() method.</span>
+<span class="sd">        </span>
+<span class="sd">        Process Workflow:</span>
+<span class="sd">            1. Locate Dc value in parameter list and extract corresponding data segment</span>
+<span class="sd">            2. Print diagnostic information about current analysis</span>
+<span class="sd">            3. Initialize MCMC object with model, data, and inference settings</span>
+<span class="sd">            4. Execute MCMC sampling with optional animation</span>
+<span class="sd">            5. Generate posterior distribution plots for visualization</span>
+<span class="sd">        </span>
+<span class="sd">        Data Segmentation:</span>
+<span class="sd">            The method extracts the relevant time series segment using:</span>
+<span class="sd">            - start_index = dc_index * model.num_tsteps</span>
+<span class="sd">            - end_index = start_index + model.num_tsteps</span>
+<span class="sd">            </span>
+<span class="sd">            This assumes data is organized as concatenated segments from generate_time_series().</span>
+<span class="sd">        </span>
+<span class="sd">        MCMC Configuration:</span>
+<span class="sd">            The MCMC sampler is initialized with:</span>
+<span class="sd">            - Forward model: self.model</span>
+<span class="sd">            - Observed data: noisy_data (extracted segment)</span>
+<span class="sd">            - True parameter: dc (for validation/comparison)</span>
+<span class="sd">            - Prior specification: self.qpriors</span>
+<span class="sd">            - Initial value: self.qstart</span>
+<span class="sd">            - LSTM model: model_lstm (optional)</span>
+<span class="sd">            - Sample count: nsamples</span>
+<span class="sd">        </span>
+<span class="sd">        Error Handling:</span>
+<span class="sd">            - Checks if Dc value exists in dc_list</span>
+<span class="sd">            - Prints error message and returns early if not found</span>
+<span class="sd">            - MCMC sampling errors propagate to caller</span>
+<span class="sd">            - Plotting errors are handled by plot_dist() method</span>
+<span class="sd">        </span>
+<span class="sd">        Output and Visualization:</span>
+<span class="sd">            - Prints analysis status and current Dc value</span>
+<span class="sd">            - Generates MCMC animation if enabled in sampling</span>
+<span class="sd">            - Creates posterior distribution plots via plot_dist()</span>
+<span class="sd">            - No return value; results communicated through plots</span>
+<span class="sd">        </span>
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; # Setup for analysis</span>
+<span class="sd">            &gt;&gt;&gt; rsf = RSF(number_slip_values=3, plotfigs=True)</span>
+<span class="sd">            &gt;&gt;&gt; rsf.model = RateStateModel()</span>
+<span class="sd">            &gt;&gt;&gt; rsf.format = &#39;json&#39;</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Generate and prepare data</span>
+<span class="sd">            &gt;&gt;&gt; synthetic_data = rsf.generate_time_series()</span>
+<span class="sd">            &gt;&gt;&gt; prepared_data = rsf.prepare_data(synthetic_data)</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Analyze specific Dc value</span>
+<span class="sd">            &gt;&gt;&gt; target_dc = rsf.dc_list[1]  # Second Dc value</span>
+<span class="sd">            &gt;&gt;&gt; rsf.perform_sampling_and_plotting(</span>
+<span class="sd">            ...     data=prepared_data,</span>
+<span class="sd">            ...     dc=target_dc,</span>
+<span class="sd">            ...     nsamples=2000,</span>
+<span class="sd">            ...     model_lstm=None</span>
+<span class="sd">            ... )</span>
+<span class="sd">            &gt;&gt;&gt; # Displays: &quot;--- Dc is {target_dc} ---&quot; and generates plots</span>
+<span class="sd">        </span>
+<span class="sd">        Performance Considerations:</span>
+<span class="sd">            - Execution time dominated by MCMC sampling (O(nsamples))</span>
+<span class="sd">            - Data extraction is O(1) with pre-computed indices</span>
+<span class="sd">            - Memory usage scales with nsamples for sample storage</span>
+<span class="sd">            - Animation generation adds overhead if enabled</span>
+<span class="sd">        </span>
+<span class="sd">        Integration with Main Analysis:</span>
+<span class="sd">            This method is typically called from inference() in a loop over</span>
+<span class="sd">            all Dc values in dc_list, enabling systematic parameter space</span>
+<span class="sd">            exploration and comparison of posterior distributions.</span>
+<span class="sd">        </span>
+<span class="sd">        Diagnostic Information:</span>
+<span class="sd">            Printed output includes:</span>
+<span class="sd">            - Current Dc value being analyzed</span>
+<span class="sd">            - MCMC progress indicators (from MCMC class)</span>
+<span class="sd">            - Convergence diagnostics (acceptance rates, etc.)</span>
+<span class="sd">        </span>
+<span class="sd">        LSTM Model Support:</span>
+<span class="sd">            If model_lstm is provided:</span>
+<span class="sd">            - Uses reduced-order model evaluation for efficiency</span>
+<span class="sd">            - Maintains same inference framework</span>
+<span class="sd">            - Can significantly reduce computation time for complex models</span>
+<span class="sd">            - Model reduction parameters passed through to MCMC</span>
+<span class="sd">        </span>
+<span class="sd">        Validation and Quality Control:</span>
+<span class="sd">            - Checks for valid Dc value in parameter list</span>
+<span class="sd">            - MCMC class handles convergence diagnostics internally</span>
+<span class="sd">            - Posterior plots provide visual validation of results</span>
+<span class="sd">            - Consider adding quantitative convergence tests</span>
+<span class="sd">        </span>
+<span class="sd">        Note:</span>
+<span class="sd">            - Requires self.model to be properly configured</span>
+<span class="sd">            - Data indexing assumes consistent segment lengths</span>
+<span class="sd">            - MCMC animation setting affects visualization</span>
+<span class="sd">            - Results quality depends on nsamples and prior specification</span>
+<span class="sd">            - Consider parallel execution for multiple Dc values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Find the index of &#39;dc&#39; in the NumPy array &#39;self.dc_list&#39;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dc_list</span> <span class="o">==</span> <span class="n">dc</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">dc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dc_list</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: dc value </span><span class="si">{</span><span class="n">dc</span><span class="si">}</span><span class="s2"> not found in dc_list.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Start and End Indices for time series for that dc</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">index</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">num_tsteps</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">num_tsteps</span>
+        <span class="n">noisy_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--- Dc is </span><span class="si">{</span><span class="n">dc</span><span class="si">}</span><span class="s1"> ---&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Initialize MCMC object</span>
+        <span class="n">MCMCobj</span> <span class="o">=</span> <span class="n">MCMC</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> 
+            <span class="n">noisy_data</span><span class="p">,</span>
+            <span class="n">dc</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">qpriors</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">qstart</span><span class="p">,</span> 
+            <span class="n">lstm_model</span><span class="o">=</span><span class="n">model_lstm</span><span class="p">,</span> 
+            <span class="n">nsamples</span><span class="o">=</span><span class="n">nsamples</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Perform MCMC sampling</span>
+        <span class="n">qparams</span> <span class="o">=</span> <span class="n">MCMCobj</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Plot final distribution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_dist</span><span class="p">(</span><span class="n">qparams</span><span class="p">,</span> <span class="n">dc</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="RSF.inference">
+<a class="viewcode-back" href="../RSF.html#RSF.RSF.inference">[docs]</a>
+    <span class="nd">@measure_execution_time</span>
+    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute comprehensive Bayesian parameter estimation across the entire parameter space.</span>
+<span class="sd">        </span>
+<span class="sd">        This method orchestrates the complete analysis workflow, performing MCMC-based</span>
+<span class="sd">        Bayesian inference for all characteristic slip distance (Dc) values in the</span>
+<span class="sd">        parameter space. It handles data preparation, systematic parameter estimation,</span>
+<span class="sd">        and provides execution time monitoring for performance analysis.</span>
+<span class="sd">        </span>
+<span class="sd">        The method represents the main entry point for RSF parameter estimation,</span>
+<span class="sd">        coordinating data persistence, model evaluation, and posterior inference</span>
+<span class="sd">        across the entire range of Dc values defined during initialization.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            nsamples (int): Number of MCMC samples to generate for each Dc value.</span>
+<span class="sd">                          Should be sufficient for posterior convergence, typically</span>
+<span class="sd">                          1000-10000 depending on problem complexity and desired</span>
+<span class="sd">                          precision. Includes burn-in period (handled automatically).</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Total execution time in seconds for the complete analysis.</span>
+<span class="sd">                  Includes time for data preparation, all MCMC runs, and plotting.</span>
+<span class="sd">                  Returned due to @measure_execution_time decorator.</span>
+<span class="sd">        </span>
+<span class="sd">        Workflow Process:</span>
+<span class="sd">            1. Data Preparation:</span>
+<span class="sd">               - Calls prepare_data() to handle persistence using specified format</span>
+<span class="sd">               - Ensures data is properly stored and retrieved for analysis</span>
+<span class="sd">            </span>
+<span class="sd">            2. Parameter Space Iteration:</span>
+<span class="sd">               - Loops through all Dc values in self.dc_list</span>
+<span class="sd">               - For each Dc value, performs complete MCMC analysis</span>
+<span class="sd">               - Generates posterior distribution plots and diagnostics</span>
+<span class="sd">            </span>
+<span class="sd">            3. Performance Monitoring:</span>
+<span class="sd">               - Measures total execution time using decorator</span>
+<span class="sd">               - Enables performance comparison across different configurations</span>
+<span class="sd">        </span>
+<span class="sd">        Data Flow:</span>
+<span class="sd">            The method assumes self.data contains the concatenated time series</span>
+<span class="sd">            generated by generate_time_series(). This data is processed through</span>
+<span class="sd">            prepare_data() to ensure proper format and persistence.</span>
+<span class="sd">        </span>
+<span class="sd">        Analysis Configuration:</span>
+<span class="sd">            Each MCMC analysis uses:</span>
+<span class="sd">            - Forward model: self.model</span>
+<span class="sd">            - Prior specification: self.qpriors</span>
+<span class="sd">            - Initial values: self.qstart</span>
+<span class="sd">            - Sample count: nsamples (same for all Dc values)</span>
+<span class="sd">            - LSTM model: None (full model evaluation)</span>
+<span class="sd">        </span>
+<span class="sd">        Output Generation:</span>
+<span class="sd">            For each Dc value, produces:</span>
+<span class="sd">            - MCMC trace plots and convergence diagnostics</span>
+<span class="sd">            - Posterior distribution visualizations</span>
+<span class="sd">            - Animation files (if enabled in MCMC sampling)</span>
+<span class="sd">            - Console output with progress and diagnostics</span>
+<span class="sd">        </span>
+<span class="sd">        Performance Characteristics:</span>
+<span class="sd">            - Total time scales as O(num_dc * nsamples * model_evaluation_time)</span>
+<span class="sd">            - Memory usage depends on sample storage and plotting</span>
+<span class="sd">            - I/O time for data persistence (format-dependent)</span>
+<span class="sd">            - Parallel execution potential for multiple Dc values</span>
+<span class="sd">        </span>
+<span class="sd">        Example Usage:</span>
+<span class="sd">            &gt;&gt;&gt; # Complete analysis workflow</span>
+<span class="sd">            &gt;&gt;&gt; from src.RateStateModel import RateStateModel</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Setup model and RSF driver</span>
+<span class="sd">            &gt;&gt;&gt; model = RateStateModel(number_time_steps=1000, end_time=50.0)</span>
+<span class="sd">            &gt;&gt;&gt; rsf = RSF(number_slip_values=5,</span>
+<span class="sd">            ...           lowest_slip_value=0.01,</span>
+<span class="sd">            ...           largest_slip_value=0.05,</span>
+<span class="sd">            ...           qpriors=[&quot;Uniform&quot;, 0.005, 0.1],</span>
+<span class="sd">            ...           plotfigs=True)</span>
+<span class="sd">            &gt;&gt;&gt; rsf.model = model</span>
+<span class="sd">            &gt;&gt;&gt; rsf.format = &#39;json&#39;</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Generate synthetic data</span>
+<span class="sd">            &gt;&gt;&gt; rsf.data = rsf.generate_time_series()</span>
+<span class="sd">            &gt;&gt;&gt; </span>
+<span class="sd">            &gt;&gt;&gt; # Perform Bayesian inference</span>
+<span class="sd">            &gt;&gt;&gt; total_time = rsf.inference(nsamples=2000)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Complete analysis took {total_time:.2f} seconds&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Average time per Dc: {total_time/len(rsf.dc_list):.2f} seconds&quot;)</span>
+<span class="sd">        </span>
+<span class="sd">        Error Handling:</span>
+<span class="sd">            - Data preparation errors propagate from prepare_data()</span>
+<span class="sd">            - Invalid Dc values handled by perform_sampling_and_plotting()</span>
+<span class="sd">            - MCMC convergence issues reported through console output</span>
+<span class="sd">            - Plotting errors handled by individual visualization methods</span>
+<span class="sd">        </span>
+<span class="sd">        Monitoring and Diagnostics:</span>
+<span class="sd">            Console output includes:</span>
+<span class="sd">            - Progress indicators for each Dc value</span>
+<span class="sd">            - MCMC sampling diagnostics (acceptance rates, convergence)</span>
+<span class="sd">            - Timing information for performance assessment</span>
+<span class="sd">            - Error messages for failed analyses</span>
+<span class="sd">        </span>
+<span class="sd">        Results Interpretation:</span>
+<span class="sd">            Each analysis produces:</span>
+<span class="sd">            - Posterior distributions for comparison across Dc values</span>
+<span class="sd">            - Convergence diagnostics for quality assessment</span>
+<span class="sd">            - Uncertainty quantification through posterior spreads</span>
+<span class="sd">            - Parameter estimation accuracy (compared to true values)</span>
+<span class="sd">        </span>
+<span class="sd">        Performance Optimization:</span>
+<span class="sd">            Strategies for large analyses:</span>
+<span class="sd">            - Use model reduction (LSTM) for faster evaluation</span>
+<span class="sd">            - Reduce nsamples for preliminary analyses</span>
+<span class="sd">            - Consider parallel execution for multiple Dc values</span>
+<span class="sd">            - Use MySQL storage for very large datasets</span>
+<span class="sd">            - Monitor memory usage for extensive parameter sweeps</span>
+<span class="sd">        </span>
+<span class="sd">        Quality Control:</span>
+<span class="sd">            Best practices:</span>
+<span class="sd">            - Verify convergence through trace plots</span>
+<span class="sd">            - Check acceptance rates (typically 20-50%)</span>
+<span class="sd">            - Compare posterior means with true values</span>
+<span class="sd">            - Assess posterior uncertainty levels</span>
+<span class="sd">            - Validate results through sensitivity studies</span>
+<span class="sd">        </span>
+<span class="sd">        Integration with External Tools:</span>
+<span class="sd">            Results can be used for:</span>
+<span class="sd">            - Statistical analysis of parameter estimates</span>
+<span class="sd">            - Model validation and comparison studies</span>
+<span class="sd">            - Uncertainty propagation in forward modeling</span>
+<span class="sd">            - Publication-quality figure generation</span>
+<span class="sd">            - Database storage of inference results</span>
+<span class="sd">        </span>
+<span class="sd">        Note:</span>
+<span class="sd">            - Requires self.data to be set before calling</span>
+<span class="sd">            - All Dc values are analyzed with same nsamples</span>
+<span class="sd">            - Execution time monitoring via decorator</span>
+<span class="sd">            - Consider memory management for large parameter spaces</span>
+<span class="sd">            - Results are visualized but not automatically saved</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">dc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dc_list</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">perform_sampling_and_plotting</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dc</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saumik Dana.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

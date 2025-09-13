@@ -1,0 +1,732 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCMC module &mdash; Bayesian Inference Framework 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="RSF module" href="RSF.html" />
+    <link rel="prev" title="Bayesian-Markov-chain-Monte-Carlo" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Bayesian Inference Framework
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Python API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">MCMC module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MCMC.MCMC"><code class="docutils literal notranslate"><span class="pre">MCMC</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.model"><code class="docutils literal notranslate"><span class="pre">MCMC.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.qstart"><code class="docutils literal notranslate"><span class="pre">MCMC.qstart</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.qpriors"><code class="docutils literal notranslate"><span class="pre">MCMC.qpriors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.nsamples"><code class="docutils literal notranslate"><span class="pre">MCMC.nsamples</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.nburn"><code class="docutils literal notranslate"><span class="pre">MCMC.nburn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.verbose"><code class="docutils literal notranslate"><span class="pre">MCMC.verbose</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.adapt_interval"><code class="docutils literal notranslate"><span class="pre">MCMC.adapt_interval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.data"><code class="docutils literal notranslate"><span class="pre">MCMC.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.lstm_model"><code class="docutils literal notranslate"><span class="pre">MCMC.lstm_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.n0"><code class="docutils literal notranslate"><span class="pre">MCMC.n0</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.qstart_limits"><code class="docutils literal notranslate"><span class="pre">MCMC.qstart_limits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.dc_true"><code class="docutils literal notranslate"><span class="pre">MCMC.dc_true</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.std2"><code class="docutils literal notranslate"><span class="pre">MCMC.std2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.Vstart"><code class="docutils literal notranslate"><span class="pre">MCMC.Vstart</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.SSqcalc"><code class="docutils literal notranslate"><span class="pre">MCMC.SSqcalc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.acceptreject"><code class="docutils literal notranslate"><span class="pre">MCMC.acceptreject()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.compute_initial_covariance"><code class="docutils literal notranslate"><span class="pre">MCMC.compute_initial_covariance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.evaluate_model"><code class="docutils literal notranslate"><span class="pre">MCMC.evaluate_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.sample"><code class="docutils literal notranslate"><span class="pre">MCMC.sample()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.update_covariance_matrix"><code class="docutils literal notranslate"><span class="pre">MCMC.update_covariance_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MCMC.MCMC.update_standard_deviation"><code class="docutils literal notranslate"><span class="pre">MCMC.update_standard_deviation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="RSF.html">RSF module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RateStateModel.html">RateStateModel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imports.html">imports module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="json_save_load.html">json_save_load module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mysql_save_load.html">mysql_save_load module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Bayesian Inference Framework</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a></li>
+      <li class="breadcrumb-item active">MCMC module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/MCMC.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-MCMC">
+<span id="mcmc-module"></span><h1>MCMC module<a class="headerlink" href="#module-MCMC" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="MCMC.MCMC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MCMC.</span></span><span class="sig-name descname"><span class="pre">MCMC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qpriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MCMC.html#MCMC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#MCMC.MCMC" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Adaptive Metropolis-Hastings Markov Chain Monte Carlo (MCMC) sampler.</p>
+<p>This class implements an adaptive MCMC algorithm for Bayesian parameter estimation.
+It uses the Metropolis-Hastings algorithm with adaptive covariance matrix updates
+to improve sampling efficiency. The algorithm is particularly suited for sampling
+from posterior distributions in inverse problems where direct sampling is difficult.</p>
+<p>The adaptive feature automatically adjusts the proposal covariance matrix during
+sampling to achieve better acceptance rates and mixing. The algorithm also
+incorporates hierarchical Bayesian modeling by updating the noise variance
+(standard deviation) at each step.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#MCMC.MCMC.model" title="Link to this definition"></a></dt>
+<dd><p>The forward model used for evaluation</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.qstart">
+<span class="sig-name descname"><span class="pre">qstart</span></span><a class="headerlink" href="#MCMC.MCMC.qstart" title="Link to this definition"></a></dt>
+<dd><p>Initial parameter value for sampling</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.qpriors">
+<span class="sig-name descname"><span class="pre">qpriors</span></span><a class="headerlink" href="#MCMC.MCMC.qpriors" title="Link to this definition"></a></dt>
+<dd><p>Prior parameter bounds and information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.nsamples">
+<span class="sig-name descname"><span class="pre">nsamples</span></span><a class="headerlink" href="#MCMC.MCMC.nsamples" title="Link to this definition"></a></dt>
+<dd><p>Total number of MCMC samples to generate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.nburn">
+<span class="sig-name descname"><span class="pre">nburn</span></span><a class="headerlink" href="#MCMC.MCMC.nburn" title="Link to this definition"></a></dt>
+<dd><p>Number of burn-in samples to discard</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#MCMC.MCMC.verbose" title="Link to this definition"></a></dt>
+<dd><p>Whether to print diagnostic information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.adapt_interval">
+<span class="sig-name descname"><span class="pre">adapt_interval</span></span><a class="headerlink" href="#MCMC.MCMC.adapt_interval" title="Link to this definition"></a></dt>
+<dd><p>Frequency of covariance matrix adaptation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#MCMC.MCMC.data" title="Link to this definition"></a></dt>
+<dd><p>Observed data for comparison</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.lstm_model">
+<span class="sig-name descname"><span class="pre">lstm_model</span></span><a class="headerlink" href="#MCMC.MCMC.lstm_model" title="Link to this definition"></a></dt>
+<dd><p>Optional LSTM model configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.n0">
+<span class="sig-name descname"><span class="pre">n0</span></span><a class="headerlink" href="#MCMC.MCMC.n0" title="Link to this definition"></a></dt>
+<dd><p>Prior shape parameter for noise variance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.qstart_limits">
+<span class="sig-name descname"><span class="pre">qstart_limits</span></span><a class="headerlink" href="#MCMC.MCMC.qstart_limits" title="Link to this definition"></a></dt>
+<dd><p>Parameter bounds for acceptance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.dc_true">
+<span class="sig-name descname"><span class="pre">dc_true</span></span><a class="headerlink" href="#MCMC.MCMC.dc_true" title="Link to this definition"></a></dt>
+<dd><p>True parameter value (for comparison/validation)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.std2">
+<span class="sig-name descname"><span class="pre">std2</span></span><a class="headerlink" href="#MCMC.MCMC.std2" title="Link to this definition"></a></dt>
+<dd><p>Evolution of noise variance estimates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MCMC.MCMC.Vstart">
+<span class="sig-name descname"><span class="pre">Vstart</span></span><a class="headerlink" href="#MCMC.MCMC.Vstart" title="Link to this definition"></a></dt>
+<dd><p>Initial covariance matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Setup model and data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">MyForwardModel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">}</span>  <span class="c1"># lower_bound, upper_bound</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Initialize MCMC sampler</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mcmc</span> <span class="o">=</span> <span class="n">MCMC</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">dc_true</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">qpriors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">qstart</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">nsamples</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Run sampling</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">MAKE_ANIMATIONS</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Posterior mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="MCMC.MCMC.SSqcalc">
+<span class="sig-name descname"><span class="pre">SSqcalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_new</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MCMC.html#MCMC.SSqcalc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#MCMC.MCMC.SSqcalc" title="Link to this definition"></a></dt>
+<dd><p>Calculate the sum of squared errors for proposed parameter values.</p>
+<p>This method evaluates the forward model with new parameter values and
+computes the sum of squared errors between model predictions and observed data.
+This quantity is used in the likelihood calculation for the Metropolis-Hastings
+acceptance criterion.</p>
+<p>The sum of squared errors (SSE) is a key component of the Gaussian likelihood:
+L(θ) ∝ exp(-SSE/(2σ²))
+where SSE = Σ(y_i - f(x_i, θ))²</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>q_new</strong> (<em>np.ndarray</em>) – Proposed parameter values with shape (n_params,).
+For this implementation, expects a 1D array where
+the first element is the Dc parameter.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Sum of squared errors with shape (1, 1).</dt><dd><p>Returns as 2D array for consistency with matrix operations.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Process:</dt><dd><ol class="arabic simple">
+<li><p>Update the model’s Dc parameter with the proposed value</p></li>
+<li><p>Evaluate the forward model to get predictions</p></li>
+<li><p>Reshape predictions to match data format</p></li>
+<li><p>Compute squared differences between predictions and data</p></li>
+<li><p>Sum the squared errors and return as 2D array</p></li>
+</ol>
+</dd>
+<dt>Mathematical Details:</dt><dd><ul class="simple">
+<li><p>SSE = Σᵢ (yᵢ - f(xᵢ, θ))²</p></li>
+<li><p>Where yᵢ are observations, f(xᵢ, θ) are model predictions</p></li>
+<li><p>Used in Gaussian log-likelihood: log L = -n/2 log(2πσ²) - SSE/(2σ²)</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Modifies self.model.Dc as a side effect</p></li>
+<li><p>Assumes model.evaluate() returns predictions in appropriate format</p></li>
+<li><p>Reshaping handles potential dimension mismatches between predictions and data</p></li>
+<li><p>The keepdims parameter ensures output maintains 2D structure</p></li>
+</ul>
+</div>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">SSqcalc</span><span class="p">(</span><span class="n">q_test</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sum of squared errors: </span><span class="si">{</span><span class="n">sse</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MCMC.MCMC.acceptreject">
+<span class="sig-name descname"><span class="pre">acceptreject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SSqprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MCMC.html#MCMC.acceptreject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#MCMC.MCMC.acceptreject" title="Link to this definition"></a></dt>
+<dd><p>Implement the Metropolis-Hastings acceptance/rejection criterion.</p>
+<p>This method determines whether to accept or reject a proposed parameter sample
+based on the Metropolis-Hastings algorithm. It first checks if the proposal
+falls within the prior bounds, then computes the acceptance probability based
+on the likelihood ratio, and finally makes a random decision.</p>
+<p>The acceptance probability is computed in log-space for numerical stability:
+log(α) = min(0, log(p(y|θ_new)/p(y|θ_old)))</p>
+<blockquote>
+<div><p>= min(0, -0.5 * (SSE_new - SSE_old) / σ²)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q_new</strong> (<em>np.ndarray</em>) – Proposed parameter values with shape (n_params, 1).</p></li>
+<li><p><strong>SSqprev</strong> (<em>float</em>) – Sum of squared errors for the current/previous parameter values.</p></li>
+<li><p><strong>std2</strong> (<em>float</em>) – Current estimate of the noise variance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>accept (bool): True if the proposal is accepted, False otherwise</p></li>
+<li><dl class="simple">
+<dt>SSq (float): Sum of squared errors for the accepted state</dt><dd><p>(SSqnew if accepted, SSqprev if rejected)</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Algorithm Steps:</dt><dd><ol class="arabic simple">
+<li><p>Check if proposal is within prior bounds (uniform prior)</p></li>
+<li><p>If within bounds, evaluate model and compute likelihood ratio</p></li>
+<li><p>Compute log acceptance probability (clipped to [-∞, 0])</p></li>
+<li><p>Accept if log(α) &gt; log(U) where U ~ Uniform(0,1)</p></li>
+<li><p>Return acceptance decision and appropriate SSE value</p></li>
+</ol>
+</dd>
+<dt>Mathematical Details:</dt><dd><ul class="simple">
+<li><p>Prior bounds check: lower_bound ≤ θ_new ≤ upper_bound</p></li>
+<li><p>Log-likelihood ratio: Δ log L = -0.5 * (SSE_new - SSE_old) / σ²</p></li>
+<li><p>Acceptance probability: α = min(1, exp(Δ log L))</p></li>
+<li><p>Random acceptance: Accept if α &gt; U where U ~ Uniform(0,1)</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Uses np.clip to ensure log probability doesn’t exceed 0</p></li>
+<li><p>Proposals outside prior bounds are automatically rejected</p></li>
+<li><p>The method handles both parameter bounds and likelihood evaluation</p></li>
+<li><p>Random number generation uses np.random.rand() for uniform samples</p></li>
+</ul>
+</div>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q_proposal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.5</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">accepted</span><span class="p">,</span> <span class="n">sse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptreject</span><span class="p">(</span><span class="n">q_proposal</span><span class="p">,</span> <span class="n">sse_current</span><span class="p">,</span> <span class="n">variance_current</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">accepted</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Accepted proposal with SSE: </span><span class="si">{</span><span class="n">sse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MCMC.MCMC.compute_initial_covariance">
+<span class="sig-name descname"><span class="pre">compute_initial_covariance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MCMC.html#MCMC.compute_initial_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#MCMC.MCMC.compute_initial_covariance" title="Link to this definition"></a></dt>
+<dd><p>Compute the initial proposal covariance matrix using finite differences.</p>
+<p>This method estimates the initial covariance matrix for MCMC proposals by
+computing a finite difference approximation of the Hessian matrix. The approach
+perturbs the initial parameter guess and evaluates how the model response changes,
+providing information about the local curvature of the posterior distribution.</p>
+<p>The method performs the following steps:
+1. Evaluates the model at the initial parameter guess
+2. Perturbs the parameter by a small amount (1e-6 relative)
+3. Re-evaluates the model with the perturbed parameter
+4. Computes finite difference approximation of the gradient
+5. Estimates the Hessian and its inverse for the covariance matrix
+6. Scales by the noise variance estimate</p>
+<dl class="simple">
+<dt>Updates:</dt><dd><p>self.std2 (list): Initializes with the noise variance estimate from residuals
+self.Vstart (np.ndarray): Initial covariance matrix for proposals</p>
+</dd>
+<dt>Mathematical Details:</dt><dd><ul class="simple">
+<li><p>Finite difference gradient: g ≈ (f(x+δ) - f(x)) / δ</p></li>
+<li><p>Hessian approximation: H ≈ g^T * g (Gauss-Newton approximation)</p></li>
+<li><p>Initial covariance: V₀ = σ² * H⁻¹</p></li>
+<li><p>Noise variance: σ² = SSE / (n - p) where n=data points, p=parameters</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Uses a relative perturbation of 1e-6 for finite differences</p></li>
+<li><p>The noise variance is estimated from the initial residuals</p></li>
+<li><p>This provides a reasonable starting point for the adaptive algorithm</p></li>
+<li><p>The method assumes the posterior is approximately Gaussian locally</p></li>
+</ul>
+</div>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mcmc</span><span class="o">.</span><span class="n">compute_initial_covariance</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initial noise variance: </span><span class="si">{</span><span class="n">mcmc</span><span class="o">.</span><span class="n">std2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initial covariance shape: </span><span class="si">{</span><span class="n">mcmc</span><span class="o">.</span><span class="n">Vstart</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MCMC.MCMC.evaluate_model">
+<span class="sig-name descname"><span class="pre">evaluate_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MCMC.html#MCMC.evaluate_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#MCMC.MCMC.evaluate_model" title="Link to this definition"></a></dt>
+<dd><p>Evaluate the forward model for current parameter values.</p>
+<p>This method provides a unified interface for model evaluation, automatically
+selecting between full model evaluation and reduced-order model (ROM) evaluation
+based on whether an LSTM model is provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Model predictions/outputs for the current parameter values.</dt><dd><p>The specific format depends on the model implementation.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>If lstm_model is provided and non-empty, uses ROM evaluation</p></li>
+<li><p>Otherwise uses standard model evaluation</p></li>
+<li><p>The model’s ‘Dc’ attribute should be set before calling this method</p></li>
+</ul>
+</div>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Dc</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_model</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MCMC.MCMC.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MAKE_ANIMATIONS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MCMC.html#MCMC.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#MCMC.MCMC.sample" title="Link to this definition"></a></dt>
+<dd><p>Execute the main MCMC sampling algorithm with adaptive covariance updates.</p>
+<p>This method implements the complete adaptive Metropolis-Hastings algorithm,
+including initialization, proposal generation, acceptance/rejection decisions,
+covariance matrix adaptation, and noise variance updates. Optionally creates
+real-time animations of the sampling process.</p>
+<p>The algorithm follows these key steps:
+1. Initialize covariance matrix using finite differences
+2. For each iteration:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Generate proposal from multivariate normal distribution</p></li>
+<li><p>Apply Metropolis-Hastings acceptance criterion</p></li>
+<li><p>Update noise variance using Bayesian inference</p></li>
+<li><p>Periodically adapt the proposal covariance matrix</p></li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Return samples after burn-in period</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>MAKE_ANIMATIONS</strong> (<em>bool</em>) – Whether to create and save real-time animations
+of the sampling evolution. Animations are saved as
+MP4 files with filenames including the true parameter value.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Array of accepted parameter samples after burn-in with shape</dt><dd><p>(n_params, n_samples_post_burnin). Only samples after the burn-in
+period are returned for posterior analysis.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Algorithm Details:</dt><dd><ul class="simple">
+<li><p>Proposal generation: θ_new ~ N(θ_current, V_current)</p></li>
+<li><p>Acceptance rate tracking for diagnostic purposes</p></li>
+<li><p>Adaptive covariance updates every ‘adapt_interval’ samples</p></li>
+<li><p>Hierarchical variance updates at each iteration</p></li>
+<li><p>Burn-in removal for final sample return</p></li>
+</ul>
+</dd>
+<dt>Animation Features (if MAKE_ANIMATIONS=True):</dt><dd><ul class="simple">
+<li><p>Real-time plot of parameter evolution</p></li>
+<li><p>Automatic axis scaling based on sample range</p></li>
+<li><p>Saved as MP4 with 30 fps using ffmpeg</p></li>
+<li><p>Filename includes true parameter value for identification</p></li>
+</ul>
+</dd>
+<dt>Diagnostic Output:</dt><dd><ul class="simple">
+<li><p>Sample index and acceptance status for each iteration</p></li>
+<li><p>Generated sample values for monitoring</p></li>
+<li><p>Final acceptance ratio for algorithm assessment</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Burn-in period is automatically set to nsamples/2</p></li>
+<li><p>Failed covariance updates are caught and ignored</p></li>
+<li><p>Animation requires matplotlib and ffmpeg</p></li>
+<li><p>Memory is managed by closing figure after animation</p></li>
+</ul>
+</div>
+<dl class="simple">
+<dt>Performance Tips:</dt><dd><ul class="simple">
+<li><p>Set adapt_interval appropriately (typically 10-50)</p></li>
+<li><p>Monitor acceptance ratio (target ~20-50%)</p></li>
+<li><p>Use sufficient burn-in for convergence</p></li>
+<li><p>Consider thinning for large sample sizes</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Run MCMC with animations</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">MAKE_ANIMATIONS</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Collected </span><span class="si">{</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> post-burn-in samples&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Posterior mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Posterior std: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>Parameter estimation (posterior mean, median)</p></li>
+<li><p>Uncertainty quantification (credible intervals)</p></li>
+<li><p>Model comparison (marginal likelihood estimation)</p></li>
+<li><p>Diagnostic analysis (convergence assessment)</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The method returns samples from the posterior distribution that can be used for</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MCMC.MCMC.update_covariance_matrix">
+<span class="sig-name descname"><span class="pre">update_covariance_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qparams</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MCMC.html#MCMC.update_covariance_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#MCMC.MCMC.update_covariance_matrix" title="Link to this definition"></a></dt>
+<dd><p>Update the proposal covariance matrix for adaptive MCMC.</p>
+<p>This method implements the adaptive Metropolis algorithm by updating the
+proposal covariance matrix based on the sample covariance of recent parameter
+samples. This adaptation improves the efficiency of the MCMC sampler by
+learning the appropriate scale and orientation for proposals.</p>
+<p>The method follows the optimal scaling theory for MCMC, using:
+- Scaling factor: (2.38)²/d where d is the dimension
+- Sample covariance from the last ‘adapt_interval’ samples
+- Cholesky decomposition for numerical stability in proposal generation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qparams</strong> (<em>np.ndarray</em>) – Array of parameter samples with shape (n_params, n_samples).
+The method uses only the last ‘adapt_interval’ samples
+for covariance estimation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Lower triangular Cholesky factor of the updated covariance matrix.</dt><dd><p>Used for generating correlated proposals via matrix multiplication.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>LinAlgError</strong> – If the sample covariance matrix is not positive definite.
+    This can happen with insufficient samples or highly correlated chains.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The 2.38² scaling ensures optimal acceptance rate (~23.4%) for Gaussian targets</p></li>
+<li><p>For 1D problems, the covariance is reshaped to maintain matrix structure</p></li>
+<li><p>The Cholesky factor is returned for efficient proposal generation</p></li>
+<li><p>Adaptation should only occur after sufficient samples for stable covariance estimation</p></li>
+</ul>
+</div>
+<dl class="simple">
+<dt>Mathematical Details:</dt><dd><ul class="simple">
+<li><p>Optimal covariance: C_opt = (2.38²/d) * Σ_sample</p></li>
+<li><p>Where Σ_sample is the empirical covariance of recent samples</p></li>
+<li><p>Cholesky decomposition: C_opt = L * L^T</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MCMC.MCMC.update_standard_deviation">
+<span class="sig-name descname"><span class="pre">update_standard_deviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SSqprev</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MCMC.html#MCMC.update_standard_deviation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#MCMC.MCMC.update_standard_deviation" title="Link to this definition"></a></dt>
+<dd><p>Update the noise variance estimate using Bayesian inference.</p>
+<p>This method implements a hierarchical Bayesian approach where the noise
+variance (standard deviation squared) is treated as an unknown parameter
+with an inverse-gamma prior. The posterior is also inverse-gamma distributed,
+allowing for analytical updates.</p>
+<p>The update follows the inverse-gamma conjugate prior framework:
+- Prior: σ² ~ InverseGamma(n0/2, n0*σ0²/2)
+- Posterior: σ² ~ InverseGamma((n0+n)/2, (n0*σ0² + SSE)/2)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>SSqprev</strong> (<em>float</em>) – Sum of squared errors for the current parameter values.
+Used to update the scale parameter of the inverse-gamma
+distribution.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Updates self.std2 list with new variance sample</p></li>
+<li><p>Uses the previous variance estimate (self.std2[-1]) in the update</p></li>
+<li><p>The variance sample is drawn from the posterior distribution</p></li>
+<li><p>Accept/reject criterion depends on this updated standard deviation</p></li>
+</ul>
+</div>
+<dl class="simple">
+<dt>Mathematical Details:</dt><dd><ul class="simple">
+<li><p>Shape parameter: a = (n0 + len(data)) / 2</p></li>
+<li><p>Scale parameter: b = (n0 * previous_variance + SSE) / 2</p></li>
+<li><p>New variance: σ² ~ InverseGamma(a, b)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="Bayesian-Markov-chain-Monte-Carlo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="RSF.html" class="btn btn-neutral float-right" title="RSF module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saumik Dana.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

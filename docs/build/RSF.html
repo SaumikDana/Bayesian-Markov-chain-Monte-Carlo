@@ -1,0 +1,1005 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSF module &mdash; Bayesian Inference Framework 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="RateStateModel module" href="RateStateModel.html" />
+    <link rel="prev" title="MCMC module" href="MCMC.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Bayesian Inference Framework
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Python API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="MCMC.html">MCMC module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">RSF module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#RSF.RSF"><code class="docutils literal notranslate"><span class="pre">RSF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.num_dc"><code class="docutils literal notranslate"><span class="pre">RSF.num_dc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.dc_list"><code class="docutils literal notranslate"><span class="pre">RSF.dc_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.num_features"><code class="docutils literal notranslate"><span class="pre">RSF.num_features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.plotfigs"><code class="docutils literal notranslate"><span class="pre">RSF.plotfigs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.qstart"><code class="docutils literal notranslate"><span class="pre">RSF.qstart</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.qpriors"><code class="docutils literal notranslate"><span class="pre">RSF.qpriors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.reduction"><code class="docutils literal notranslate"><span class="pre">RSF.reduction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.model"><code class="docutils literal notranslate"><span class="pre">RSF.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.data"><code class="docutils literal notranslate"><span class="pre">RSF.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.format"><code class="docutils literal notranslate"><span class="pre">RSF.format</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.generate_time_series"><code class="docutils literal notranslate"><span class="pre">RSF.generate_time_series()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.inference"><code class="docutils literal notranslate"><span class="pre">RSF.inference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.perform_sampling_and_plotting"><code class="docutils literal notranslate"><span class="pre">RSF.perform_sampling_and_plotting()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.plot_dist"><code class="docutils literal notranslate"><span class="pre">RSF.plot_dist()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.plot_time_series"><code class="docutils literal notranslate"><span class="pre">RSF.plot_time_series()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#RSF.RSF.prepare_data"><code class="docutils literal notranslate"><span class="pre">RSF.prepare_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#RSF.measure_execution_time"><code class="docutils literal notranslate"><span class="pre">measure_execution_time()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="RateStateModel.html">RateStateModel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imports.html">imports module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="json_save_load.html">json_save_load module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mysql_save_load.html">mysql_save_load module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Bayesian Inference Framework</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a></li>
+      <li class="breadcrumb-item active">RSF module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/RSF.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-RSF">
+<span id="rsf-module"></span><h1>RSF module<a class="headerlink" href="#module-RSF" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="RSF.RSF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">RSF.</span></span><span class="sig-name descname"><span class="pre">RSF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_slip_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowest_slip_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">largest_slip_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qstart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qpriors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Uniform',</span> <span class="pre">0.0,</span> <span class="pre">10000.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotfigs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/RSF.html#RSF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RSF.RSF" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Driver class for Rate and State Friction (RSF) model analysis and parameter estimation.</p>
+<p>This class provides a comprehensive framework for analyzing rate and state friction
+models through forward modeling, data generation, and Bayesian parameter estimation
+using Markov Chain Monte Carlo (MCMC) methods. It handles multiple characteristic
+slip distances (Dc values) and supports various data storage formats.</p>
+<p>The class integrates several key components:
+- Forward modeling with rate and state friction physics
+- Synthetic data generation with realistic noise models
+- Bayesian parameter estimation using adaptive MCMC
+- Data persistence through JSON and MySQL backends
+- Comprehensive visualization and analysis tools
+- Performance monitoring and optimization</p>
+<p>Key Features:
+- Multi-parameter sweep capabilities across Dc values
+- Flexible prior specification for Bayesian inference
+- Automated plotting and visualization
+- Data format abstraction (JSON/MySQL)
+- Execution time monitoring
+- Model reduction options for computational efficiency</p>
+<p>Workflow:
+1. Initialize with parameter ranges and inference settings
+2. Generate synthetic time series data across parameter space
+3. Store data using preferred backend (JSON/MySQL)
+4. Perform MCMC parameter estimation for each Dc value
+5. Visualize posterior distributions and convergence diagnostics</p>
+<p>Applications:
+- Earthquake fault parameter estimation from seismic data
+- Laboratory friction experiment analysis
+- Model validation and uncertainty quantification
+- Parameter sensitivity studies
+- Computational method benchmarking</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.num_dc">
+<span class="sig-name descname"><span class="pre">num_dc</span></span><a class="headerlink" href="#RSF.RSF.num_dc" title="Link to this definition"></a></dt>
+<dd><p>Number of characteristic slip distance values to analyze</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.dc_list">
+<span class="sig-name descname"><span class="pre">dc_list</span></span><a class="headerlink" href="#RSF.RSF.dc_list" title="Link to this definition"></a></dt>
+<dd><p>Array of Dc values for parameter sweep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.num_features">
+<span class="sig-name descname"><span class="pre">num_features</span></span><a class="headerlink" href="#RSF.RSF.num_features" title="Link to this definition"></a></dt>
+<dd><p>Number of features for model reduction (if enabled)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.plotfigs">
+<span class="sig-name descname"><span class="pre">plotfigs</span></span><a class="headerlink" href="#RSF.RSF.plotfigs" title="Link to this definition"></a></dt>
+<dd><p>Whether to generate visualization plots</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.qstart">
+<span class="sig-name descname"><span class="pre">qstart</span></span><a class="headerlink" href="#RSF.RSF.qstart" title="Link to this definition"></a></dt>
+<dd><p>Initial parameter value for MCMC chains</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.qpriors">
+<span class="sig-name descname"><span class="pre">qpriors</span></span><a class="headerlink" href="#RSF.RSF.qpriors" title="Link to this definition"></a></dt>
+<dd><p>Prior distribution specification [type, lower, upper]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.reduction">
+<span class="sig-name descname"><span class="pre">reduction</span></span><a class="headerlink" href="#RSF.RSF.reduction" title="Link to this definition"></a></dt>
+<dd><p>Whether to use model reduction techniques</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#RSF.RSF.model" title="Link to this definition"></a></dt>
+<dd><p>Forward model object (set externally)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.data">
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#RSF.RSF.data" title="Link to this definition"></a></dt>
+<dd><p>Generated or loaded time series data</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="RSF.RSF.format">
+<span class="sig-name descname"><span class="pre">format</span></span><a class="headerlink" href="#RSF.RSF.format" title="Link to this definition"></a></dt>
+<dd><p>Data storage format (‘json’ or ‘mysql’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Basic usage for single parameter estimation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span> <span class="o">=</span> <span class="n">RSF</span><span class="p">(</span><span class="n">number_slip_values</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="n">lowest_slip_value</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="n">largest_slip_value</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="n">qstart</span><span class="o">=</span><span class="mf">0.015</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="n">qpriors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Uniform&quot;</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Set up model and generate data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">RateStateModel</span><span class="p">(</span><span class="n">number_time_steps</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">generate_time_series</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Perform Bayesian inference</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">execution_time</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">nsamples</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Analysis completed in </span><span class="si">{</span><span class="n">execution_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Multi-parameter sensitivity study</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf_multi</span> <span class="o">=</span> <span class="n">RSF</span><span class="p">(</span><span class="n">number_slip_values</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="n">lowest_slip_value</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="n">largest_slip_value</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="n">plotfigs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ... run analysis across parameter range</span>
+</pre></div>
+</div>
+<dl>
+<dt>Mathematical Background:</dt><dd><p>The class performs Bayesian inference on the rate and state friction model:</p>
+<p>Likelihood: p(data|Dc) ∝ exp(-SSE/(2σ²))
+Prior: p(Dc) ~ Uniform(lower, upper) or other specified distribution
+Posterior: p(Dc|data) ∝ p(data|Dc) * p(Dc)</p>
+<p>Where SSE is the sum of squared errors between model predictions and observations.</p>
+</dd>
+<dt>Performance Notes:</dt><dd><ul class="simple">
+<li><p>Computation time scales with num_dc * nsamples * model_complexity</p></li>
+<li><p>Memory usage scales with num_dc * num_tsteps for data storage</p></li>
+<li><p>MCMC convergence depends on parameter ranges and data quality</p></li>
+<li><p>Consider model reduction for very large parameter spaces</p></li>
+</ul>
+</dd>
+<dt>Dependencies:</dt><dd><ul class="simple">
+<li><p>MCMC class for Bayesian inference</p></li>
+<li><p>RateStateModel class for forward modeling</p></li>
+<li><p>JSON/MySQL save/load utilities</p></li>
+<li><p>Matplotlib for visualization</p></li>
+<li><p>NumPy/SciPy for numerical computations</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="RSF.RSF.generate_time_series">
+<span class="sig-name descname"><span class="pre">generate_time_series</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/RSF.html#RSF.generate_time_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RSF.RSF.generate_time_series" title="Link to this definition"></a></dt>
+<dd><p>Generate synthetic time series data for all characteristic slip distances.</p>
+<p>This method performs forward modeling across the entire parameter space
+defined by dc_list, generating synthetic acceleration time series with
+realistic noise for each Dc value. The data is concatenated into a single
+array suitable for subsequent Bayesian analysis.</p>
+<p>The method iterates through each Dc value, evaluates the rate and state
+friction model, optionally generates plots for visualization, and
+concatenates the noisy acceleration data into a comprehensive dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>Concatenated noisy acceleration data with shape</dt><dd><p>(num_dc * num_tsteps,). Each segment of length num_tsteps
+corresponds to one Dc value in dc_list. The data includes
+synthetic noise to simulate experimental conditions.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Process:</dt><dd><ol class="arabic simple">
+<li><p>Calculate total array size for all Dc values</p></li>
+<li><p>Initialize output array with zeros</p></li>
+<li><p>For each Dc value:
+- Set model parameter (model.Dc)
+- Evaluate forward model to get time series
+- Generate optional visualization plots
+- Extract noisy acceleration data
+- Store in appropriate array segment</p></li>
+<li><p>Return concatenated data array</p></li>
+</ol>
+</dd>
+<dt>Data Structure:</dt><dd><p>The returned array has segments arranged as:
+[dc_1_data, dc_2_data, …, dc_n_data]
+where each dc_i_data has length model.num_tsteps</p>
+</dd>
+<dt>Model Requirements:</dt><dd><ul class="simple">
+<li><p>self.model must be set before calling this method</p></li>
+<li><p>model must have Dc attribute that can be modified</p></li>
+<li><p>model.evaluate() must return (time, acceleration, noisy_acceleration)</p></li>
+<li><p>model.num_tsteps must be defined for array sizing</p></li>
+</ul>
+</dd>
+<dt>Visualization:</dt><dd><p>If self.plotfigs is True, generates individual time series plots
+for each Dc value showing acceleration vs. time with appropriate
+titles and labels.</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>If model is not set, will raise AttributeError</p></li>
+<li><p>If model.evaluate() fails, exception will propagate</p></li>
+<li><p>Array indexing is safe due to pre-calculated dimensions</p></li>
+</ul>
+</dd>
+<dt>Performance:</dt><dd><ul class="simple">
+<li><p>Time complexity: O(num_dc * model_evaluation_time)</p></li>
+<li><p>Space complexity: O(num_dc * num_tsteps)</p></li>
+<li><p>Memory allocation done once upfront for efficiency</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Setup model and RSF driver</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">src.RateStateModel</span> <span class="kn">import</span> <span class="n">RateStateModel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">RateStateModel</span><span class="p">(</span><span class="n">number_time_steps</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="mf">50.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span> <span class="o">=</span> <span class="n">RSF</span><span class="p">(</span><span class="n">number_slip_values</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="n">lowest_slip_value</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="n">largest_slip_value</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="n">plotfigs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Generate synthetic data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">generate_time_series</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated data shape: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected shape: </span><span class="si">{</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rsf</span><span class="o">.</span><span class="n">dc_list</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">model</span><span class="o">.</span><span class="n">num_tsteps</span><span class="p">,)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Analyze data segments</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment_length</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">num_tsteps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">dc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rsf</span><span class="o">.</span><span class="n">dc_list</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">start_idx</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">segment_length</span>
+<span class="gp">... </span>    <span class="n">end_idx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="n">segment_length</span>
+<span class="gp">... </span>    <span class="n">segment_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dc=</span><span class="si">{</span><span class="n">dc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">: RMS acceleration = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">segment_data</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl>
+<dt>Usage in Analysis Pipeline:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Complete workflow</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span>  <span class="c1"># Set storage format</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">synthetic_data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">generate_time_series</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">(</span><span class="n">synthetic_data</span><span class="p">)</span>  <span class="c1"># Store/load data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">execution_time</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">nsamples</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># Run MCMC</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Each model evaluation generates independent noise realizations</p></li>
+<li><p>The same random seed will produce identical results</p></li>
+<li><p>Consider setting numpy random seed for reproducibility</p></li>
+<li><p>Large parameter spaces may require significant computation time</p></li>
+<li><p>Generated data represents “ground truth” with known parameters</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RSF.RSF.inference">
+<span class="sig-name descname"><span class="pre">inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/RSF.html#RSF.inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RSF.RSF.inference" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RSF.RSF.perform_sampling_and_plotting">
+<span class="sig-name descname"><span class="pre">perform_sampling_and_plotting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsamples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_lstm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/RSF.html#RSF.perform_sampling_and_plotting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RSF.RSF.perform_sampling_and_plotting" title="Link to this definition"></a></dt>
+<dd><p>Execute MCMC parameter estimation and generate posterior visualizations.</p>
+<p>This method performs the core Bayesian inference workflow for a specific
+characteristic slip distance (Dc) value. It extracts the relevant data
+segment, initializes the MCMC sampler, runs the sampling algorithm,
+and generates comprehensive posterior distribution plots.</p>
+<p>The method handles data segmentation to isolate the time series corresponding
+to the specified Dc value, configures the MCMC algorithm with appropriate
+priors and starting values, and produces both sampling diagnostics and
+final posterior visualizations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – Complete concatenated time series data from all Dc values
+with shape (num_dc * num_tsteps,). Contains noisy acceleration
+measurements for the entire parameter space.</p></li>
+<li><p><strong>dc</strong> (<em>float</em>) – Specific characteristic slip distance value to analyze.
+Must be present in self.dc_list for proper data extraction.
+Units should be consistent with model setup (typically μm).</p></li>
+<li><p><strong>nsamples</strong> (<em>int</em>) – Number of MCMC samples to generate for this Dc value.
+Should be sufficient for convergence (typically 1000-10000).
+Includes burn-in period (automatically handled by MCMC class).</p></li>
+<li><p><strong>model_lstm</strong> (<em>dict</em><em> or </em><em>None</em>) – LSTM model configuration for reduced-order modeling.
+If None, uses full forward model evaluation.
+If provided, should contain LSTM model parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Performs analysis and generates plots but does not return values.</dt><dd><p>Results are visualized through plot_dist() method.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<dl>
+<dt>Process Workflow:</dt><dd><ol class="arabic simple">
+<li><p>Locate Dc value in parameter list and extract corresponding data segment</p></li>
+<li><p>Print diagnostic information about current analysis</p></li>
+<li><p>Initialize MCMC object with model, data, and inference settings</p></li>
+<li><p>Execute MCMC sampling with optional animation</p></li>
+<li><p>Generate posterior distribution plots for visualization</p></li>
+</ol>
+</dd>
+<dt>Data Segmentation:</dt><dd><p>The method extracts the relevant time series segment using:
+- start_index = dc_index * model.num_tsteps
+- end_index = start_index + model.num_tsteps</p>
+<p>This assumes data is organized as concatenated segments from generate_time_series().</p>
+</dd>
+<dt>MCMC Configuration:</dt><dd><p>The MCMC sampler is initialized with:
+- Forward model: self.model
+- Observed data: noisy_data (extracted segment)
+- True parameter: dc (for validation/comparison)
+- Prior specification: self.qpriors
+- Initial value: self.qstart
+- LSTM model: model_lstm (optional)
+- Sample count: nsamples</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Checks if Dc value exists in dc_list</p></li>
+<li><p>Prints error message and returns early if not found</p></li>
+<li><p>MCMC sampling errors propagate to caller</p></li>
+<li><p>Plotting errors are handled by plot_dist() method</p></li>
+</ul>
+</dd>
+<dt>Output and Visualization:</dt><dd><ul class="simple">
+<li><p>Prints analysis status and current Dc value</p></li>
+<li><p>Generates MCMC animation if enabled in sampling</p></li>
+<li><p>Creates posterior distribution plots via plot_dist()</p></li>
+<li><p>No return value; results communicated through plots</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Setup for analysis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span> <span class="o">=</span> <span class="n">RSF</span><span class="p">(</span><span class="n">number_slip_values</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">plotfigs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">RateStateModel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Generate and prepare data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">synthetic_data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">generate_time_series</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prepared_data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">(</span><span class="n">synthetic_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Analyze specific Dc value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_dc</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">dc_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Second Dc value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">perform_sampling_and_plotting</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">data</span><span class="o">=</span><span class="n">prepared_data</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">dc</span><span class="o">=</span><span class="n">target_dc</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">nsamples</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">model_lstm</span><span class="o">=</span><span class="kc">None</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Displays: &quot;--- Dc is {target_dc} ---&quot; and generates plots</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Performance Considerations:</dt><dd><ul class="simple">
+<li><p>Execution time dominated by MCMC sampling (O(nsamples))</p></li>
+<li><p>Data extraction is O(1) with pre-computed indices</p></li>
+<li><p>Memory usage scales with nsamples for sample storage</p></li>
+<li><p>Animation generation adds overhead if enabled</p></li>
+</ul>
+</dd>
+<dt>Integration with Main Analysis:</dt><dd><p>This method is typically called from inference() in a loop over
+all Dc values in dc_list, enabling systematic parameter space
+exploration and comparison of posterior distributions.</p>
+</dd>
+<dt>Diagnostic Information:</dt><dd><p>Printed output includes:
+- Current Dc value being analyzed
+- MCMC progress indicators (from MCMC class)
+- Convergence diagnostics (acceptance rates, etc.)</p>
+</dd>
+<dt>LSTM Model Support:</dt><dd><p>If model_lstm is provided:
+- Uses reduced-order model evaluation for efficiency
+- Maintains same inference framework
+- Can significantly reduce computation time for complex models
+- Model reduction parameters passed through to MCMC</p>
+</dd>
+<dt>Validation and Quality Control:</dt><dd><ul class="simple">
+<li><p>Checks for valid Dc value in parameter list</p></li>
+<li><p>MCMC class handles convergence diagnostics internally</p></li>
+<li><p>Posterior plots provide visual validation of results</p></li>
+<li><p>Consider adding quantitative convergence tests</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Requires self.model to be properly configured</p></li>
+<li><p>Data indexing assumes consistent segment lengths</p></li>
+<li><p>MCMC animation setting affects visualization</p></li>
+<li><p>Results quality depends on nsamples and prior specification</p></li>
+<li><p>Consider parallel execution for multiple Dc values</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RSF.RSF.plot_dist">
+<span class="sig-name descname"><span class="pre">plot_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qparams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/RSF.html#RSF.plot_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RSF.RSF.plot_dist" title="Link to this definition"></a></dt>
+<dd><p>Generate comprehensive visualization of MCMC posterior distribution.</p>
+<p>This method creates a dual-panel plot showing both the MCMC sample trace
+and the corresponding probability density estimate. The visualization is
+essential for assessing convergence, understanding posterior structure,
+and presenting Bayesian inference results.</p>
+<p>The plot combines a trace plot (left panel) showing the evolution of
+parameter samples over iterations with a kernel density estimate (right panel)
+showing the posterior probability distribution. This dual view provides
+both convergence diagnostics and distributional information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qparams</strong> (<em>np.ndarray</em>) – MCMC parameter samples with shape (n_params, n_samples).
+For this implementation, expects shape (1, n_samples)
+where the single parameter is the Dc value.
+Samples should be post-burn-in values.</p></li>
+<li><p><strong>dc</strong> (<em>float</em>) – True characteristic slip distance value used for comparison
+and plot labeling. Displayed in the plot title for reference
+and validation purposes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Creates and displays a matplotlib figure with two subplots.</dt><dd><p>The figure is not returned or saved automatically.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<dl>
+<dt>Plot Layout:</dt><dd><p>Left Panel (70% width):
+- Trace plot showing parameter evolution vs. sample number
+- Blue line with specified line width
+- Y-axis: Parameter value (Dc)
+- X-axis: Sample number (iteration)
+- Shows mixing and convergence behavior</p>
+<p>Right Panel (15% width):
+- Kernel density estimate of posterior distribution
+- Filled area under curve with transparency
+- Y-axis: Parameter value (shared with left panel)
+- X-axis: Probability density
+- No tick marks for cleaner appearance</p>
+</dd>
+<dt>Styling Parameters:</dt><dd><ul class="simple">
+<li><p>KDE_POINTS = 1000: Resolution of density estimate</p></li>
+<li><p>PLOT_WIDTH_RATIO = [0.7, 0.15]: Panel width proportions</p></li>
+<li><p>PLOT_SPACING = 0.15: Spacing between panels</p></li>
+<li><p>PLOT_LINE_WIDTH = 1.0: Line thickness</p></li>
+<li><p>PLOT_ALPHA = 0.3: Fill transparency</p></li>
+</ul>
+</dd>
+<dt>Statistical Analysis:</dt><dd><p>The kernel density estimation uses Gaussian kernels with automatic
+bandwidth selection via Scott’s rule. The density is evaluated over
+the range defined by the trace plot’s y-axis limits.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># After MCMC sampling</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mcmc_obj</span> <span class="o">=</span> <span class="n">MCMC</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dc_true</span><span class="p">,</span> <span class="n">qpriors</span><span class="p">,</span> <span class="n">qstart</span><span class="p">,</span> <span class="n">nsamples</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">posterior_samples</span> <span class="o">=</span> <span class="n">mcmc_obj</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Generate distribution plot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span> <span class="o">=</span> <span class="n">RSF</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span>  <span class="c1"># Required for title formatting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">plot_dist</span><span class="p">(</span><span class="n">posterior_samples</span><span class="p">,</span> <span class="n">dc_true</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl>
+<dt>Interpretation Guide:</dt><dd><p>Trace Plot (Left):
+- Horizontal lines suggest good mixing
+- Trends indicate lack of convergence
+- Oscillations show exploration of parameter space
+- Stable variance suggests adequate burn-in</p>
+<p>Density Plot (Right):
+- Peak location: Posterior mode (most likely value)
+- Width: Posterior uncertainty
+- Shape: Distribution characteristics (skewness, multimodality)
+- Area under curve: Should integrate to 1.0</p>
+</dd>
+<dt>Convergence Diagnostics:</dt><dd><p>Visual signs of good convergence:
+- Trace plot shows random fluctuation around mean
+- No obvious trends or drift in trace
+- Density plot shows smooth, well-defined peak
+- Multiple modes may indicate complex posterior structure</p>
+</dd>
+<dt>Title Information:</dt><dd><p>The plot title shows:
+- True Dc value for comparison with posterior
+- Data storage format used in analysis
+- Mathematical notation using LaTeX formatting</p>
+</dd>
+<dt>Performance Notes:</dt><dd><ul class="simple">
+<li><p>KDE computation scales as O(n*m) where n=samples, m=grid points</p></li>
+<li><p>Memory usage minimal for typical sample sizes (&lt; 10^6 samples)</p></li>
+<li><p>Plot rendering time depends on sample size and grid resolution</p></li>
+</ul>
+</dd>
+<dt>Customization Options:</dt><dd><p>Common modifications:
+- Adjust KDE_POINTS for smoother/faster density estimates
+- Change width ratios for different emphasis
+- Add reference lines for true parameter values
+- Overlay multiple chains for comparison
+- Add summary statistics annotations</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Assumes single parameter (Dc) analysis</p></li>
+<li><p>Uses first row of qparams array (qparams[0, :])</p></li>
+<li><p>Figure is created but not saved automatically</p></li>
+<li><p>Consider plt.savefig() for permanent storage</p></li>
+<li><p>Panel spacing and sizing optimized for typical screen viewing</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RSF.RSF.plot_time_series">
+<span class="sig-name descname"><span class="pre">plot_time_series</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceleration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/RSF.html#RSF.plot_time_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RSF.RSF.plot_time_series" title="Link to this definition"></a></dt>
+<dd><p>Generate time series visualization plots for rate and state friction data.</p>
+<p>This method creates publication-quality plots of acceleration time series
+with proper formatting, labels, and styling. The plots help visualize
+the temporal evolution of the rate and state friction system and are
+essential for understanding model behavior and validating results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>np.ndarray</em>) – Time array with shape (num_tsteps,) containing
+time values from model evaluation. Units should
+be consistent with model setup (typically seconds).</p></li>
+<li><p><strong>acceleration</strong> (<em>np.ndarray</em>) – Acceleration array with shape (num_tsteps,)
+containing the clean (non-noisy) acceleration
+time series from the rate and state model.
+Units typically in μm/s².</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Creates and displays matplotlib figure but does not return it.</dt><dd><p>The figure is not saved automatically.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Plot Features:</dt><dd><ul class="simple">
+<li><p>Professional formatting with LaTeX-style mathematical notation</p></li>
+<li><p>Grid lines for easier data reading</p></li>
+<li><p>Proper axis labels with units</p></li>
+<li><p>Title showing current Dc parameter value</p></li>
+<li><p>Legend indicating this is the “True” (non-noisy) signal</p></li>
+<li><p>Time axis limits set to model bounds with small buffer</p></li>
+</ul>
+</dd>
+<dt>Styling:</dt><dd><ul class="simple">
+<li><p>Line width: 1.0 for clear visibility</p></li>
+<li><p>Grid: Enabled for professional appearance</p></li>
+<li><p>Title: Shows Dc value in scientific notation</p></li>
+<li><p>Labels: Use proper mathematical formatting with LaTeX</p></li>
+</ul>
+</dd>
+<dt>Conditional Execution:</dt><dd><p>The method only generates plots if self.plotfigs is True, allowing
+for batch processing without visual output when desired.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Single plot generation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span> <span class="o">=</span> <span class="n">RSF</span><span class="p">(</span><span class="n">plotfigs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">RateStateModel</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Dc</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">acc_noise</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">plot_time_series</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>  <span class="c1"># Display the plot</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Batch plotting (automatically called in generate_time_series)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span> <span class="o">=</span> <span class="n">RSF</span><span class="p">(</span><span class="n">number_slip_values</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">plotfigs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># ... setup model ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">generate_time_series</span><span class="p">()</span>  <span class="c1"># Creates 5 plots automatically</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Mathematical Notation:</dt><dd><ul class="simple">
+<li><p>Uses LaTeX formatting for proper mathematical symbols</p></li>
+<li><p>Dc parameter shown in micrometers (μm)</p></li>
+<li><p>Acceleration units shown as μm/s²</p></li>
+<li><p>Subscripts and Greek letters properly formatted</p></li>
+</ul>
+</dd>
+<dt>Performance Considerations:</dt><dd><ul class="simple">
+<li><p>Each plot creation takes ~0.1-0.5 seconds depending on data size</p></li>
+<li><p>Memory usage minimal for typical time series lengths</p></li>
+<li><p>No automatic saving; manually save if needed</p></li>
+<li><p>Consider plt.close() for batch processing to manage memory</p></li>
+</ul>
+</dd>
+<dt>Integration with Analysis:</dt><dd><p>The plots are particularly useful for:
+- Visual validation of model behavior
+- Identifying stick-slip events and patterns
+- Comparing different Dc parameter effects
+- Quality control of synthetic data generation
+- Presentation and publication figures</p>
+</dd>
+<dt>Customization:</dt><dd><p>To modify plot appearance, extend this method or create custom
+plotting functions. Common modifications include:
+- Different line styles or colors
+- Logarithmic scales for specific analyses
+- Subplots for multiple variables
+- Animation for temporal evolution
+- Statistical overlays (mean, confidence intervals)</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Plots are created in separate figure windows</p></li>
+<li><p>No automatic figure management (closing, saving)</p></li>
+<li><p>Uses current matplotlib backend settings</p></li>
+<li><p>Figure size uses matplotlib defaults</p></li>
+<li><p>Consider plot density for large parameter sweeps</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="RSF.RSF.prepare_data">
+<span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/RSF.html#RSF.prepare_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RSF.RSF.prepare_data" title="Link to this definition"></a></dt>
+<dd><p>Prepare and persist data using specified storage format (JSON or MySQL).</p>
+<p>This method provides data persistence abstraction, allowing seamless
+switching between JSON file storage and MySQL database storage for
+time series data. It handles the complete save/load cycle to ensure
+data integrity and format consistency across different storage backends.</p>
+<p>The method performs a round-trip operation (save then load) to verify
+data integrity and ensure the returned data matches the stored format
+exactly. This is particularly important for numerical precision and
+array structure preservation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>np.ndarray</em>) – Time series data to be stored and retrieved.
+Typically the output from generate_time_series()
+with shape (num_dc * num_tsteps,). Should contain
+numerical values (floats) representing acceleration
+measurements with synthetic noise.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The same data after save/load round-trip, potentially</dt><dd><p>with format-specific transformations applied (e.g.,
+precision changes, type conversions). Shape and values
+should match input data within numerical precision limits.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<dl>
+<dt>Storage Formats:</dt><dd><p>JSON Format (self.format == ‘json’):
+- Saves to ‘data.json’ in current directory
+- Uses custom JSON encoder for NumPy array handling
+- Preserves array structure and numerical precision
+- Human-readable format, suitable for small to medium datasets
+- Platform-independent, version control friendly</p>
+<p>MySQL Format (self.format == ‘mysql’):
+- Saves to MySQL database with predefined connection parameters
+- Uses chunked insertion for memory efficiency
+- Suitable for large datasets and concurrent access
+- Requires MySQL server setup and proper credentials
+- Supports database operations and queries</p>
+</dd>
+<dt>Prerequisites:</dt><dd><ul class="simple">
+<li><p>self.format must be set to either ‘json’ or ‘mysql’</p></li>
+<li><p>For MySQL: database server must be running and accessible</p></li>
+<li><p>For MySQL: connection parameters must be valid</p></li>
+<li><p>Required save/load modules must be imported</p></li>
+</ul>
+</dd>
+<dt>File Management:</dt><dd><p>JSON files are created in the current working directory:
+- ‘data.json’: Contains the time series data
+- ‘model_lstm.json’: Placeholder for LSTM model data (future use)</p>
+</dd>
+<dt>Database Configuration:</dt><dd><p>MySQL connection uses hardcoded parameters:
+- Host: ‘localhost’
+- User: ‘my_user’
+- Password: ‘my_password’
+- Database: ‘my_database’</p>
+<p>Note: Consider moving to configuration file or environment variables</p>
+</dd>
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>File permission errors for JSON format</p></li>
+<li><p>Database connection errors for MySQL format</p></li>
+<li><p>Invalid data format or type errors</p></li>
+<li><p>Network connectivity issues for remote databases</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># JSON storage workflow</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span> <span class="o">=</span> <span class="n">RSF</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">original_data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">generate_time_series</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stored_data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">(</span><span class="n">original_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">original_data</span><span class="p">,</span> <span class="n">stored_data</span><span class="p">)</span>  <span class="c1"># Should be True</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># MySQL storage workflow</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsf</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s1">&#39;mysql&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Ensure MySQL server is running with correct credentials</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stored_data</span> <span class="o">=</span> <span class="n">rsf</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">(</span><span class="n">original_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl>
+<dt>Performance Considerations:</dt><dd><p>JSON Format:
+- Fast for small to medium datasets (&lt; 100MB)
+- Memory usage during save: ~2x data size
+- Disk space: ~1.5x memory size (text format overhead)</p>
+<p>MySQL Format:
+- Scales well for large datasets
+- Network latency affects performance
+- Chunked insertion optimizes memory usage
+- Database indexing can improve query performance</p>
+</dd>
+<dt>Data Integrity:</dt><dd><ul class="simple">
+<li><p>Round-trip verification ensures data consistency</p></li>
+<li><p>Numerical precision preserved within format limits</p></li>
+<li><p>Array structure and ordering maintained</p></li>
+<li><p>Consider checksums for critical applications</p></li>
+</ul>
+</dd>
+<dt>Security Notes:</dt><dd><ul class="simple">
+<li><p>JSON files stored in plaintext (consider encryption for sensitive data)</p></li>
+<li><p>MySQL credentials hardcoded (security risk in production)</p></li>
+<li><p>File permissions should be set appropriately</p></li>
+<li><p>Database access should use principle of least privilege</p></li>
+</ul>
+</dd>
+<dt>Future Enhancements:</dt><dd><ul class="simple">
+<li><p>Configuration file for database parameters</p></li>
+<li><p>Additional storage formats (HDF5, Parquet)</p></li>
+<li><p>Compression options for large datasets</p></li>
+<li><p>Metadata storage (timestamps, model parameters)</p></li>
+<li><p>Data validation and checksum verification</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="RSF.measure_execution_time">
+<span class="sig-prename descclassname"><span class="pre">RSF.</span></span><span class="sig-name descname"><span class="pre">measure_execution_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/RSF.html#measure_execution_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#RSF.measure_execution_time" title="Link to this definition"></a></dt>
+<dd><p>Decorator to measure and return the execution time of a function.</p>
+<p>This decorator wraps a function to automatically measure its execution time
+using high-precision timing. It’s particularly useful for performance analysis
+and benchmarking of computational methods like MCMC sampling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>callable</em>) – The function to be timed. Can be any callable object
+including methods, lambda functions, or regular functions.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A wrapper function that returns the execution time in seconds</dt><dd><p>instead of the original function’s return value.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Usage:</dt><dd><p>The decorator is applied using the &#64; syntax above function definitions.
+When the decorated function is called, it returns execution time rather
+than the original return value.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@measure_execution_time</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">slow_computation</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="s2">&quot;done&quot;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exec_time</span> <span class="o">=</span> <span class="n">slow_computation</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Function took </span><span class="si">{</span><span class="n">exec_time</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+<span class="go">Function took 2.001 seconds</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Uses time.time() for cross-platform compatibility</p></li>
+<li><p>Returns execution time, not the original function’s return value</p></li>
+<li><p>Suitable for timing functions that don’t need their return values</p></li>
+<li><p>For functions where return values are needed, consider a different approach</p></li>
+</ul>
+</div>
+<dl class="simple">
+<dt>Performance Considerations:</dt><dd><ul class="simple">
+<li><p>Minimal overhead (&lt; 1 microsecond typically)</p></li>
+<li><p>Uses wall-clock time, not CPU time</p></li>
+<li><p>Resolution depends on system clock (usually microsecond precision)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="MCMC.html" class="btn btn-neutral float-left" title="MCMC module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="RateStateModel.html" class="btn btn-neutral float-right" title="RateStateModel module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saumik Dana.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

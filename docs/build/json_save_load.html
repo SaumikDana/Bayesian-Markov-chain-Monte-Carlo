@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>json_save_load module &mdash; Bayesian Inference Framework 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="main module" href="main.html" />
+    <link rel="prev" title="imports module" href="imports.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Bayesian Inference Framework
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Python API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="MCMC.html">MCMC module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RSF.html">RSF module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RateStateModel.html">RateStateModel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imports.html">imports module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">json_save_load module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#json_save_load.load_object"><code class="docutils literal notranslate"><span class="pre">load_object()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json_save_load.numpy_array_decoder"><code class="docutils literal notranslate"><span class="pre">numpy_array_decoder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json_save_load.numpy_array_encoder"><code class="docutils literal notranslate"><span class="pre">numpy_array_encoder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json_save_load.save_object"><code class="docutils literal notranslate"><span class="pre">save_object()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mysql_save_load.html">mysql_save_load module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Bayesian Inference Framework</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Bayesian-Markov-chain-Monte-Carlo</a></li>
+      <li class="breadcrumb-item active">json_save_load module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/json_save_load.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-json_save_load">
+<span id="json-save-load-module"></span><h1>json_save_load module<a class="headerlink" href="#module-json_save_load" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="json_save_load.load_object">
+<span class="sig-prename descclassname"><span class="pre">json_save_load.</span></span><span class="sig-name descname"><span class="pre">load_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/json_save_load.html#load_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#json_save_load.load_object" title="Link to this definition"></a></dt>
+<dd><p>Loads a Python object from a JSON file with support for NumPy arrays.</p>
+<p>This function deserializes JSON files back into Python objects, with special
+handling for NumPy arrays that were encoded using the save_object function.
+It can reconstruct complex nested structures containing NumPy arrays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path/filename of the JSON file to load.
+Should be a file previously created with save_object().</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The deserialized Python object with NumPy arrays properly</dt><dd><p>reconstructed. Returns None if an error occurs during loading.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object or None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – Any exception that occurs during file reading or JSON deserialization
+    will be caught and printed. Common exceptions include:
+    - FileNotFoundError: File does not exist
+    - PermissionError: Insufficient read permissions
+    - json.JSONDecodeError: Invalid JSON format
+    - ValueError: Issues during NumPy array reconstruction</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load a simple object</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">load_object</span><span class="p">(</span><span class="s2">&quot;simple_data.json&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">{&#39;numbers&#39;: [1, 2, 3], &#39;name&#39;: &#39;test&#39;}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Load object with NumPy arrays</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">complex_data</span> <span class="o">=</span> <span class="n">load_object</span><span class="p">(</span><span class="s2">&quot;complex_data.json&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">complex_data</span><span class="p">[</span><span class="s2">&quot;matrix&quot;</span><span class="p">]))</span>
+<span class="go">&lt;class &#39;numpy.ndarray&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">complex_data</span><span class="p">[</span><span class="s2">&quot;matrix&quot;</span><span class="p">])</span>
+<span class="go">[[1 2]</span>
+<span class="go"> [3 4]]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Returns None on error instead of raising exceptions</p></li>
+<li><p>Error messages are printed to stdout</p></li>
+<li><p>For production use, consider allowing exceptions to propagate or using logging</p></li>
+<li><p>Loaded NumPy arrays will have the same dtype as when they were saved</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="json_save_load.numpy_array_decoder">
+<span class="sig-prename descclassname"><span class="pre">json_save_load.</span></span><span class="sig-name descname"><span class="pre">numpy_array_decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/json_save_load.html#numpy_array_decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#json_save_load.numpy_array_decoder" title="Link to this definition"></a></dt>
+<dd><p>Custom JSON decoder function for reconstructing NumPy arrays.</p>
+<p>This function is used as an object hook with json.load() to reconstruct
+NumPy arrays that were encoded using numpy_array_encoder. It identifies
+dictionaries that represent encoded NumPy arrays and converts them back
+to their original NumPy array form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dct</strong> (<em>dict</em>) – A dictionary from the JSON parsing process. If it contains
+the special “__ndarray__” key, it will be converted back to
+a NumPy array. Otherwise, it’s returned unchanged.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Returns a reconstructed NumPy array if the dictionary</dt><dd><p>contains encoded array data, otherwise returns the
+original dictionary unchanged.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray or dict</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># This would typically be called internally by json.load()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoded_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;__ndarray__&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">numpy_array_decoder</span><span class="p">(</span><span class="n">encoded_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="go">[[1 2]</span>
+<span class="go"> [3 4]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">arr</span><span class="p">))</span>
+<span class="go">&lt;class &#39;numpy.ndarray&#39;&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function is typically used internally by json.load() and not called directly.
+It’s passed as the ‘object_hook’ parameter to json.load().</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="json_save_load.numpy_array_encoder">
+<span class="sig-prename descclassname"><span class="pre">json_save_load.</span></span><span class="sig-name descname"><span class="pre">numpy_array_encoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/json_save_load.html#numpy_array_encoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#json_save_load.numpy_array_encoder" title="Link to this definition"></a></dt>
+<dd><p>Custom JSON encoder function for NumPy arrays.</p>
+<p>This function is used as a custom encoder with json.dump() to handle NumPy arrays
+which are not natively JSON serializable. It converts NumPy arrays into a
+dictionary format that preserves both the data and shape information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> – The object to be encoded. Expected to be a NumPy array when called
+by the JSON encoder, but will raise TypeError for unsupported types.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl>
+<dt>A dictionary containing the NumPy array data in the format:</dt><dd><dl class="simple">
+<dt>{</dt><dd><p>“__ndarray__”: True,
+“data”: list,  # The array data as a nested list
+“shape”: tuple # The original shape of the array</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>TypeError</strong> – If the object is not a NumPy array or other JSON-serializable type.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoded</span> <span class="o">=</span> <span class="n">numpy_array_encoder</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">encoded</span><span class="p">)</span>
+<span class="go">{&#39;__ndarray__&#39;: True, &#39;data&#39;: [[1, 2], [3, 4]], &#39;shape&#39;: (2, 2)}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function is typically used internally by json.dump() and not called directly.
+It’s passed as the ‘default’ parameter to json.dump().</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="json_save_load.save_object">
+<span class="sig-prename descclassname"><span class="pre">json_save_load.</span></span><span class="sig-name descname"><span class="pre">save_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/json_save_load.html#save_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#json_save_load.save_object" title="Link to this definition"></a></dt>
+<dd><p>Saves a Python object to a JSON file with support for NumPy arrays.</p>
+<p>This function serializes Python objects to JSON format, with special handling
+for NumPy arrays through the custom numpy_array_encoder. The resulting JSON
+file can be loaded back using the corresponding load_object function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – The Python object to save. Can contain nested structures with
+lists, dictionaries, NumPy arrays, and other JSON-serializable types.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – The path/filename where the JSON file will be saved.
+Should include the .json extension for clarity.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – Any exception that occurs during file writing or JSON serialization
+    will be caught and printed. Common exceptions include:
+    - FileNotFoundError: Invalid file path
+    - PermissionError: Insufficient write permissions
+    - TypeError: Object contains non-serializable types not handled by encoder</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save a simple object</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;numbers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_object</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;simple_data.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save object with NumPy arrays</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">complex_data</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;matrix&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]]),</span>
+<span class="gp">... </span>    <span class="s2">&quot;vector&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="s2">&quot;2024&quot;</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_object</span><span class="p">(</span><span class="n">complex_data</span><span class="p">,</span> <span class="s2">&quot;complex_data.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The function will overwrite existing files without warning</p></li>
+<li><p>Error messages are printed to stdout but exceptions are suppressed</p></li>
+<li><p>For production use, consider allowing exceptions to propagate or using logging</p></li>
+</ul>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="imports.html" class="btn btn-neutral float-left" title="imports module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="main.html" class="btn btn-neutral float-right" title="main module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Saumik Dana.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

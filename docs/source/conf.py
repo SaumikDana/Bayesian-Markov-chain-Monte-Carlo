@@ -2,9 +2,8 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))           # Project root
-sys.path.insert(0, os.path.abspath('../../src'))       # src modules
 
-project = 'Bayesian MCMC Framework'
+project = 'Bayesian Inference Framework'
 copyright = '2025, Saumik Dana'
 author = 'Saumik Dana'
 release = '1.0'
