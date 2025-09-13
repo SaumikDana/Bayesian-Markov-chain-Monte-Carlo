@@ -1,6 +1,8 @@
 import setup_path
 from src.imports import *
 from src.MCMC import MCMC
+from src.json_save_load import save_object, load_object
+from src.mysql_save_load import save_object, load_object
 
 
 def measure_execution_time(func):
@@ -109,14 +111,12 @@ class RSF(RSF_base):
       """
 
       if self.format == 'json':
-         from src.json_save_load import save_object, load_object
          self.lstm_file = 'model_lstm.json'
          self.data_file = 'data.json'
          save_object(data, self.data_file)
          data = load_object(self.data_file)
 
       elif self.format == 'mysql':
-         from src.mysql_save_load import save_object, load_object
          # MySQL connection details
          mysql_host = 'localhost'
          mysql_user = 'my_user'
