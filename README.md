@@ -1,3 +1,1 @@
-Documentation is provided here
-
-https://saumikdana.github.io/Bayesian-MCMC/
+Documentation is provided in https://saumikdana.github.io/Bayesian-MCMC/
